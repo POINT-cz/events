@@ -77,7 +77,7 @@ export default function EventsPortal() {
   const [bookingStep, setBookingStep] = useState(1);
   const [lastCreatedRes, setLastCreatedRes] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false); // <--- TADY BÝVALA CHYBA (PŘIDÁNO)
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState('');
   const [aresLoading, setAresLoading] = useState(false);
@@ -115,6 +115,7 @@ export default function EventsPortal() {
     setShowCookieBanner(false);
   };
 
+  // --- RYCHLÉ NAČÍTÁNÍ DAT ---
   useEffect(() => {
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'PASSWORD_RECOVERY') {
@@ -127,22 +128,13 @@ export default function EventsPortal() {
     async function loadInitialData() {
       try {
         setLoading(true);
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        if (sessionError) console.error('Chyba session:', sessionError);
+        const [{ data: { session } }, { data: eventsData, error: eventsError }] = await Promise.all([
+          supabase.auth.getSession(),
+          supabase.from('events').select('*').order('date', { ascending: true })
+        ]);
+
         setUser(session?.user ?? null);
 
-        const { data: bookingData, error: bookingError } = await supabase.from('reservations')
-          .select(`*, customers (first_name, last_name, email, company_name, ico)`)
-          .not('event_id', 'is', null);
-          
-        if (bookingError) {
-          console.error('Chyba při načítání vstupenek/rezervací:', bookingError);
-        } else if (bookingData) {
-          setResourcesReservations(bookingData);
-        }
-
-        const { data: eventsData, error: eventsError } = await supabase.from('events').select('*').order('date', { ascending: true });
-        
         const dummyEvents = [
           { 
             id: 'dummy-1', 
@@ -183,9 +175,19 @@ export default function EventsPortal() {
           setDbEvents(dummyEvents);
         }
 
+        // Okamžitě odemkneme loading, aby uživatel viděl akce
+        setLoading(false);
+
+        // Rezervace pro obsazenost se stahují paralelně na pozadí
+        supabase.from('reservations')
+          .select(`*, customers (first_name, last_name, email, company_name, ico)`)
+          .not('event_id', 'is', null)
+          .then(({ data: bookingData }) => {
+            if (bookingData) setResourcesReservations(bookingData);
+          });
+
       } catch (err) {
         console.error("Kritická chyba při načítání dat:", err);
-      } finally {
         setLoading(false);
       }
     }
