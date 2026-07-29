@@ -77,7 +77,8 @@ export default function EventsPortal() {
   const [bookingStep, setBookingStep] = useState(1);
   const [lastCreatedRes, setLastCreatedRes] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [actionLoading, setActionLoading] = useState(false); // Univerzální načítací kolečko pro akce
+  const [isSubmitting, setIsSubmitting] = useState(false); // <--- TADY BÝVALA CHYBA (PŘIDÁNO)
+  const [actionLoading, setActionLoading] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState('');
   const [aresLoading, setAresLoading] = useState(false);
   const [honeypot, setHoneypot] = useState(''); 
@@ -470,6 +471,7 @@ export default function EventsPortal() {
     if (!gdprConsent) { alert("Pro pokračování je nutné souhlasit se zpracováním osobních údajů a obchodními podmínkami."); return; }
     if (!selectedVariant) { alert("Prosím vyberte si cenový balíček vstupenky."); return; }
 
+    setIsSubmitting(true);
     setActionLoading(true);
     const fullBillingAddress = `${formData.street}, ${formData.psc} ${formData.city}`.trim();
     
@@ -479,7 +481,7 @@ export default function EventsPortal() {
         first_name: formData.firstName, last_name: formData.lastName, email: formData.email, phone: formData.phone,
         company_name: formData.company, ico: formData.ico, dic: formData.dic, billing_address: fullBillingAddress 
       }, { onConflict: 'email' }).select().single();
-    if (custError) { alert(custError.message); setActionLoading(false); return; }
+    if (custError) { alert(custError.message); setIsSubmitting(false); setActionLoading(false); return; }
 
     const vs = Math.floor(100000 + Math.random() * 900000).toString();
     const finalPrice = selectedVariant.price;
@@ -497,7 +499,7 @@ export default function EventsPortal() {
     };
 
     const { data: newBooking, error: bookError } = await supabase.from('reservations').insert(insertData).select(`*, customers (first_name, last_name, email, company_name, ico)`).single();
-    if (bookError) { alert(bookError.message); setActionLoading(false); return; }
+    if (bookError) { alert(bookError.message); setIsSubmitting(false); setActionLoading(false); return; }
     
     await generateQrPayment(finalPrice, vs);
 
@@ -520,6 +522,7 @@ export default function EventsPortal() {
 
     setResourcesReservations([...reservations, newBooking]);
     setLastCreatedRes({ ...newBooking, email: formData.email });
+    setIsSubmitting(false); 
     setActionLoading(false); 
     setBookingStep(3);
   };
