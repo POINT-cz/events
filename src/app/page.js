@@ -175,14 +175,24 @@ export default function EventsPortal() {
       return;
     }
     let newFavs = [...favoriteEvents];
-    if (newFavs.includes(eventId)) newFavs = newFavs.filter(id => id !== eventId);
-    else newFavs.push(eventId);
+    if (newFavs.includes(eventId)) {
+      newFavs = newFavs.filter(id => id !== eventId);
+    } else {
+      newFavs.push(eventId);
+    }
     setFavoriteEvents(newFavs);
 
-    if (clientData) {
-      const { error } = await supabase.from('customers').update({ favorite_events: newFavs }).eq('id', clientData.id);
-      if (error) console.error(error);
-      else setClientData({ ...clientData, favorite_events: newFavs });
+    const { data, error } = await supabase
+      .from('customers')
+      .update({ favorite_events: newFavs })
+      .eq('email', user.email)
+      .select()
+      .single();
+      
+    if (error) {
+      console.error('Chyba při ukládání oblíbených:', error.message);
+    } else if (data) {
+      setClientData(data);
     }
   };
 
@@ -273,14 +283,26 @@ export default function EventsPortal() {
     e.preventDefault();
     if (!user) return;
     setSavingProfile(true);
+    
     const { data, error } = await supabase.from('customers').upsert({
-      auth_id: user.id, email: user.email,
-      first_name: profileForm.firstName, last_name: profileForm.lastName, phone: profileForm.phone,
-      company_name: profileForm.company, ico: profileForm.ico, dic: profileForm.dic, billing_address: profileForm.billingAddress
+      auth_id: user.id, 
+      email: user.email,
+      first_name: profileForm.firstName, 
+      last_name: profileForm.lastName, 
+      phone: profileForm.phone,
+      company_name: profileForm.company, 
+      ico: profileForm.ico, 
+      dic: profileForm.dic, 
+      billing_address: profileForm.billingAddress
     }, { onConflict: 'email' }).select().single();
+    
     setSavingProfile(false);
-    if (error) alert('Chyba při ukládání: ' + error.message);
-    else { alert('Vaše údaje byly úspěšně uloženy.'); setClientData(data); }
+    if (error) {
+      alert('Chyba při ukládání: ' + error.message);
+    } else { 
+      alert('Vaše údaje byly úspěšně uloženy.'); 
+      setClientData(data); 
+    }
   };
 
   const loadFromAres = async () => {
@@ -315,8 +337,9 @@ export default function EventsPortal() {
     
     const { data: customerData, error: custError } = await supabase
       .from('customers').upsert({
+        auth_id: user ? user.id : null,
         first_name: formData.firstName, last_name: formData.lastName, email: formData.email, phone: formData.phone,
-        company_name: formData.company, ico: formData.ico, dic: formData.dic, billing_address: fullBillingAddress, auth_id: user ? user.id : null 
+        company_name: formData.company, ico: formData.ico, dic: formData.dic, billing_address: fullBillingAddress 
       }, { onConflict: 'email' }).select().single();
     if (custError) { alert(custError.message); setIsSubmitting(false); return; }
 
