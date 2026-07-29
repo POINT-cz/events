@@ -1,18 +1,8 @@
-'use client';
-
 export default function AuthModals({
-  showAuthModal, setShowAuthModal,
-  isLoginMode, setIsLoginMode,
-  isForgotPasswordMode, setIsForgotPasswordMode,
-  resetEmailSent, setResetEmailSent,
-  authEmail, setAuthEmail,
-  authPassword, setAuthPassword,
-  authLoading, handleAuthSubmit,
-  gdprConsent, setGdprConsent,
-  setShowGdprModal, setShowVopModal,
-  showRecoveryModal, setShowRecoveryModal,
-  newRecoveryPassword, setNewRecoveryPassword,
-  handleRecoverySubmit
+  showRecoveryModal, handleRecoverySubmit, newRecoveryPassword, setNewRecoveryPassword,
+  authLoading, showAuthModal, setShowAuthModal, isForgotPasswordMode, setIsForgotPasswordMode,
+  isLoginMode, setIsLoginMode, resetEmailSent, authEmail, setAuthEmail, authPassword,
+  setAuthPassword, gdprConsent, setGdprConsent, handleAuthSubmit
 }) {
   return (
     <>
@@ -57,7 +47,7 @@ export default function AuthModals({
             )}
             
             <form onSubmit={handleAuthSubmit} className="p-6 sm:p-8 space-y-5">
-              {!isLoginMode && !isForgotPasswordMode && (<div className="bg-slate-50 p-3 rounded-lg border border-gray-100 mb-4"><p className="text-xs text-slate-500 text-center">Registrací získáte možnost rychlejší rezervace a přehled o svých termínech a fakturách.</p></div>)}
+              {!isLoginMode && !isForgotPasswordMode && (<div className="bg-slate-50 p-3 rounded-lg border border-gray-100 mb-4"><p className="text-xs text-slate-500 text-center">Registrací získáte možnost rychlejší rezervace a přehled o svých vstupenkách.</p></div>)}
               
               {resetEmailSent && isForgotPasswordMode ? (
                 <div className="bg-green-50 border border-green-200 text-green-700 p-4 rounded-xl text-sm font-medium text-center">
@@ -76,7 +66,7 @@ export default function AuthModals({
                       <input type="password" required value={authPassword} onChange={(e) => setAuthPassword(e.target.value)} className="w-full bg-slate-50 border border-gray-200 rounded-xl p-3 text-sm focus:border-red-500 outline-none" placeholder="Minimálně 6 znaků" minLength={6} />
                       {isLoginMode && (
                         <div className="text-right mt-2">
-                          <button type="button" onClick={() => setIsForgotPasswordMode(true)} className="text-[10px] sm:text-xs text-slate-400 hover:text-red-600 transition-colors font-medium">Zapomněli jste heslo?</button>
+                          <button type="button" onClick={() => setIsForgotPasswordMode(true)} className="text-[10px] sm:text-xs text-slate-400 hover:text-red-600 transition-colors font-medium cursor-pointer">Zapomněli jste heslo?</button>
                         </div>
                       )}
                     </div>
@@ -84,9 +74,9 @@ export default function AuthModals({
 
                   {!isLoginMode && !isForgotPasswordMode && (
                     <div className="flex items-start gap-2 pt-1 mb-2">
-                      <input type="checkbox" id="authGdpr" required checked={gdprConsent} onChange={(e) => setGdprConsent(e.target.checked)} className="mt-0.5 w-4 h-4 text-red-600 border-gray-300 rounded cursor-none" />
-                      <label htmlFor="authGdpr" className="text-[10px] sm:text-xs text-slate-500 leading-snug cursor-none">
-                        Souhlasím se <span onClick={(e) => { e.preventDefault(); setShowGdprModal(true); }} className="text-red-600 hover:underline font-semibold cursor-none pointer-events-auto">zpracováním osobních údajů</span> a s <span onClick={(e) => { e.preventDefault(); setShowVopModal(true); }} className="text-red-600 hover:underline font-semibold cursor-none pointer-events-auto">Obchodními a storno podmínkami</span>. *
+                      <input type="checkbox" id="authGdpr" required checked={gdprConsent} onChange={(e) => setGdprConsent(e.target.checked)} className="mt-0.5 w-4 h-4 text-red-600 border-gray-300 rounded cursor-pointer" />
+                      <label htmlFor="authGdpr" className="text-[10px] sm:text-xs text-slate-500 leading-snug cursor-pointer">
+                        Souhlasím se zpracováním osobních údajů a s Obchodními podmínkami. *
                       </label>
                     </div>
                   )}

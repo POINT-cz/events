@@ -1,5 +1,3 @@
-'use client';
-
 export default function Footer({ setShowGdprModal, setShowVopModal }) {
   return (
     <footer className="bg-slate-900 text-slate-400 py-10 text-center text-[10px] sm:text-xs relative z-10 pointer-events-auto w-full mt-auto">
