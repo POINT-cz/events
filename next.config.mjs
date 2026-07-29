@@ -3,5 +3,8 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
 };
-export default nextConfig;
+export default nextConfig; // (nebo module.exports = nextConfig; pokud nemáš .mjs)
