@@ -4,17 +4,14 @@ import { useState, useEffect, useRef } from 'react';
 import QRCode from 'qrcode';
 import { supabase } from '@/supabase';
 
-// Sem si naimportuj své sdílené komponenty
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import AuthModals from '@/components/AuthModals';
 import GlobalModals from '@/components/GlobalModals';
 
 export default function EventsPortal() {
-  // HLAVNÍ NAVIGACE
   const [view, setView] = useState('events_portal'); 
 
-  // AUTENTIZACE A UŽIVATEL
   const [user, setUser] = useState(null);
   const [clientData, setClientData] = useState(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -28,30 +25,25 @@ export default function EventsPortal() {
   const [authLoading, setAuthLoading] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
 
-  // PROFIL A OBLÍBENÉ
   const [profileForm, setProfileForm] = useState({ firstName: '', lastName: '', phone: '', company: '', ico: '', dic: '', billingAddress: '' });
   const [oldPassword, setOldPassword] = useState('');
   const [newProfilePassword, setNewProfilePassword] = useState('');
   const [savingProfile, setSavingProfile] = useState(false);
   const [favoriteEvents, setFavoriteEvents] = useState([]);
 
-  // PRÁVNÍ VĚCI & GLOBÁLNÍ MODALY
   const [gdprConsent, setGdprConsent] = useState(false);
   const [showGdprModal, setShowGdprModal] = useState(false);
   const [showVopModal, setShowVopModal] = useState(false);
   const [showCookieBanner, setShowCookieBanner] = useState(false);
 
-  // EVENTY STAVY
   const [dbEvents, setDbEvents] = useState([]);
-  const [reservations, setResourcesReservations] = useState([]); // Pouze pro výpočet obsazenosti a sekci "Moje vstupenky"
+  const [reservations, setResourcesReservations] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [isDescExpanded, setIsDescExpanded] = useState(false);
 
-  // VSTUPENKY STAVY (Zobrazování klientovi)
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [ticketQr, setTicketQr] = useState('');
 
-  // FORMULÁŘ A NÁKUPNÍ PROCES
   const [bookingStep, setBookingStep] = useState(1);
   const [lastCreatedRes, setLastCreatedRes] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -102,32 +94,45 @@ export default function EventsPortal() {
     });
 
     async function loadInitialData() {
-      setLoading(true);
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user ?? null);
+      try {
+        setLoading(true);
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError) console.error('Chyba session:', sessionError);
+        setUser(session?.user ?? null);
 
-      // Načtení pouze těch rezervací, které mají event_id (potřebné pro kapacitu a moje vstupenky)
-      const { data: bookingData } = await supabase.from('reservations')
-        .select(`*, customers (first_name, last_name, email, company_name, ico)`)
-        .not('event_id', 'is', null);
-      if (bookingData) setResourcesReservations(bookingData);
-
-      const { data: eventsData, error: eventsError } = await supabase.from('events').select('*').order('date', { ascending: true });
-      
-      const dummyEvents = [
-        { id: 'dummy-1', title: 'Masterclass: Světlo v portrétu', date: '2026-08-15', time: '15:00 - 19:00', price: 2500, capacity: 12, requires_checkin: true, description: 'Naučte se pracovat s přirozeným i umělým světlem.', image_url: 'https://images.unsplash.com/photo-1542038784456-1ea8e935640e?q=80&w=800&auto=format&fit=crop' },
-      ];
-
-      if (!eventsError && eventsData) {
-        setDbEvents(eventsData.length > 0 ? eventsData : dummyEvents);
-        const params = new URLSearchParams(window.location.search);
-        const urlEventId = params.get('event');
-        if (urlEventId) {
-          const targetEvent = (eventsData.length > 0 ? eventsData : dummyEvents).find(e => e.id === urlEventId);
-          if (targetEvent) { setView('events_portal'); setSelectedEvent(targetEvent); setBookingStep(2); }
+        const { data: bookingData, error: bookingError } = await supabase.from('reservations')
+          .select(`*, customers (first_name, last_name, email, company_name, ico)`)
+          .not('event_id', 'is', null);
+          
+        if (bookingError) {
+          console.error('Chyba při načítání vstupenek/rezervací:', bookingError);
+        } else if (bookingData) {
+          setResourcesReservations(bookingData);
         }
+
+        const { data: eventsData, error: eventsError } = await supabase.from('events').select('*').order('date', { ascending: true });
+        
+        const dummyEvents = [
+          { id: 'dummy-1', title: 'Masterclass: Světlo v portrétu', date: '2026-08-15', time: '15:00 - 19:00', price: 2500, capacity: 12, requires_checkin: true, description: 'Naučte se pracovat s přirozeným i umělým světlem.', image_url: 'https://images.unsplash.com/photo-1542038784456-1ea8e935640e?q=80&w=800&auto=format&fit=crop' },
+        ];
+
+        if (!eventsError && eventsData) {
+          setDbEvents(eventsData.length > 0 ? eventsData : dummyEvents);
+          const params = new URLSearchParams(window.location.search);
+          const urlEventId = params.get('event');
+          if (urlEventId) {
+            const targetEvent = (eventsData.length > 0 ? eventsData : dummyEvents).find(e => e.id === urlEventId);
+            if (targetEvent) { setView('events_portal'); setSelectedEvent(targetEvent); setBookingStep(2); }
+          }
+        } else {
+          setDbEvents(dummyEvents);
+        }
+
+      } catch (err) {
+        console.error("Kritická chyba při načítání dat:", err);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     }
     loadInitialData();
 
@@ -331,7 +336,7 @@ export default function EventsPortal() {
     await generateQrPayment(finalPrice, vs);
 
     try {
-      const iban = calculateIban("1234567890", "3030"); // TADY PŘEPIŠ NA SVÉ ČÍSLO ÚČTU
+      const iban = calculateIban("1234567890", "3030");
       const spaydString = `SPD*1.0*ACC:${iban}*AM:${finalPrice}.00*CC:CZK*X-VS:${vs}*MSG:POINT`;
       const qrPaymentUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(spaydString)}&margin=10`;
       const qrTicketUrl = selectedEvent.requires_checkin ? `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${newBooking.id}&margin=10` : null;
@@ -367,7 +372,7 @@ export default function EventsPortal() {
     <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center">
       <style dangerouslySetInnerHTML={{__html: globalAnimationCss}} />
       <div className="grow-dot mb-8"></div>
-      <div className="text-sm font-bold text-slate-800 animate-pulse">Načítám Events Systém...</div>
+      <div className="text-sm font-bold text-slate-800 animate-pulse">Načítám Point Events...</div>
     </div>
   );
 
@@ -379,9 +384,6 @@ export default function EventsPortal() {
       <style dangerouslySetInnerHTML={{__html: globalAnimationCss}} />
       <div ref={cursorRef} className="fixed w-3 h-3 bg-red-500 rounded-full pointer-events-none z-[9999] hidden md:block" style={{ transform: 'translate(-50%, -50%)', left: '-100px', top: '-100px' }} />
 
-      {/* ========================================================= */}
-      {/* EXTERNÍ KOMPONENTY PRO HEADER, MODALY A FOOTER            */}
-      {/* ========================================================= */}
       <GlobalModals 
         showCookieBanner={showCookieBanner} handleAcceptCookies={handleAcceptCookies} 
         showGdprModal={showGdprModal} setShowGdprModal={setShowGdprModal} 
@@ -400,7 +402,6 @@ export default function EventsPortal() {
         gdprConsent={gdprConsent} setGdprConsent={setGdprConsent} handleAuthSubmit={handleAuthSubmit} 
       />
 
-      {/* Předpoklad: Header obsahuje tlačítko "Zpět na rezervace prostor" href="https://rezervace.pointspace.cz" */}
       <Header 
         user={user} displayName={displayName} view={view} setView={setView} 
         showUserMenu={showUserMenu} setShowUserMenu={setShowUserMenu} handleLogout={handleLogout} 
@@ -411,7 +412,6 @@ export default function EventsPortal() {
 
       <main className={`flex-1 ${view === 'events_portal' && selectedEvent ? 'p-0 w-full' : 'p-4 sm:p-8 max-w-6xl w-full mx-auto relative z-10'} flex flex-col mb-12`}>
         
-        {/* ===================== KLIENT: OBLÍBENÉ AKCE ===================== */}
         {view === 'client_favorites' && (
           <div className="max-w-6xl mx-auto w-full animate-in fade-in space-y-8 pt-4 pb-12">
             <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 text-center mb-8 sm:mb-12">Moje oblíbené akce</h2>
@@ -448,7 +448,6 @@ export default function EventsPortal() {
           </div>
         )}
 
-        {/* ===================== KLIENT: MOJE REZERVACE (Vstupenky) ===================== */}
         {view === 'client_dashboard' && (
           <div className="max-w-4xl mx-auto w-full animate-in fade-in space-y-6 sm:space-y-8 pt-4 pb-12">
             <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">Moje vstupenky</h2>
@@ -491,7 +490,6 @@ export default function EventsPortal() {
           </div>
         )}
 
-        {/* ===================== KLIENT: MŮJ PROFIL ===================== */}
         {view === 'client_profile' && (
           <div className="max-w-4xl mx-auto w-full animate-in fade-in space-y-6 sm:space-y-8 pt-4 pb-12 pointer-events-auto">
             <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">Můj Profil</h2>
@@ -518,7 +516,6 @@ export default function EventsPortal() {
                  <div className="flex justify-end pt-4"><button type="submit" disabled={savingProfile} className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white text-sm font-semibold px-8 py-3.5 rounded-xl transition-all shadow-sm active:scale-95 disabled:opacity-80">{savingProfile ? 'Ukládám...' : 'Uložit údaje'}</button></div>
                </form>
 
-               {/* FORMULÁŘ PRO ZMĚNU HESLA */}
                <div className="mt-8 pt-8 border-t border-gray-100">
                  <h3 className="text-lg sm:text-xl font-bold mb-6 text-slate-800">Změna hesla</h3>
                  <form onSubmit={handleProfilePasswordChange} className="space-y-4">
@@ -543,11 +540,9 @@ export default function EventsPortal() {
           </div>
         )}
 
-        {/* ===================== KLIENT: PORTÁL EVENTŮ ===================== */}
         {view === 'events_portal' && (
            <div className={`flex-1 w-full animate-in fade-in slide-in-from-bottom-2 ${selectedEvent ? '' : 'space-y-8'}`}>
              
-             {/* Krok 1: Výpis akcí a detail akce */}
              {bookingStep === 1 && !selectedEvent && (
                <div className="w-full px-4 sm:px-0">
                  <div className="flex flex-col items-center justify-center pt-4 pb-8 sm:pb-12 space-y-4 text-center">
@@ -662,11 +657,9 @@ export default function EventsPortal() {
                 </div>
              )}
 
-             {/* KROK 2: Osobní údaje (Společný formulář) */}
              {bookingStep === 2 && (
                <form onSubmit={handleClientSubmit} className="max-w-2xl mx-auto w-full bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-gray-100 space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
                   
-                  {/* Neviditelná past na roboty (Honeypot) */}
                   <div style={{ display: 'none' }} aria-hidden="true">
                     <label htmlFor="bot-check">Leave this field blank</label>
                     <input type="text" id="bot-check" name="bot-check" value={honeypot} onChange={e => setHoneypot(e.target.value)} tabIndex="-1" autoComplete="off" />
@@ -735,7 +728,6 @@ export default function EventsPortal() {
                </form>
              )}
 
-             {/* KROK 3: Shrnutí */}
              {bookingStep === 3 && lastCreatedRes && (
                <div className="max-w-md mx-auto w-full bg-white p-6 sm:p-8 rounded-2xl text-center space-y-4 sm:space-y-6 shadow-sm border border-gray-100 animate-in fade-in zoom-in-95 duration-500">
                   <div className="w-12 h-12 sm:w-14 sm:h-14 bg-green-50 text-green-600 rounded-full flex items-center justify-center mx-auto text-lg sm:text-xl mb-2">✓</div>
