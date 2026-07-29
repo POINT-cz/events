@@ -39,26 +39,22 @@ export default function Header({
           )}
         </div>
         
-        {/* SEKUNDÁRNÍ MENU (Pouze akce a oblíbené - uprostřed) */}
+        {/* STŘEDOVÉ MENU (Katalog akcí, Oblíbené a Zpět na prostory pohromadě) */}
         <div className="flex-1 flex justify-center items-center pointer-events-auto w-full md:w-auto overflow-x-auto hide-scrollbar">
           <div className="flex space-x-1 bg-slate-100 p-1 rounded-lg shadow-inner whitespace-nowrap items-center shrink-0">
             <button onClick={() => { setView('events_portal'); setBookingStep(1); setSelectedEvent(null); }} className={`px-4 py-1.5 text-xs font-bold rounded-md transition-all ${view === 'events_portal' ? 'bg-white text-red-600 shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}>Katalog akcí</button>
             <button onClick={() => { setView('client_favorites'); }} className={`px-4 py-1.5 text-xs font-bold rounded-md transition-all flex items-center gap-1.5 ${view === 'client_favorites' ? 'bg-white text-red-600 shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}>
               <span className="text-red-500">❤️</span> Oblíbené
             </button>
+            <div className="w-px h-4 bg-slate-200 mx-1"></div>
+            <a href="https://rezervace.pointspace.cz" className="px-4 py-1.5 text-xs font-bold rounded-md transition-all text-slate-500 hover:text-slate-800 flex items-center gap-1.5 cursor-none pointer-events-auto">
+              <span>←</span> Zpět na rezervace prostor
+            </a>
           </div>
         </div>
 
-        {/* PRAVÁ STRANA: Tlačítko zpět na prostory + Uživatelské menu / Login */}
-        <div className="hidden md:flex items-center space-x-3 text-sm font-medium justify-end">
-          
-          {/* Odloučené tlačítko na rezervace prostor */}
-          <a href="https://rezervace.pointspace.cz" className="px-3 py-1.5 text-xs font-semibold rounded-md border border-slate-200 text-slate-600 hover:border-slate-400 hover:text-slate-900 transition-all flex items-center gap-1.5 cursor-none pointer-events-auto">
-            <span>←</span> Zpět na rezervace prostor
-          </a>
-
-          <div className="w-px h-5 bg-slate-200 mx-1"></div>
-
+        {/* PRAVÁ STRANA: Pouze uživatelské menu / Login */}
+        <div className="hidden md:flex items-center space-x-3 text-sm font-medium justify-end min-w-[140px]">
           {user ? (
             <div className="relative pointer-events-auto" ref={userMenuRef}>
               <button onClick={() => setShowUserMenu(!showUserMenu)} className={`flex items-center gap-2 text-xs font-bold transition-colors ${(view === 'client_dashboard' || view === 'client_profile') ? 'text-red-600' : 'text-slate-800 hover:text-red-600'} max-w-[140px]`}>
