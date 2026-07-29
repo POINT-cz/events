@@ -23,15 +23,15 @@ export default function Header({
 
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm w-full">
-      <div className="px-4 sm:px-8 py-3 flex flex-col md:flex-row justify-between items-center gap-3 md:gap-0 max-w-7xl mx-auto w-full">
+      {/* Použijeme grid rozvržení pro dokonalé vycentrování středu na obrazovce */}
+      <div className="px-4 sm:px-8 py-3 grid grid-cols-1 md:grid-cols-3 items-center gap-3 md:gap-0 max-w-7xl mx-auto w-full">
         
-        {/* LOGO */}
-        <div className="flex items-center shrink-0 w-full md:w-auto justify-between md:justify-start">
+        {/* LEVÁ STRANA: Logo + případně mobilní login */}
+        <div className="flex items-center shrink-0 justify-between md:justify-start">
           <div className="cursor-pointer pointer-events-auto flex items-center" onClick={() => { setView('events_portal'); setBookingStep(1); setSelectedEvent(null); }}>
             <img src="/logo.png" alt="POINT Logo" className="h-6 sm:h-7 w-auto object-contain" />
           </div>
           
-          {/* MOBILNÍ LOGIN (zobrazí se jen na mobilu, pokud není user) */}
           {!user && (
              <div className="md:hidden">
                <button onClick={() => { setIsLoginMode(true); setIsForgotPasswordMode(false); setResetEmailSent(false); setShowAuthModal(true); setGdprConsent(false); }} className="text-[11px] font-bold text-white bg-slate-900 hover:bg-slate-800 px-3 py-1.5 rounded-md transition-colors shadow-sm pointer-events-auto">Přihlásit se</button> 
@@ -39,22 +39,22 @@ export default function Header({
           )}
         </div>
         
-        {/* STŘEDOVÉ MENU (Katalog akcí, Oblíbené a Zpět na prostory pohromadě) */}
-        <div className="flex-1 flex justify-center items-center pointer-events-auto w-full md:w-auto overflow-x-auto hide-scrollbar">
+        {/* STŘED: Akce a Oblíbené - přesně uprostřed obrazovky */}
+        <div className="flex justify-center items-center pointer-events-auto w-full overflow-x-auto hide-scrollbar">
           <div className="flex space-x-1 bg-slate-100 p-1 rounded-lg shadow-inner whitespace-nowrap items-center shrink-0">
             <button onClick={() => { setView('events_portal'); setBookingStep(1); setSelectedEvent(null); }} className={`px-4 py-1.5 text-xs font-bold rounded-md transition-all ${view === 'events_portal' ? 'bg-white text-red-600 shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}>Katalog akcí</button>
             <button onClick={() => { setView('client_favorites'); }} className={`px-4 py-1.5 text-xs font-bold rounded-md transition-all flex items-center gap-1.5 ${view === 'client_favorites' ? 'bg-white text-red-600 shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}>
               <span className="text-red-500">❤️</span> Oblíbené
             </button>
-            <div className="w-px h-4 bg-slate-200 mx-1"></div>
-            <a href="https://rezervace.pointspace.cz" className="px-4 py-1.5 text-xs font-bold rounded-md transition-all text-slate-500 hover:text-slate-800 flex items-center gap-1.5 cursor-none pointer-events-auto">
-              <span>←</span> Zpět na rezervace prostor
-            </a>
           </div>
         </div>
 
-        {/* PRAVÁ STRANA: Pouze uživatelské menu / Login */}
-        <div className="hidden md:flex items-center space-x-3 text-sm font-medium justify-end min-w-[140px]">
+        {/* PRAVÁ STRANA: Zpět na rezervace prostor + Uživatel / Login */}
+        <div className="hidden md:flex items-center space-x-3 text-sm font-medium justify-end">
+          <a href="https://rezervace.pointspace.cz" className="px-3 py-1.5 text-xs font-semibold rounded-md border border-slate-200 text-slate-600 hover:border-slate-400 hover:text-slate-900 transition-all flex items-center gap-1.5 cursor-none pointer-events-auto">
+            <span>←</span> Zpět na rezervace prostor
+          </a>
+
           {user ? (
             <div className="relative pointer-events-auto" ref={userMenuRef}>
               <button onClick={() => setShowUserMenu(!showUserMenu)} className={`flex items-center gap-2 text-xs font-bold transition-colors ${(view === 'client_dashboard' || view === 'client_profile') ? 'text-red-600' : 'text-slate-800 hover:text-red-600'} max-w-[140px]`}>
