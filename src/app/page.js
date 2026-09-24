@@ -9,6 +9,13 @@ import Footer from '@/components/Footer';
 import AuthModals from '@/components/AuthModals';
 import GlobalModals from '@/components/GlobalModals';
 
+// Import nových komponent
+import EventCard from '@/components/EventCard';
+import EventDetail from '@/components/EventDetail';
+import EventBookingForm from '@/components/EventBookingForm';
+import EventTicketSuccess from '@/components/EventTicketSuccess';
+import AdminEventsTable from '@/components/AdminEventsTable';
+
 export default function EventsPortal() {
   const [view, setView] = useState('events_portal'); 
 
@@ -29,7 +36,6 @@ export default function EventsPortal() {
   // --- ZABEZPEČENÍ ADMINA ---
   const ADMIN_EMAIL = 'hello@pointspace.cz'; 
   const isAdmin = user && user.email === ADMIN_EMAIL;
-  const [adminTab, setAdminTab] = useState('events'); 
 
   // PROFIL A OBLÍBENÉ
   const [profileForm, setProfileForm] = useState({ firstName: '', lastName: '', phone: '', company: '', ico: '', dic: '', billingAddress: '' });
@@ -175,10 +181,8 @@ export default function EventsPortal() {
           setDbEvents(dummyEvents);
         }
 
-        // Okamžitě odemkneme loading, aby uživatel viděl akce
         setLoading(false);
 
-        // Rezervace pro obsazenost se stahují paralelně na pozadí
         supabase.from('reservations')
           .select(`*, customers (first_name, last_name, email, company_name, ico)`)
           .not('event_id', 'is', null)
@@ -434,7 +438,7 @@ export default function EventsPortal() {
       ico: profileForm.ico, 
       dic: profileForm.dic, 
       billing_address: profileForm.billingAddress
-    }, { onConflict: 'email' }).select().single();
+    }, { onConflict: 'auth_id' }).select().single();
     
     setActionLoading(false);
     if (error) {
@@ -532,7 +536,7 @@ export default function EventsPortal() {
   const globalAnimationCss = `
     * { cursor: none !important; }
     @keyframes growDot { 0% { transform: scale(0); opacity: 0.2; } 50% { transform: scale(1); opacity: 1; } 100% { transform: scale(0); opacity: 0.2; } }
-    .grow-dot { width: 50px; height: 50px; background-color: #ef4444; border-radius: 50%; animation: growDot 1.5s ease-in-out infinite; }
+    .grow-dot { width: 50px; height: 50px; background-color: #E4664F; border-radius: 50%; animation: growDot 1.5s ease-in-out infinite; }
     @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.3); } 100% { transform: scale(1); } }
     .animate-pop { animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
     .hide-scrollbar::-webkit-scrollbar { display: none; }
@@ -540,10 +544,10 @@ export default function EventsPortal() {
   `;
 
   if (loading || actionLoading) return (
-    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center">
+    <div className="min-h-screen bg-[#f4f4f4] flex flex-col items-center justify-center">
       <style dangerouslySetInnerHTML={{__html: globalAnimationCss}} />
       <div className="grow-dot mb-8"></div>
-      <div className="text-sm font-bold text-slate-800 animate-pulse">Načítám Point Events...</div>
+      <div className="text-xs font-mono font-bold uppercase tracking-wider text-black animate-pulse">Načítám Point Events...</div>
     </div>
   );
 
@@ -551,9 +555,9 @@ export default function EventsPortal() {
   const displayName = clientData?.first_name ? clientData.first_name : user?.email?.split('@')[0];
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans antialiased flex flex-col cursor-none selection:bg-red-100 selection:text-red-900 relative overflow-x-hidden">
+    <div className="min-h-screen bg-[#f4f4f4] text-black font-sans antialiased flex flex-col cursor-none selection:bg-black selection:text-white relative overflow-x-hidden">
       <style dangerouslySetInnerHTML={{__html: globalAnimationCss}} />
-      <div ref={cursorRef} className="fixed w-3 h-3 bg-red-500 rounded-full pointer-events-none z-[9999] hidden md:block" style={{ transform: 'translate(-50%, -50%)', left: '-100px', top: '-100px' }} />
+      <div ref={cursorRef} className="fixed w-3 h-3 bg-[#E4664F] rounded-full pointer-events-none z-[9999] hidden md:block" style={{ transform: 'translate(-50%, -50%)', left: '-100px', top: '-100px' }} />
 
       <GlobalModals 
         showCookieBanner={showCookieBanner} handleAcceptCookies={handleAcceptCookies} 
@@ -583,46 +587,46 @@ export default function EventsPortal() {
 
       {/* ADMIN: TVORBA A EDITACE EVENTŮ MODAL */}
       {showAdminEventModal && (
-        <div className="fixed inset-0 z-[200] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 pointer-events-auto">
-          <div className="bg-white p-6 rounded-2xl w-full max-w-xl shadow-xl overflow-y-auto max-h-[90vh]">
-            <h3 className="font-bold text-lg mb-4">{adminEventForm.id ? 'Upravit událost' : 'Nová událost'}</h3>
+        <div className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 pointer-events-auto">
+          <div className="bg-white border-2 border-black p-6 w-full max-w-xl max-h-[90vh] overflow-y-auto">
+            <h3 className="font-mono font-bold text-sm uppercase tracking-wider mb-4">{adminEventForm.id ? 'Upravit událost' : 'Nová událost'}</h3>
             <form onSubmit={handleAdminEventSubmit} className="space-y-4">
-              <div><label className="block text-xs font-medium text-slate-500 mb-1">Název akce</label><input type="text" required value={adminEventForm.title} onChange={e => setAdminEventForm({...adminEventForm, title: e.target.value})} className="w-full bg-slate-50 border border-gray-200 rounded-xl p-2.5 text-sm" /></div>
+              <div><label className="block text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-500 mb-1">Název akce</label><input type="text" required value={adminEventForm.title} onChange={e => setAdminEventForm({...adminEventForm, title: e.target.value})} className="w-full bg-[#f4f4f4] border-2 border-black p-3 text-sm font-bold uppercase outline-none" /></div>
               
               <div className="grid grid-cols-3 gap-3">
-                <div className="col-span-1"><label className="block text-xs font-medium text-slate-500 mb-1">Kategorie</label>
-                  <select value={adminEventForm.category} onChange={e => setAdminEventForm({...adminEventForm, category: e.target.value})} className="w-full bg-slate-50 border border-gray-200 rounded-xl p-2.5 text-sm">
+                <div className="col-span-1"><label className="block text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-500 mb-1">Kategorie</label>
+                  <select value={adminEventForm.category} onChange={e => setAdminEventForm({...adminEventForm, category: e.target.value})} className="w-full bg-[#f4f4f4] border-2 border-black p-3 text-xs font-mono font-bold uppercase outline-none cursor-pointer">
                     <option value="Event">Event</option>
                     <option value="Workshop">Workshop</option>
                     <option value="Přednáška">Přednáška</option>
                   </select>
                 </div>
-                <div><label className="block text-xs font-medium text-slate-500 mb-1">Datum</label><input type="date" required value={adminEventForm.date} onChange={e => setAdminEventForm({...adminEventForm, date: e.target.value})} className="w-full bg-slate-50 border border-gray-200 rounded-xl p-2.5 text-sm" /></div>
-                <div><label className="block text-xs font-medium text-slate-500 mb-1">Čas</label><input type="text" required value={adminEventForm.time} onChange={e => setAdminEventForm({...adminEventForm, time: e.target.value})} className="w-full bg-slate-50 border border-gray-200 rounded-xl p-2.5 text-sm" /></div>
+                <div><label className="block text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-500 mb-1">Datum</label><input type="date" required value={adminEventForm.date} onChange={e => setAdminEventForm({...adminEventForm, date: e.target.value})} className="w-full bg-[#f4f4f4] border-2 border-black p-3 text-xs font-mono font-bold uppercase outline-none" /></div>
+                <div><label className="block text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-500 mb-1">Čas</label><input type="text" required value={adminEventForm.time} onChange={e => setAdminEventForm({...adminEventForm, time: e.target.value})} className="w-full bg-[#f4f4f4] border-2 border-black p-3 text-xs font-mono font-bold uppercase outline-none" /></div>
               </div>
               
-              <div><label className="block text-xs font-medium text-slate-500 mb-1">URL obrázku</label><input type="url" value={adminEventForm.image_url} onChange={e => setAdminEventForm({...adminEventForm, image_url: e.target.value})} className="w-full bg-slate-50 border border-gray-200 rounded-xl p-2.5 text-sm" /></div>
-              <div><label className="block text-xs font-medium text-slate-500 mb-1">Popis</label><textarea required value={adminEventForm.description} onChange={e => setAdminEventForm({...adminEventForm, description: e.target.value})} className="w-full bg-slate-50 border border-gray-200 rounded-xl p-2.5 text-sm min-h-[100px]" /></div>
+              <div><label className="block text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-500 mb-1">URL obrázku</label><input type="url" value={adminEventForm.image_url} onChange={e => setAdminEventForm({...adminEventForm, image_url: e.target.value})} className="w-full bg-[#f4f4f4] border-2 border-black p-3 text-xs font-mono font-bold outline-none" /></div>
+              <div><label className="block text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-500 mb-1">Popis</label><textarea required value={adminEventForm.description} onChange={e => setAdminEventForm({...adminEventForm, description: e.target.value})} className="w-full bg-[#f4f4f4] border-2 border-black p-3 text-xs font-mono font-bold outline-none min-h-[100px]" /></div>
               
               {/* DYNAMICKÉ BALÍČKY / VARIANTY */}
-              <div className="border-t border-gray-200 pt-4 mt-4">
+              <div className="border-t-2 border-black pt-4 mt-4">
                 <div className="flex justify-between items-center mb-3">
-                  <label className="text-xs font-bold uppercase tracking-wider text-slate-500">Cenové balíčky / Vstupenky</label>
-                  <button type="button" onClick={handleAddVariant} className="text-xs bg-slate-900 text-white px-3 py-1.5 rounded-lg font-bold hover:bg-slate-800">+ Přidat balíček</button>
+                  <label className="text-xs font-mono font-bold uppercase tracking-wider">Cenové balíčky / Vstupenky</label>
+                  <button type="button" onClick={handleAddVariant} className="text-xs font-mono font-bold uppercase tracking-wider bg-black text-white px-3 py-2 hover:bg-neutral-800 cursor-pointer">+ Přidat balíček</button>
                 </div>
                 
                 <div className="space-y-3">
                   {adminEventForm.variants?.map((variant, index) => (
-                    <div key={variant.id || index} className="p-3 bg-slate-50 border border-gray-200 rounded-xl space-y-2 relative">
-                      <button type="button" onClick={() => handleRemoveVariant(index)} className="absolute top-2 right-2 text-red-500 hover:text-red-700 text-xs font-bold">✕ Smazat</button>
+                    <div key={variant.id || index} className="p-3 bg-[#f4f4f4] border-2 border-black space-y-2 relative">
+                      <button type="button" onClick={() => handleRemoveVariant(index)} className="absolute top-2 right-2 text-red-600 hover:text-red-800 text-xs font-mono font-bold uppercase cursor-pointer">✕ Smazat</button>
                       
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        <input type="text" placeholder="Název balíčku (např. VIP)" value={variant.title} onChange={e => handleVariantChange(index, 'title', e.target.value)} className="bg-white border border-gray-200 rounded-lg p-2 text-xs" required />
-                        <input type="number" placeholder="Cena (Kč)" value={variant.price} onChange={e => handleVariantChange(index, 'price', e.target.value)} className="bg-white border border-gray-200 rounded-lg p-2 text-xs" required />
+                        <input type="text" placeholder="Název balíčku (např. VIP)" value={variant.title} onChange={e => handleVariantChange(index, 'title', e.target.value)} className="bg-white border-2 border-black p-2 text-xs font-mono font-bold uppercase outline-none" required />
+                        <input type="number" placeholder="Cena (Kč)" value={variant.price} onChange={e => handleVariantChange(index, 'price', e.target.value)} className="bg-white border-2 border-black p-2 text-xs font-mono font-bold outline-none" required />
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        <input type="number" placeholder="Kapacita" value={variant.capacity} onChange={e => handleVariantChange(index, 'capacity', e.target.value)} className="bg-white border border-gray-200 rounded-lg p-2 text-xs" required />
-                        <input type="text" placeholder="Krátký popis (co balíček obsahuje)" value={variant.description} onChange={e => handleVariantChange(index, 'description', e.target.value)} className="bg-white border border-gray-200 rounded-lg p-2 text-xs" />
+                        <input type="number" placeholder="Kapacita" value={variant.capacity} onChange={e => handleVariantChange(index, 'capacity', e.target.value)} className="bg-white border-2 border-black p-2 text-xs font-mono font-bold outline-none" required />
+                        <input type="text" placeholder="Krátký popis" value={variant.description} onChange={e => handleVariantChange(index, 'description', e.target.value)} className="bg-white border-2 border-black p-2 text-xs font-mono font-bold outline-none" />
                       </div>
                     </div>
                   ))}
@@ -631,18 +635,18 @@ export default function EventsPortal() {
 
               <div className="space-y-2 pt-2">
                 <div className="flex items-center gap-2">
-                  <input type="checkbox" id="checkin" checked={adminEventForm.requires_checkin} onChange={e => setAdminEventForm({...adminEventForm, requires_checkin: e.target.checked})} className="w-4 h-4" />
-                  <label htmlFor="checkin" className="text-sm font-medium text-slate-700">Vyžaduje QR vstupenku a odpípnutí</label>
+                  <input type="checkbox" id="checkin" checked={adminEventForm.requires_checkin} onChange={e => setAdminEventForm({...adminEventForm, requires_checkin: e.target.checked})} className="w-4 h-4 accent-black cursor-pointer" />
+                  <label htmlFor="checkin" className="text-xs font-mono font-bold uppercase tracking-wider text-black cursor-pointer">Vyžaduje QR vstupenku a odpípnutí</label>
                 </div>
                 <div className="flex items-center gap-2">
-                  <input type="checkbox" id="hidden" checked={adminEventForm.is_hidden} onChange={e => setAdminEventForm({...adminEventForm, is_hidden: e.target.checked})} className="w-4 h-4" />
-                  <label htmlFor="hidden" className="text-sm font-medium text-slate-700">Skrýt event před veřejností v katalogu</label>
+                  <input type="checkbox" id="hidden" checked={adminEventForm.is_hidden} onChange={e => setAdminEventForm({...adminEventForm, is_hidden: e.target.checked})} className="w-4 h-4 accent-black cursor-pointer" />
+                  <label htmlFor="hidden" className="text-xs font-mono font-bold uppercase tracking-wider text-black cursor-pointer">Skrýt event před veřejností v katalogu</label>
                 </div>
               </div>
 
-              <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
-                <button type="button" onClick={() => setShowAdminEventModal(false)} className="px-4 py-2 bg-slate-100 text-slate-700 rounded-xl text-sm font-bold hover:bg-slate-200">Zrušit</button>
-                <button type="submit" className="px-4 py-2 bg-slate-900 text-white rounded-xl text-sm font-bold hover:bg-slate-800">Uložit event</button>
+              <div className="flex justify-end gap-3 pt-4 border-t-2 border-black">
+                <button type="button" onClick={() => setShowAdminEventModal(false)} className="px-4 py-3 bg-[#f4f4f4] border-2 border-black text-black text-xs font-mono font-bold uppercase tracking-wider hover:bg-black hover:text-white cursor-pointer">Zrušit</button>
+                <button type="submit" className="px-4 py-3 bg-black text-white text-xs font-mono font-bold uppercase tracking-wider hover:bg-neutral-800 cursor-pointer">Uložit event</button>
               </div>
             </form>
           </div>
@@ -653,92 +657,37 @@ export default function EventsPortal() {
         
         {/* ===================== ADMINISTRACE EVENTŮ ===================== */}
         {view === 'admin' && isAdmin && (
-          <div className="max-w-6xl mx-auto w-full animate-in fade-in space-y-6 pt-4 pb-12 pointer-events-auto">
-            <div className="flex justify-between items-center bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-              <h2 className="text-xl font-bold text-slate-900">Správa událostí a balíčků</h2>
-              <button onClick={() => { 
-                setAdminEventForm({ id: null, title: '', date: '', time: '17:00 - 20:00', category: 'Workshop', description: '', image_url: '', requires_checkin: false, is_hidden: false, variants: [{ id: '1', title: 'Základní vstupenka', description: 'Vstup na akci', price: 500, capacity: 20 }] }); 
-                setShowAdminEventModal(true); 
-              }} className="bg-slate-900 text-white text-xs font-bold px-4 py-2.5 rounded-xl hover:bg-slate-800 transition-colors">+ Vytvořit Event</button>
-            </div>
-
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-sm min-w-[700px]">
-                  <thead>
-                    <tr className="bg-slate-50 text-slate-400 font-medium text-[10px] sm:text-xs uppercase tracking-wider border-b border-gray-100">
-                      <th className="p-4">Název akce</th><th className="p-4">Kategorie</th><th className="p-4">Termín</th><th className="p-4">Balíčky</th><th className="p-4 text-right">Rychlé akce</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-50">
-                    {dbEvents.length === 0 ? (
-                       <tr><td colSpan="5" className="p-8 text-center text-slate-500">Zatím nejsou vytvořeny žádné akce.</td></tr>
-                    ) : (
-                      dbEvents.map(event => (
-                        <tr key={event.id} className="hover:bg-slate-50 transition-colors text-xs sm:text-sm">
-                          <td className="p-4 font-bold text-slate-800">
-                            {event.title}
-                            {event.is_hidden && <span className="ml-2 text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded font-semibold">Skryto</span>}
-                          </td>
-                          <td className="p-4"><span className="bg-slate-100 text-slate-700 px-2.5 py-1 rounded-md text-xs font-semibold">{event.category || 'Workshop'}</span></td>
-                          <td className="p-4 text-slate-600">{formatDateCzech(event.date)} <span className="text-[10px] text-slate-400 block">{event.time}</span></td>
-                          <td className="p-4">
-                            <div className="space-y-1">
-                              {event.variants?.map(v => (
-                                <div key={v.id} className="text-xs bg-slate-100 px-2 py-1 rounded inline-block mr-1">
-                                  <strong>{v.title}</strong>: {v.price} Kč ({v.capacity}m)
-                                </div>
-                              ))}
-                            </div>
-                          </td>
-                          <td className="p-4 text-right">
-                             <div className="flex justify-end gap-1.5">
-                                <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/?event=${event.id}`); alert('URL akce zkopírována do schránky!'); }} className="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-2.5 py-1.5 rounded-lg transition-colors" title="Kopírovat URL">🔗</button>
-                                <button onClick={() => handleToggleHideEvent(event.id, event.is_hidden)} className={`text-xs font-semibold px-2.5 py-1.5 rounded-lg transition-colors ${event.is_hidden ? 'bg-amber-100 text-amber-700 hover:bg-amber-200' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`} title={event.is_hidden ? 'Zviditelnit' : 'Skrýt'}>{event.is_hidden ? '👁️' : '🚫'}</button>
-                                <button onClick={() => { setAdminEventForm(event); setShowAdminEventModal(true); }} className="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-2.5 py-1.5 rounded-lg transition-colors">Upravit</button>
-                                <button onClick={() => handleDeleteEvent(event.id)} className="text-xs bg-red-50 hover:bg-red-100 text-red-600 font-semibold px-2.5 py-1.5 rounded-lg transition-colors">Smazat</button>
-                             </div>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
+          <AdminEventsTable 
+            dbEvents={dbEvents}
+            formatDateCzech={formatDateCzech}
+            handleToggleHideEvent={handleToggleHideEvent}
+            handleDeleteEvent={handleDeleteEvent}
+            setAdminEventForm={setAdminEventForm}
+            setShowAdminEventModal={setShowAdminEventModal}
+          />
         )}
 
         {view === 'client_favorites' && (
           <div className="max-w-6xl mx-auto w-full animate-in fade-in space-y-8 pt-4 pb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 text-center mb-8 sm:mb-12">Moje oblíbené akce</h2>
+            <h2 className="text-3xl sm:text-4xl font-mono font-bold uppercase tracking-tighter text-black text-center mb-8">Moje oblíbené akce</h2>
             <div className="w-full">
               {dbEvents.filter(e => favoriteEvents.includes(e.id) && !e.is_hidden).length === 0 ? (
-                  <div className="text-center p-8 sm:p-12 bg-white rounded-none border border-gray-100 text-slate-500">Zatím nemáte žádné oblíbené akce. Přidejte si je kliknutím na srdíčko v katalogu.</div>
+                  <div className="text-center p-8 sm:p-12 bg-white border-2 border-black font-mono uppercase text-neutral-500">Zatím nemáte žádné oblíbené akce. Přidejte si je kliknutím na srdíčko v katalogu.</div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                   {dbEvents.filter(e => favoriteEvents.includes(e.id) && !e.is_hidden).map((event) => {
-                    const isFav = true; 
                     const lowestPrice = event.variants?.length > 0 ? Math.min(...event.variants.map(v => v.price)) : 0;
                     return (
-                      <div key={event.id} onClick={() => { setSelectedEvent(event); setSelectedVariant(event.variants?.[0] || null); setIsDescExpanded(false); setView('events_portal'); }} className="bg-slate-900 rounded-none overflow-hidden hover:shadow-2xl transition-all duration-500 flex flex-col group relative h-[320px] cursor-none border border-gray-200">
-                         <button onClick={(e) => toggleFavorite(e, event.id)} className={`absolute top-4 left-4 z-40 p-2.5 rounded-full transition-all duration-300 pointer-events-auto flex items-center justify-center border ${isFav ? 'bg-red-500 border-red-500 text-white shadow-md shadow-red-500/30 scale-100' : 'bg-transparent border-white/60 text-white hover:border-white hover:scale-105'}`}>
-                            <svg className={`w-5 h-5 transition-transform ${isFav ? 'animate-pop' : ''}`} fill={isFav ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
-                         </button>
-                         <div className="absolute inset-0 z-0"><img src={event.image_url || 'https://images.unsplash.com/photo-1515187029135-18ee286d815b?q=80&w=1000&auto=format&fit=crop'} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={event.title} /></div>
-                         <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-90"></div>
-                         <div className="absolute inset-0 flex flex-col justify-end p-6 z-20 overflow-hidden">
-                            <h3 className="text-xl sm:text-2xl font-bold text-white mb-4 transition-transform duration-500 group-hover:-translate-y-[110px] leading-tight drop-shadow-md">{event.title}</h3>
-                            <div className="flex flex-col items-start gap-1 text-white/90 text-sm font-medium transition-opacity duration-300 group-hover:opacity-0 drop-shadow-md">
-                              <span>📅 {formatDateCzech(event.date)}</span><span>⏰ {event.time}</span><span className="font-bold text-red-400 mt-1">od {lowestPrice} Kč</span>
-                            </div>
-                         </div>
-                         <div className="absolute bottom-0 left-0 right-0 p-6 opacity-0 translate-y-8 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 z-30 pointer-events-none">
-                            <p className="text-sm text-slate-300 line-clamp-3 mb-4 leading-relaxed">{event.description || 'Přijďte se podívat na naši exkluzivní akci přímo v prostorech Pointu.'}</p>
-                            <span className="inline-block border border-red-500 text-red-400 bg-slate-900/50 px-5 py-2 rounded-none text-xs font-bold uppercase backdrop-blur-sm">Detail akce</span>
-                         </div>
-                      </div>
-                    )
+                      <EventCard 
+                        key={event.id}
+                        event={event}
+                        isFav={true}
+                        toggleFavorite={toggleFavorite}
+                        onSelect={() => { setSelectedEvent(event); setSelectedVariant(event.variants?.[0] || null); setIsDescExpanded(false); setView('events_portal'); }}
+                        formatDateCzech={formatDateCzech}
+                        lowestPrice={lowestPrice}
+                      />
+                    );
                   })}
                 </div>
               )}
@@ -748,34 +697,34 @@ export default function EventsPortal() {
 
         {view === 'client_dashboard' && (
           <div className="max-w-4xl mx-auto w-full animate-in fade-in space-y-6 sm:space-y-8 pt-4 pb-12">
-            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">Moje vstupenky</h2>
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden pointer-events-auto">
+            <h2 className="text-2xl sm:text-3xl font-mono font-bold uppercase tracking-tighter text-black">Moje vstupenky</h2>
+            <div className="bg-white border-2 border-black overflow-hidden pointer-events-auto">
                {myReservations.length === 0 ? (
-                  <div className="p-8 sm:p-12 text-center text-slate-500">Zatím nemáte zakoupené žádné vstupenky.</div>
+                  <div className="p-8 sm:p-12 text-center font-mono uppercase text-neutral-500">Zatím nemáte zakoupené žádné vstupenky.</div>
                ) : (
-                  <div className="divide-y divide-gray-50">
+                  <div className="divide-y-2 divide-black">
                      {myReservations.map(res => {
                         const eventObj = dbEvents.find(e => e.id === res.event_id);
                         const needsTicket = eventObj && eventObj.requires_checkin;
                         return (
-                          <div key={res.id} className="p-4 sm:p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center hover:bg-slate-50 transition-colors gap-4 sm:gap-0">
-                             <div className="flex-1 w-full">
+                          <div key={res.id} className="p-4 sm:p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                             <div className="flex-1 w-full font-mono">
                                 <div className="flex items-center gap-3 mb-1">
-                                   <span className="px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase bg-purple-100 text-purple-700">Vstupenka</span>
-                                   <span className="font-bold text-slate-900 text-sm sm:text-base">{formatDateCzech(res.date)}</span>
+                                   <span className="px-2 py-0.5 border border-black text-[10px] font-bold uppercase bg-black text-white">Vstupenka</span>
+                                   <span className="font-bold text-black text-sm">{formatDateCzech(res.date)}</span>
                                 </div>
-                                <div className="text-xs sm:text-sm text-slate-500">{res.notes}</div>
+                                <div className="text-xs text-neutral-600 uppercase">{res.notes}</div>
                              </div>
                              
-                             <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 w-full sm:w-auto">
+                             <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 w-full sm:w-auto font-mono">
                                 <div className="text-left sm:text-right">
-                                   <div className="font-bold text-slate-900">{res.total_price} Kč</div>
-                                   <div className={`text-[11px] sm:text-xs font-semibold mt-1 ${res.status === 'paid' ? 'text-green-600' : res.status === 'cancelled' ? 'text-red-500' : 'text-amber-500'}`}>{res.status === 'paid' ? 'Zaplaceno' : res.status === 'cancelled' ? 'Zrušeno' : 'Čeká na schválení / platbu'}</div>
+                                   <div className="font-bold text-black text-base">{res.total_price} Kč</div>
+                                   <div className={`text-[10px] font-bold uppercase mt-1 ${res.status === 'paid' ? 'text-green-700' : res.status === 'cancelled' ? 'text-red-600' : 'text-[#E4664F]'}`}>{res.status === 'paid' ? 'Zaplaceno' : res.status === 'cancelled' ? 'Zrušeno' : 'Čeká na schválení / platbu'}</div>
                                 </div>
                                 
                                 {res.status === 'paid' && needsTicket && (
-                                   <button onClick={() => handleShowTicket(res)} className="w-full sm:w-auto px-4 py-2 sm:py-2.5 bg-slate-900 text-white text-[10px] sm:text-xs font-bold uppercase tracking-widest rounded-lg hover:bg-slate-800 transition-colors flex items-center justify-center gap-2">
-                                      <span className="text-base sm:text-lg">📷</span> Zobrazit vstupenku
+                                   <button onClick={() => handleShowTicket(res)} className="w-full sm:w-auto px-4 py-3 bg-black text-white text-xs font-mono font-bold uppercase tracking-wider hover:bg-neutral-800 cursor-pointer flex items-center justify-center gap-2">
+                                      <span>📷</span> Zobrazit vstupenku
                                    </button>
                                 )}
                              </div>
@@ -790,45 +739,40 @@ export default function EventsPortal() {
 
         {view === 'client_profile' && (
           <div className="max-w-4xl mx-auto w-full animate-in fade-in space-y-6 sm:space-y-8 pt-4 pb-12 pointer-events-auto">
-            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900">Můj Profil</h2>
-            <div className="bg-white p-6 sm:p-8 rounded-2xl border border-gray-100 shadow-sm">
+            <h2 className="text-2xl sm:text-3xl font-mono font-bold uppercase tracking-tighter text-black">Můj Profil</h2>
+            <div className="bg-white p-6 sm:p-8 border-2 border-black">
                
-               <h3 className="text-lg sm:text-xl font-bold mb-6 text-slate-800">Osobní a fakturační údaje</h3>
+               <h3 className="text-base sm:text-xl font-mono font-bold uppercase tracking-wider mb-6 text-black border-b-2 border-black pb-2">Osobní a fakturační údaje</h3>
                <form onSubmit={handleProfileSave} className="space-y-6">
-                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                   <div><label className="block text-xs font-medium text-slate-500 mb-1.5">Jméno</label><input type="text" value={profileForm.firstName} onChange={e => setProfileForm({...profileForm, firstName: e.target.value})} className="w-full bg-slate-50 border border-gray-200 rounded-xl p-3 text-sm focus:border-red-500 outline-none" /></div>
-                   <div><label className="block text-xs font-medium text-slate-500 mb-1.5">Příjmení</label><input type="text" value={profileForm.lastName} onChange={e => setProfileForm({...profileForm, lastName: e.target.value})} className="w-full bg-slate-50 border border-gray-200 rounded-xl p-3 text-sm focus:border-red-500 outline-none" /></div>
-                   <div><label className="block text-xs font-medium text-slate-500 mb-1.5">Telefon</label><input type="tel" value={profileForm.phone} onChange={e => setProfileForm({...profileForm, phone: e.target.value})} className="w-full bg-slate-50 border border-gray-200 rounded-xl p-3 text-sm focus:border-red-500 outline-none" /></div>
+                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 font-mono">
+                   <div><label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Jméno</label><input type="text" value={profileForm.firstName} onChange={e => setProfileForm({...profileForm, firstName: e.target.value})} className="w-full bg-[#f4f4f4] border-2 border-black p-3 text-sm font-bold uppercase outline-none" /></div>
+                   <div><label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Příjmení</label><input type="text" value={profileForm.lastName} onChange={e => setProfileForm({...profileForm, lastName: e.target.value})} className="w-full bg-[#f4f4f4] border-2 border-black p-3 text-sm font-bold uppercase outline-none" /></div>
+                   <div className="sm:col-span-2"><label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Telefon</label><input type="tel" value={profileForm.phone} onChange={e => setProfileForm({...profileForm, phone: e.target.value})} className="w-full bg-[#f4f4f4] border-2 border-black p-3 text-sm font-bold outline-none" /></div>
                  </div>
-                 <div className="border-t border-gray-100 pt-6">
+                 <div className="border-t-2 border-black pt-6 font-mono">
                    <div className="flex flex-col sm:flex-row items-start sm:items-end gap-3 mb-4">
-                     <div className="flex-1 w-full"><label className="block text-xs font-medium text-slate-500 mb-1.5">IČO pro načtení z ARES</label><input type="text" value={profileForm.ico} onChange={e => setProfileForm({...profileForm, ico: e.target.value})} className="w-full bg-slate-50 border border-gray-200 rounded-xl p-3 text-sm focus:border-red-500 outline-none" /></div>
-                     <button type="button" onClick={loadFromAres} disabled={aresLoading} className="w-full sm:w-auto bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold px-5 py-3.5 rounded-xl transition-all disabled:opacity-60">{aresLoading ? 'Načítám...' : 'Načíst ARES'}</button>
+                     <div className="flex-1 w-full"><label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">IČO pro načtení z ARES</label><input type="text" value={profileForm.ico} onChange={e => setProfileForm({...profileForm, ico: e.target.value})} className="w-full bg-[#f4f4f4] border-2 border-black p-3 text-sm font-bold outline-none" /></div>
+                     <button type="button" onClick={loadFromAres} disabled={aresLoading} className="w-full sm:w-auto bg-black text-white text-xs font-bold uppercase tracking-wider px-5 py-3.5 hover:bg-neutral-800 disabled:opacity-40 cursor-pointer">{aresLoading ? 'Načítám...' : 'Načíst ARES'}</button>
                    </div>
                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                     <div><label className="block text-xs font-medium text-slate-500 mb-1.5">Název firmy</label><input type="text" value={profileForm.company} onChange={e => setProfileForm({...profileForm, company: e.target.value})} className="w-full bg-slate-50 border border-gray-200 rounded-xl p-3 text-sm focus:border-red-500 outline-none" /></div>
-                     <div><label className="block text-xs font-medium text-slate-500 mb-1.5">DIČ</label><input type="text" value={profileForm.dic} onChange={e => setProfileForm({...profileForm, dic: e.target.value})} className="w-full bg-slate-50 border border-gray-200 rounded-xl p-3 text-sm focus:border-red-500 outline-none" /></div>
-                     <div className="sm:col-span-2"><label className="block text-xs font-medium text-slate-500 mb-1.5">Fakturační adresa</label><input type="text" value={profileForm.billingAddress} onChange={e => setProfileForm({...profileForm, billingAddress: e.target.value})} className="w-full bg-slate-50 border border-gray-200 rounded-xl p-3 text-sm focus:border-red-500 outline-none" /></div>
+                     <div><label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Název firmy</label><input type="text" value={profileForm.company} onChange={e => setProfileForm({...profileForm, company: e.target.value})} className="w-full bg-[#f4f4f4] border-2 border-black p-3 text-sm font-bold uppercase outline-none" /></div>
+                     <div><label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">DIČ</label><input type="text" value={profileForm.dic} onChange={e => setProfileForm({...profileForm, dic: e.target.value})} className="w-full bg-[#f4f4f4] border-2 border-black p-3 text-sm font-bold uppercase outline-none" /></div>
+                     <div className="sm:col-span-2"><label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Fakturační adresa</label><input type="text" value={profileForm.billingAddress} onChange={e => setProfileForm({...profileForm, billingAddress: e.target.value})} className="w-full bg-[#f4f4f4] border-2 border-black p-3 text-sm font-bold uppercase outline-none" /></div>
                    </div>
                  </div>
-                 <div className="flex justify-end pt-4"><button type="submit" disabled={savingProfile} className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white text-sm font-semibold px-8 py-3.5 rounded-xl transition-all shadow-sm active:scale-95 disabled:opacity-80">{savingProfile ? 'Ukládám...' : 'Uložit údaje'}</button></div>
+                 <div className="flex justify-end pt-4"><button type="submit" disabled={savingProfile} className="w-full sm:w-auto bg-black text-white font-mono font-bold text-xs uppercase tracking-wider px-8 py-3.5 hover:bg-neutral-800 disabled:opacity-40 cursor-pointer">{savingProfile ? 'Ukládám...' : 'Uložit údaje'}</button></div>
                </form>
 
-               <div className="mt-8 pt-8 border-t border-gray-100">
-                 <h3 className="text-lg sm:text-xl font-bold mb-6 text-slate-800">Změna hesla</h3>
+               <div className="mt-8 pt-8 border-t-2 border-black font-mono">
+                 <h3 className="text-base sm:text-xl font-bold uppercase tracking-wider mb-6 text-black border-b-2 border-black pb-2">Změna hesla</h3>
                  <form onSubmit={handleProfilePasswordChange} className="space-y-4">
                    <div className="max-w-sm">
-                     <label className="block text-xs font-medium text-slate-500 mb-1.5">Původní heslo</label>
-                     <input type="password" required value={oldPassword} onChange={(e) => setOldPassword(e.target.value)} className="w-full bg-slate-50 border border-gray-200 rounded-xl p-3 text-sm focus:border-red-500 outline-none mb-4" placeholder="Vaše aktuální heslo" />
-                     <label className="block text-xs font-medium text-slate-500 mb-1.5">Nové heslo</label>
-                     <input type="password" required value={newProfilePassword} onChange={(e) => setNewProfilePassword(e.target.value)} className="w-full bg-slate-50 border border-gray-200 rounded-xl p-3 text-sm focus:border-red-500 outline-none mb-4" placeholder="Minimálně 6 znaků" minLength={6} />
-                     <button type="submit" disabled={savingProfile} className="group relative overflow-hidden bg-slate-900 text-white text-sm font-semibold rounded-xl transition-all shadow-sm active:scale-95 disabled:opacity-80 w-full sm:w-auto h-12 px-8">
-                       <span className="relative z-10 flex items-center justify-center h-full transition-transform duration-300 group-hover:-translate-y-12">
-                         {savingProfile ? 'Ukládám...' : 'Změnit heslo'}
-                       </span>
-                       <span className="absolute inset-0 z-10 flex items-center justify-center translate-y-12 group-hover:translate-y-0 transition-transform duration-300 text-sm">
-                         Potvrdit nové heslo
-                       </span>
+                     <label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Původní heslo</label>
+                     <input type="password" required value={oldPassword} onChange={(e) => setOldPassword(e.target.value)} className="w-full bg-[#f4f4f4] border-2 border-black p-3 text-sm font-bold outline-none mb-4" placeholder="Aktuální heslo" />
+                     <label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Nové heslo</label>
+                     <input type="password" required value={newProfilePassword} onChange={(e) => setNewProfilePassword(e.target.value)} className="w-full bg-[#f4f4f4] border-2 border-black p-3 text-sm font-bold outline-none mb-4" placeholder="Min. 6 znaků" minLength={6} />
+                     <button type="submit" disabled={savingProfile} className="bg-black text-white text-xs font-bold uppercase tracking-wider h-12 px-8 w-full sm:w-auto hover:bg-neutral-800 disabled:opacity-40 cursor-pointer">
+                       {savingProfile ? 'Ukládám...' : 'Změnit heslo'}
                      </button>
                    </div>
                  </form>
@@ -844,63 +788,43 @@ export default function EventsPortal() {
              {bookingStep === 1 && !selectedEvent && (
                <div className="w-full px-4 sm:px-0">
                  <div className="flex flex-col items-center justify-center pt-4 pb-8 space-y-4 text-center">
-                    <h2 className="text-3xl sm:text-4xl font-bold text-slate-900">Naše Akce</h2>
-                    <p className="text-slate-500 text-sm max-w-lg px-4">Workshopy, přednášky a komunitní setkání přímo u nás v Pointu.</p>
+                    <h2 className="text-3xl sm:text-5xl font-mono font-extrabold uppercase tracking-tighter text-black">Naše Akce</h2>
+                    <p className="text-neutral-600 font-mono text-xs sm:text-sm uppercase tracking-wider max-w-lg px-4">Workshopy, přednášky a komunitní setkání přímo u nás v Pointu.</p>
                  </div>
 
                  {/* FILTRY KATEGORIÍ */}
-                 <div className="flex justify-center items-center gap-2 pb-8 flex-wrap">
+                 <div className="flex justify-center items-center gap-2 pb-8 flex-wrap font-mono">
                    {[
                      { id: 'all', label: 'Všechny akce' },
                      { id: 'Event', label: 'Eventy' },
                      { id: 'Workshop', label: 'Workshopy' },
                      { id: 'Přednáška', label: 'Přednášky' }
                    ].map(cat => (
-                     <button key={cat.id} onClick={() => setSelectedCategory(cat.id)} className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${selectedCategory === cat.id ? 'bg-slate-900 text-white shadow-sm' : 'bg-white border border-gray-200 text-slate-600 hover:bg-slate-50'}`}>{cat.label}</button>
+                     <button key={cat.id} onClick={() => setSelectedCategory(cat.id)} className={`px-4 py-3 border-2 text-xs font-bold uppercase tracking-wider cursor-pointer ${selectedCategory === cat.id ? 'bg-black text-white border-black' : 'bg-white text-black border-black hover:bg-[#f4f4f4]'}`}>{cat.label}</button>
                    ))}
                  </div>
 
                  {dbEvents.filter(e => !e.is_hidden && (selectedCategory === 'all' || e.category === selectedCategory)).length === 0 ? (
-                    <div className="text-center p-8 sm:p-12 bg-white rounded-none border border-gray-100 text-slate-500">V této kategorii aktuálně nejsou vypsány žádné akce.</div>
+                    <div className="text-center p-8 sm:p-12 bg-white border-2 border-black font-mono uppercase text-neutral-500">V této kategorii aktuálně nejsou vypsány žádné akce.</div>
                  ) : (
                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                      {dbEvents.filter(e => !e.is_hidden && (selectedCategory === 'all' || e.category === selectedCategory)).map((event) => {
-                       const occupied = getEventOccupancy(event.id);
-                       const totalCapacity = event.variants?.reduce((sum, v) => sum + (Number(v.capacity) || 0), 0) || 10;
-                       const isFull = occupied >= totalCapacity;
                        const isPast = new Date(event.date) < new Date(new Date().setHours(0,0,0,0));
                        const isFav = favoriteEvents.includes(event.id);
                        const lowestPrice = event.variants?.length > 0 ? Math.min(...event.variants.map(v => v.price)) : 0;
                        if (isPast) return null; 
 
                        return (
-                         <div key={event.id} onClick={() => { setSelectedEvent(event); setSelectedVariant(event.variants?.[0] || null); setIsDescExpanded(false); }} className="bg-slate-900 rounded-none overflow-hidden hover:shadow-2xl transition-all duration-500 flex flex-col group relative h-[320px] cursor-none border border-gray-200">
-                            <button onClick={(e) => toggleFavorite(e, event.id)} className={`absolute top-4 left-4 z-40 p-2.5 rounded-full transition-all duration-300 pointer-events-auto flex items-center justify-center border ${isFav ? 'bg-red-500 border-red-500 text-white shadow-md shadow-red-500/30 scale-100' : 'bg-transparent border-white/60 text-white hover:border-white hover:scale-105'}`}>
-                               <svg className={`w-5 h-5 transition-transform ${isFav ? 'animate-pop' : ''}`} fill={isFav ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
-                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                               </svg>
-                            </button>
-                            <div className="absolute top-4 right-4 z-40 bg-slate-900/80 backdrop-blur-sm text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider border border-white/20">
-                              {event.category || 'Workshop'}
-                            </div>
-                            <div className="absolute inset-0 z-0">
-                               <img src={event.image_url || 'https://images.unsplash.com/photo-1515187029135-18ee286d815b?q=80&w=1000&auto=format&fit=crop'} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={event.title} />
-                            </div>
-                            <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-90"></div>
-                            
-                            <div className="absolute inset-0 flex flex-col justify-end p-5 sm:p-6 z-20 overflow-hidden">
-                               <h3 className="text-xl sm:text-2xl font-bold text-white mb-3 transition-transform duration-500 group-hover:-translate-y-[110px] leading-tight drop-shadow-md">{event.title}</h3>
-                               <div className="flex flex-col items-start gap-1 text-white/90 text-sm font-medium transition-opacity duration-300 group-hover:opacity-0 drop-shadow-md">
-                                 <span>📅 {formatDateCzech(event.date)}</span><span>⏰ {event.time}</span><span className="font-bold text-red-400 mt-1">od {lowestPrice} Kč</span>
-                               </div>
-                            </div>
-                            
-                            <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-6 opacity-0 translate-y-8 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 z-30 pointer-events-none">
-                               <p className="text-xs sm:text-sm text-slate-300 line-clamp-3 mb-4 leading-relaxed">{event.description || 'Přijďte se podívat na naši exkluzivní akci přímo v prostorech Pointu.'}</p>
-                               <span className="inline-block border border-red-500 text-red-400 bg-slate-900/50 px-4 py-1.5 sm:px-5 sm:py-2 rounded-none text-[10px] sm:text-xs font-bold uppercase backdrop-blur-sm">Detail akce</span>
-                            </div>
-                         </div>
-                       )
+                         <EventCard 
+                           key={event.id}
+                           event={event}
+                           isFav={isFav}
+                           toggleFavorite={toggleFavorite}
+                           onSelect={() => { setSelectedEvent(event); setSelectedVariant(event.variants?.[0] || null); setIsDescExpanded(false); }}
+                           formatDateCzech={formatDateCzech}
+                           lowestPrice={lowestPrice}
+                         />
+                       );
                      })}
                    </div>
                  )}
@@ -909,166 +833,52 @@ export default function EventsPortal() {
 
              {/* DETAIL EVENTU A VÝBĚR BALÍČKU */}
              {bookingStep === 1 && selectedEvent && (
-                <div className="w-full bg-white animate-in fade-in slide-in-from-bottom-4 relative">
-                   <div className="h-64 sm:h-[450px] w-full bg-slate-900 relative rounded-none">
-                      <img src={selectedEvent.image_url || 'https://images.unsplash.com/photo-1515187029135-18ee286d815b?q=80&w=1000&auto=format&fit=crop'} className="w-full h-full object-cover opacity-60 rounded-none" alt={selectedEvent.title} />
-                      <button onClick={() => setSelectedEvent(null)} className="absolute top-4 left-4 sm:top-6 sm:left-6 bg-white/20 backdrop-blur-md text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded-none text-xs sm:text-sm font-bold hover:bg-white/40 transition-colors z-20 cursor-none">‹ Zpět na přehled</button>
-                      <div className="absolute bottom-0 left-0 p-6 sm:p-16 w-full bg-gradient-to-t from-slate-900 via-slate-900/80 to-transparent">
-                         <span className="bg-red-600 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-2 inline-block">
-                           {selectedEvent.category || 'Workshop'}
-                         </span>
-                         <h1 className="text-2xl sm:text-6xl font-bold text-white mb-2 sm:mb-3 leading-tight pr-8 sm:pr-12">{selectedEvent.title}</h1>
-                         <div className="text-red-400 font-bold uppercase tracking-widest text-xs sm:text-sm">{formatDateCzech(selectedEvent.date)}</div>
-                      </div>
-                   </div>
-                   
-                   <div className="p-6 sm:p-12 flex flex-col md:flex-row gap-8 sm:gap-12 max-w-6xl mx-auto">
-                      <div className="flex-1 min-w-0">
-                         <div className="w-full overflow-hidden">
-                            <div className="flex justify-between items-center mb-4">
-                                <h3 className="text-lg sm:text-xl font-bold text-slate-900 uppercase tracking-wider text-sm">O co jde</h3>
-                                <button onClick={(e) => toggleFavorite(e, selectedEvent.id)} className={`transition-all duration-300 pointer-events-auto cursor-pointer flex items-center justify-center ${favoriteEvents.includes(selectedEvent.id) ? 'text-red-500' : 'text-slate-300 hover:text-slate-400 hover:scale-110'}`}>
-                                   <svg className={`w-6 h-6 sm:w-8 sm:h-8 transition-transform ${favoriteEvents.includes(selectedEvent.id) ? 'animate-pop fill-current drop-shadow-sm' : 'fill-none'}`} stroke="currentColor" viewBox="0 0 24 24">
-                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                   </svg>
-                                </button>
-                            </div>
-                            <div className="relative">
-                               <p className={`text-sm sm:text-base text-slate-600 leading-relaxed whitespace-pre-wrap break-words transition-all duration-300 ${!isDescExpanded ? 'line-clamp-5' : ''}`}>{selectedEvent.description}</p>
-                               <button onClick={() => setIsDescExpanded(!isDescExpanded)} className="text-red-600 text-xs sm:text-sm font-bold mt-2 hover:underline pointer-events-auto cursor-pointer">{isDescExpanded ? 'Sbalit text' : 'Číst dále'}</button>
-                            </div>
-                         </div>
-                      </div>
-                      
-                      {/* VÝBĚR CENOVÝCH BALÍČKŮ V DETAILU */}
-                      <div className="w-full md:w-96 shrink-0 self-start">
-                         <div className="bg-white p-6 sm:p-8 rounded-none border border-gray-200 shadow-xl md:sticky md:top-24 space-y-6">
-                            <div className="text-xs font-bold text-slate-400 uppercase tracking-widest">Vyberte variantu vstupenky</div>
-                            
-                            <ul className="space-y-3 text-xs sm:text-sm text-slate-600">
-                               <li className="flex items-center gap-3"><span className="text-base">📅</span> <span className="font-medium text-slate-800">{formatDateCzech(selectedEvent.date)}</span></li>
-                               <li className="flex items-center gap-3"><span className="text-base">⏰</span> <span className="font-medium text-slate-800">{selectedEvent.time}</span></li>
-                            </ul>
-
-                            <div className="space-y-3 pt-2 border-t border-gray-100">
-                              {selectedEvent.variants?.map((variant) => {
-                                const isSelected = selectedVariant?.id === variant.id;
-                                return (
-                                  <div 
-                                    key={variant.id} 
-                                    onClick={() => setSelectedVariant(variant)}
-                                    className={`p-4 rounded-xl border-2 transition-all cursor-pointer pointer-events-auto ${isSelected ? 'border-red-500 bg-red-50/30' : 'border-gray-200 bg-white hover:border-gray-300'}`}
-                                  >
-                                    <div className="flex justify-between items-start mb-1">
-                                      <span className="font-bold text-slate-900 text-sm">{variant.title}</span>
-                                      <span className="font-bold text-red-600 text-sm">{variant.price} Kč</span>
-                                    </div>
-                                    <p className="text-xs text-slate-500">{variant.description}</p>
-                                  </div>
-                                );
-                              })}
-                            </div>
-
-                            <button onClick={() => setBookingStep(2)} disabled={!selectedVariant} className="w-full py-3 sm:py-4 rounded-none text-xs sm:text-sm font-bold transition-all shadow-sm cursor-none bg-red-600 hover:bg-red-700 text-white active:scale-95 hover:shadow-lg disabled:opacity-50">
-                              {selectedVariant ? `Koupit (${selectedVariant.price} Kč)` : 'Vyberte balíček'}
-                            </button>
-                         </div>
-                      </div>
-                   </div>
-                   
-                   <div className="w-full border-t border-gray-100 mt-4 pointer-events-auto">
-                      <div className="max-w-6xl mx-auto px-6 sm:px-12 pt-8 sm:pt-12 pb-4 sm:pb-6">
-                         <h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-1 sm:mb-2 uppercase tracking-wider text-sm">Kde to bude?</h3>
-                         <p className="text-xs sm:text-base text-slate-600 font-medium">POINT - Mrštíkovo nám. 6/14, Olomouc</p>
-                      </div>
-                      <div className="w-full h-64 sm:h-[450px] bg-slate-100 relative">
-                         <iframe src="https://maps.google.com/maps?q=Mr%C5%A1t%C3%ADkovo%20n%C3%A1m.%206/14,%20Olomouc&t=&z=15&ie=UTF8&iwloc=&output=embed" width="100%" height="100%" style={{border:0, filter: 'grayscale(100%) contrast(1.1) opacity(0.9)'}} allowFullScreen="" loading="lazy" referrerPolicy="no-referrer-when-downgrade"></iframe>
-                      </div>
-                   </div>
-                </div>
+                <EventDetail 
+                  selectedEvent={selectedEvent}
+                  selectedVariant={selectedVariant}
+                  setSelectedVariant={setSelectedVariant}
+                  setIsDescExpanded={setIsDescExpanded}
+                  isDescExpanded={isDescExpanded}
+                  setBookingStep={setBookingStep}
+                  setSelectedEvent={setSelectedEvent}
+                  favoriteEvents={favoriteEvents}
+                  toggleFavorite={toggleFavorite}
+                  formatDateCzech={formatDateCzech}
+                />
              )}
 
              {bookingStep === 2 && (
-               <form onSubmit={handleClientSubmit} className="max-w-2xl mx-auto w-full bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-gray-100 space-y-6 sm:space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                  
-                  <div style={{ display: 'none' }} aria-hidden="true">
-                    <label htmlFor="bot-check">Leave this field blank</label>
-                    <input type="text" id="bot-check" name="bot-check" value={honeypot} onChange={e => setHoneypot(e.target.value)} tabIndex="-1" autoComplete="off" />
-                  </div>
-
-                  {!user && (
-                    <div className="bg-slate-50 border border-gray-200 rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
-                      <span className="text-xs sm:text-sm font-medium text-slate-600">Pro rychlejší rezervaci se můžete přihlásit.</span>
-                      <button type="button" onClick={() => { setIsLoginMode(true); setShowAuthModal(true); }} className="w-full sm:w-auto text-xs font-bold bg-white border border-gray-200 px-4 py-2 rounded-lg hover:border-slate-300 transition-colors pointer-events-auto">Přihlásit se</button>
-                    </div>
-                  )}
-
-                  {selectedEvent && selectedVariant && (
-                     <div className="bg-slate-900 text-white p-4 sm:p-5 rounded-none flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 shadow-md border border-slate-800">
-                        <div>
-                          <div className="text-[9px] sm:text-[10px] uppercase font-bold tracking-wider text-slate-400 mb-1">Vstupenka na akci</div>
-                          <div className="font-bold text-base sm:text-lg">{selectedEvent.title} <span className="text-red-400 font-normal text-sm">({selectedVariant.title})</span></div>
-                          <div className="text-[10px] sm:text-xs mt-1 text-slate-300">{formatDateCzech(selectedEvent.date)} • {selectedEvent.time}</div>
-                        </div>
-                        <div className="text-xl sm:text-2xl font-bold text-red-400">{selectedVariant.price} Kč</div>
-                     </div>
-                  )}
-
-                  <div>
-                    <h3 className="text-xs sm:text-sm font-semibold text-slate-800 border-b border-gray-100 pb-2 sm:pb-3 mb-4 sm:mb-5">Kontaktní údaje</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                      <div><label className="block text-[10px] sm:text-xs font-medium text-slate-500 mb-1 sm:mb-1.5">Jméno *</label><input type="text" required value={formData.firstName} onChange={e => setFormData({...formData, firstName: e.target.value})} className="w-full bg-slate-50 border border-gray-200 rounded-xl p-2.5 sm:p-3 text-xs sm:text-sm focus:border-red-500 outline-none cursor-none transition-all" /></div>
-                      <div><label className="block text-[10px] sm:text-xs font-medium text-slate-500 mb-1 sm:mb-1.5">Příjmení *</label><input type="text" required value={formData.lastName} onChange={e => setFormData({...formData, lastName: e.target.value})} className="w-full bg-slate-50 border border-gray-200 rounded-xl p-2.5 sm:p-3 text-xs sm:text-sm focus:border-red-500 outline-none cursor-none transition-all" /></div>
-                      <div><label className="block text-[10px] sm:text-xs font-medium text-slate-500 mb-1 sm:mb-1.5">E-mail *</label><input type="email" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full bg-slate-50 border border-gray-200 rounded-xl p-2.5 sm:p-3 text-xs sm:text-sm focus:border-red-500 outline-none cursor-none transition-all" /></div>
-                      <div><label className="block text-[10px] sm:text-xs font-medium text-slate-500 mb-1 sm:mb-1.5">Telefon *</label><input type="tel" required value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full bg-slate-50 border border-gray-200 rounded-xl p-2.5 sm:p-3 text-xs sm:text-sm focus:border-red-500 outline-none cursor-none transition-all" /></div>
-                    </div>
-                  </div>
-                  <div>
-                    <h4 className="text-xs sm:text-sm font-semibold text-slate-800 border-b border-gray-100 pb-2 sm:pb-3 mb-4 sm:mb-5 flex items-center gap-2">Fakturační údaje <span className="text-[10px] sm:text-xs font-normal text-slate-400">(Volitelné)</span></h4>
-                    <div className="space-y-3 sm:space-y-4">
-                      <div className="flex flex-col sm:flex-row items-start sm:items-end gap-3">
-                        <div className="flex-1 w-full"><label className="block text-[10px] sm:text-xs font-medium text-slate-500 mb-1 sm:mb-1.5">IČO pro načtení z ARES</label><input type="text" placeholder="Zadejte IČO..." value={formData.ico} onChange={e => setFormData({...formData, ico: e.target.value})} className="w-full bg-slate-50 border border-gray-200 rounded-xl p-2.5 sm:p-3 text-xs sm:text-sm focus:border-red-500 outline-none cursor-none transition-all" /></div>
-                        <button type="button" onClick={loadFromAres} disabled={aresLoading} className="w-full sm:w-auto bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold px-5 py-2.5 sm:py-3.5 rounded-xl transition-all disabled:opacity-60">{aresLoading ? 'Načítám...' : 'Načíst'}</button>
-                      </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                        <div><label className="block text-[10px] sm:text-xs font-medium text-slate-500 mb-1 sm:mb-1.5">Název firmy</label><input type="text" value={formData.company} onChange={e => setFormData({...formData, company: e.target.value})} className="w-full bg-white border border-gray-200 rounded-xl p-2.5 sm:p-3 text-xs sm:text-sm focus:border-red-500 outline-none cursor-none transition-all" /></div>
-                        <div><label className="block text-[10px] sm:text-xs font-medium text-slate-500 mb-1 sm:mb-1.5">DIČ</label><input type="text" value={formData.dic} onChange={e => setFormData({...formData, dic: e.target.value})} className="w-full bg-white border border-gray-200 rounded-xl p-2.5 sm:p-3 text-xs sm:text-sm focus:border-red-500 outline-none cursor-none transition-all" /></div>
-                      </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-6 gap-3 sm:gap-4">
-                        <div className="sm:col-span-3"><label className="block text-[10px] sm:text-xs font-medium text-slate-500 mb-1 sm:mb-1.5">Ulice a č.p.</label><input type="text" value={formData.street} onChange={e => setFormData({...formData, street: e.target.value})} className="w-full bg-white border border-gray-200 rounded-xl p-2.5 sm:p-3 text-xs sm:text-sm focus:border-red-500 outline-none cursor-none transition-all" /></div>
-                        <div className="sm:col-span-2"><label className="block text-[10px] sm:text-xs font-medium text-slate-500 mb-1 sm:mb-1.5">Město</label><input type="text" value={formData.city} onChange={e => setFormData({...formData, city: e.target.value})} className="w-full bg-white border border-gray-200 rounded-xl p-2.5 sm:p-3 text-xs sm:text-sm focus:border-red-500 outline-none cursor-none transition-all" /></div>
-                        <div className="sm:col-span-1"><label className="block text-[10px] sm:text-xs font-medium text-slate-500 mb-1 sm:mb-1.5">PSČ</label><input type="text" value={formData.psc} onChange={e => setFormData({...formData, psc: e.target.value})} className="w-full bg-white border border-gray-200 rounded-xl p-2.5 sm:p-3 text-xs sm:text-sm focus:border-red-500 outline-none cursor-none transition-all" /></div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="pt-4 border-t border-gray-100">
-                     <div className="flex items-start gap-2 mb-4">
-                        <input type="checkbox" id="gdprConsent" required checked={gdprConsent} onChange={e => setGdprConsent(e.target.checked)} className="mt-0.5 w-4 h-4 text-red-600 border-gray-300 rounded cursor-none" />
-                        <label htmlFor="gdprConsent" className="text-[10px] sm:text-xs text-slate-500 leading-snug cursor-none">
-                           Souhlasím se <span onClick={(e) => { e.preventDefault(); setShowGdprModal(true); }} className="text-red-600 hover:underline font-semibold cursor-none pointer-events-auto">zpracováním osobních údajů</span> a s <span onClick={(e) => { e.preventDefault(); setShowVopModal(true); }} className="text-red-600 hover:underline font-semibold cursor-none pointer-events-auto">Obchodními a storno podmínkami</span>. *
-                        </label>
-                     </div>
-                     <div className="flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-0">
-                       <button type="button" onClick={() => setBookingStep(1)} className="text-xs sm:text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors order-2 sm:order-1">‹ Zpět na výběr</button>
-                       <button type="submit" disabled={isSubmitting || !gdprConsent} className="w-full sm:w-auto text-white text-xs sm:text-sm font-semibold px-6 sm:px-8 py-3 sm:py-3.5 transition-all shadow-sm active:scale-95 disabled:opacity-80 order-1 sm:order-2 bg-red-600 hover:bg-red-700 rounded-none">
-                         Závazně koupit vstupenku
-                       </button>
-                     </div>
-                  </div>
-               </form>
+               <EventBookingForm 
+                 user={user}
+                 selectedEvent={selectedEvent}
+                 selectedVariant={selectedVariant}
+                 formData={formData}
+                 setFormData={setFormData}
+                 honeypot={honeypot}
+                 setHoneypot={setHoneypot}
+                 aresLoading={aresLoading}
+                 loadFromAres={loadFromAres}
+                 gdprConsent={gdprConsent}
+                 setGdprConsent={setGdprConsent}
+                 setShowGdprModal={setShowGdprModal}
+                 setShowVopModal={setShowVopModal}
+                 setIsLoginMode={setIsLoginMode}
+                 setShowAuthModal={setShowAuthModal}
+                 setBookingStep={setBookingStep}
+                 handleClientSubmit={handleClientSubmit}
+                 isSubmitting={isSubmitting}
+                 formatDateCzech={formatDateCzech}
+               />
              )}
 
              {bookingStep === 3 && lastCreatedRes && (
-               <div className="max-w-md mx-auto w-full bg-white p-6 sm:p-8 rounded-2xl text-center space-y-4 sm:space-y-6 shadow-sm border border-gray-100 animate-in fade-in zoom-in-95 duration-500">
-                  <div className="w-12 h-12 sm:w-14 sm:h-14 bg-green-50 text-green-600 rounded-full flex items-center justify-center mx-auto text-lg sm:text-xl mb-2">✓</div>
-                  <div><h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-1">Vstupenka rezervována</h3><p className="text-[10px] sm:text-xs font-medium text-slate-500">Variabilní symbol: {lastCreatedRes.variable_symbol}</p></div>
-                  <div className="p-4 sm:p-6 bg-slate-50 rounded-2xl inline-block border border-gray-100 w-full max-w-[280px]">
-                    {qrCodeUrl ? <img src={qrCodeUrl} alt="QR Platba" className="mx-auto w-32 h-32 sm:w-48 sm:h-48 rounded-lg mix-blend-multiply" /> : <div className="w-32 h-32 sm:w-48 sm:h-48 bg-gray-200/50 rounded-lg animate-pulse mx-auto" />}
-                    <div className="mt-4 sm:mt-5 text-center"><p className="text-xl sm:text-2xl font-bold text-slate-900">{lastCreatedRes.total_price} Kč</p><span className="text-[8px] sm:text-[10px] font-semibold text-slate-500 uppercase tracking-wider mt-1 block">Naskenujte v aplikaci</span></div>
-                  </div>
-                  <button onClick={() => { setBookingStep(1); setSelectedEvent(null); setLastCreatedRes(null); window.history.replaceState({}, document.title, "/"); }} className="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium py-3 sm:py-3.5 text-xs sm:text-sm transition-all shadow-sm rounded-none">Hotovo, vrátit se na začátek</button>
-               </div>
+               <EventTicketSuccess 
+                 lastCreatedRes={lastCreatedRes}
+                 qrCodeUrl={qrCodeUrl}
+                 setBookingStep={setBookingStep}
+                 setSelectedEvent={setSelectedEvent}
+                 setLastCreatedRes={setLastCreatedRes}
+               />
              )}
 
            </div>
