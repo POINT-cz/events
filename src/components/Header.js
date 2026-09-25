@@ -3,14 +3,14 @@
 import { useState, useRef, useEffect } from 'react';
 
 export default function Header({ 
-  view, setView, section, setSection, user, isAdmin, 
-  resetClientView, setShowAuthModal, handleLogout, displayName,
-  setIsLoginMode, setIsForgotPasswordMode, setResetEmailSent, setGdprConsent
+  view, setView, user, isAdmin, 
+  setShowAuthModal, handleLogout, displayName,
+  setIsLoginMode, setIsForgotPasswordMode, setResetEmailSent, setGdprConsent,
+  setBookingStep, setSelectedEvent
 }) {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const userMenuRef = useRef(null);
 
-  // ZDE MŮŽEŠ JEDNODUCHĚ MĚNIT VELIKOST LOGA (např. h-6, h-8, h-10, h-12)
   const logoHeight = "h-8"; 
 
   useEffect(() => {
@@ -29,20 +29,15 @@ export default function Header({
         
         {/* 1. SLOUPEC: Logo */}
         <div className="flex items-center justify-between md:justify-start w-full md:w-auto">
-          <div className="cursor-pointer pointer-events-auto flex items-center py-1" onClick={() => { setView('client'); setSection('studio'); }}>
+          <div className="cursor-pointer pointer-events-auto flex items-center py-1" onClick={() => { setView('events_portal'); setBookingStep(1); setSelectedEvent(null); }}>
             <img 
               src="/logo.png" 
-              alt="POINT SPACE" 
+              alt="POINT EVENTS" 
               className={`${logoHeight} w-auto object-contain block`}
-              onError={(e) => {
-                if (e.target.src.endsWith('.png')) {
-                  e.target.src = '/logo.png';
-                }
-              }}
             />
           </div>
           
-          {/* Mobilní tlačítko přihlášení (pokud uživatel není přihlášený) */}
+          {/* Mobilní tlačítko přihlášení */}
           {!user && (
              <div className="md:hidden">
                <button onClick={() => { setIsLoginMode(true); setIsForgotPasswordMode(false); setResetEmailSent(false); setShowAuthModal(true); setGdprConsent(false); }} className="text-xs font-mono font-bold uppercase tracking-widest text-white bg-[#E4664F] hover:bg-[#d42506] px-3 py-2 transition-colors pointer-events-auto cursor-pointer">Přihlásit</button> 
@@ -50,22 +45,28 @@ export default function Header({
           )}
         </div>
         
-        {/* 2. SLOUPEC: Studio / Cowork / Space */}
-        {(view === 'client' || view === 'client_dashboard' || view === 'client_profile') && (
-          <div className="flex justify-center items-center pointer-events-auto w-full overflow-x-auto">
-            <div className="flex border border-neutral-300 bg-neutral-300 p-[1px] gap-[1px] w-full max-w-md">
-              <button onClick={() => setSection('studio')} className={`flex-1 py-2 text-xs font-mono font-bold uppercase tracking-widest text-center transition-all cursor-pointer ${section === 'studio' && view === 'client' ? 'bg-[#E4664F] text-white' : 'bg-[#f4f4f4] text-black hover:bg-neutral-200'}`}>Studio</button>
-              <button onClick={() => setSection('cowork')} className={`flex-1 py-2 text-xs font-mono font-bold uppercase tracking-widest text-center transition-all cursor-pointer ${section === 'cowork' && view === 'client' ? 'bg-[#E4664F] text-white' : 'bg-[#f4f4f4] text-black hover:bg-neutral-200'}`}>Cowork</button>
-              <button onClick={() => setSection('space')} className={`flex-1 py-2 text-xs font-mono font-bold uppercase tracking-widest text-center transition-all cursor-pointer ${section === 'space' && view === 'client' ? 'bg-[#E4664F] text-white' : 'bg-[#f4f4f4] text-black hover:bg-neutral-200'}`}>Space</button>
-            </div>
+        {/* 2. SLOUPEC: Eventové menu (Katalog akcí / Oblíbené) - VŽDY VIDITELNÉ */}
+        <div className="flex justify-center items-center pointer-events-auto w-full overflow-x-auto">
+          <div className="flex border border-neutral-300 bg-neutral-300 p-[1px] gap-[1px] w-full max-w-md">
+            <button 
+              onClick={() => { setView('events_portal'); setBookingStep(1); setSelectedEvent(null); }} 
+              className={`flex-1 py-2 text-xs font-mono font-bold uppercase tracking-widest text-center transition-all cursor-pointer ${view === 'events_portal' ? 'bg-[#E4664F] text-white' : 'bg-[#f4f4f4] text-black hover:bg-neutral-200'}`}
+            >
+              Katalog akcí
+            </button>
+            <button 
+              onClick={() => setView('client_favorites')} 
+              className={`flex-1 py-2 text-xs font-mono font-bold uppercase tracking-widest text-center transition-all cursor-pointer flex items-center justify-center gap-1.5 ${view === 'client_favorites' ? 'bg-[#E4664F] text-white' : 'bg-[#f4f4f4] text-black hover:bg-neutral-200'}`}
+            >
+              <span>❤️</span> Oblíbené
+            </button>
           </div>
-        )}
-        {view !== 'client' && view !== 'client_dashboard' && view !== 'client_profile' && <div className="hidden md:block"></div>}
+        </div>
 
-        {/* 3. SLOUPEC: Akce a uživatel */}
+        {/* 3. SLOUPEC: Prolink zpět na prostory & uživatel */}
         <div className="flex items-center space-x-3 sm:space-x-4 text-xs font-mono font-bold uppercase tracking-widest justify-between md:justify-end w-full md:w-auto">
-          <a href="https://events.pointspace.cz" className="px-3 py-2 border border-neutral-300 text-black hover:border-black hover:bg-black hover:text-white transition-all flex items-center gap-1.5 cursor-pointer pointer-events-auto">
-            Akce <span>↗</span>
+          <a href="https://rezervace.pointspace.cz" className="px-3 py-2 border border-neutral-300 text-black hover:border-black hover:bg-black hover:text-white transition-all flex items-center gap-1.5 cursor-pointer pointer-events-auto">
+            <span>←</span> Prostory
           </a>
 
           {user ? (
@@ -79,12 +80,13 @@ export default function Header({
                   
                   {isAdmin && (
                     <button onClick={() => { setView('admin'); setShowUserMenu(false); }} className="w-full text-left px-4 py-3 text-xs font-mono font-bold uppercase tracking-widest text-[#E4664F] hover:bg-black hover:text-white transition-colors border-b border-neutral-300 flex items-center gap-2 cursor-pointer pointer-events-auto">
-                      <span>⚙️</span> Administrace
+                      <span>⚙️</span> Administrace akcí
                     </button>
                   )}
 
                   <button onClick={() => { setView('client_profile'); setShowUserMenu(false); }} className="w-full text-left px-4 py-3 text-xs font-mono font-bold uppercase tracking-widest text-black hover:bg-black hover:text-white transition-colors border-b border-neutral-300 cursor-pointer pointer-events-auto">Můj profil</button>
-                  <button onClick={() => { setView('client_dashboard'); setShowUserMenu(false); }} className="w-full text-left px-4 py-3 text-xs font-mono font-bold uppercase tracking-widest text-black hover:bg-black hover:text-white transition-colors border-b border-neutral-300 cursor-pointer pointer-events-auto">Moje rezervace</button>
+                  <button onClick={() => { setView('client_dashboard'); setShowUserMenu(false); }} className="w-full text-left px-4 py-3 text-xs font-mono font-bold uppercase tracking-widest text-black hover:bg-black hover:text-white transition-colors border-b border-neutral-300 cursor-pointer pointer-events-auto">Moje vstupenky</button>
+                  <button onClick={() => { setView('client_favorites'); setShowUserMenu(false); }} className="w-full text-left px-4 py-3 text-xs font-mono font-bold uppercase tracking-widest text-black hover:bg-black hover:text-white transition-colors border-b border-neutral-300 cursor-pointer pointer-events-auto">Oblíbené akce</button>
                   <button onClick={handleLogout} className="w-full text-left px-4 py-3 text-xs font-mono font-bold uppercase tracking-widest text-black hover:bg-black hover:text-white transition-colors cursor-pointer pointer-events-auto">Odhlásit se</button>
                 </div>
               )}
