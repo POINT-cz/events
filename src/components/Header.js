@@ -25,72 +25,71 @@ export default function Header({
   }, []);
 
   return (
-    <header className="bg-white border-b border-gray-200 sticky top-0 z-40 w-full">
-      <div className="max-w-7xl mx-auto px-4 sm:px-8 h-16 flex items-center justify-between gap-4">
+    <header className="bg-white border-b border-neutral-300 sticky top-0 z-40 w-full pointer-events-auto">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 py-3.5 flex items-center justify-between gap-4">
         
-        {/* Logo */}
-        <div className="flex items-center gap-6">
+        {/* LEVÁ STRANA: Logo + Navigace pro eventy */}
+        <div className="flex items-center gap-6 sm:gap-8">
           <div className="cursor-pointer flex items-center" onClick={() => { setView('events_portal'); setBookingStep(1); setSelectedEvent(null); }}>
-            <img src="/logo.png" alt="POINT Logo" className="h-6 w-auto object-contain" />
+            <img src="/logo.png" alt="POINT Logo" className="h-6 sm:h-7 w-auto object-contain" />
           </div>
 
-          {/* Hlavní přepínač uprostřed / vedle loga */}
-          <nav className="hidden md:flex items-center bg-gray-100 p-1 rounded-lg">
+          <nav className="hidden md:flex items-center gap-1 border border-neutral-300 p-1 bg-[#f4f4f4]">
             <button 
               onClick={() => { setView('events_portal'); setBookingStep(1); setSelectedEvent(null); }} 
-              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${view === 'events_portal' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}
+              className={`px-4 py-1.5 text-xs font-mono font-bold uppercase transition-none cursor-pointer ${view === 'events_portal' ? 'bg-[#E4664F] text-white' : 'bg-white text-black hover:bg-neutral-200'}`}
             >
-              Katalog akcí
+              KATALOG AKCÍ //
             </button>
             <button 
               onClick={() => setView('client_favorites')} 
-              className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors flex items-center gap-1.5 ${view === 'client_favorites' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'}`}
+              className={`px-4 py-1.5 text-xs font-mono font-bold uppercase transition-none cursor-pointer flex items-center gap-1.5 ${view === 'client_favorites' ? 'bg-[#E4664F] text-white' : 'bg-white text-black hover:bg-neutral-200'}`}
             >
-              <span>❤️</span> Oblíbené
+              <span>❤️</span> OBLÍBENÉ
             </button>
           </nav>
         </div>
 
-        {/* Pravá strana: Zpět na prostory + Profil / Login */}
+        {/* PRAVÁ STRANA: Zpět na prostory + Profil/Login */}
         <div className="flex items-center gap-3">
           <a 
             href="https://rezervace.pointspace.cz" 
-            className="hidden lg:flex items-center gap-1.5 text-xs font-medium text-gray-600 hover:text-gray-900 px-3 py-2 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors"
+            className="hidden lg:flex items-center gap-1.5 text-xs font-mono font-bold uppercase tracking-wider text-black bg-white px-4 py-2.5 border border-neutral-300 hover:border-black transition-none cursor-pointer"
           >
-            <span>←</span> Zpět na prostory
+            <span>←</span> PROSTORY & COWORK
           </a>
 
           {user ? (
             <div className="relative" ref={userMenuRef}>
               <button 
                 onClick={() => setShowUserMenu(!showUserMenu)} 
-                className="flex items-center gap-2 text-xs font-medium text-gray-800 hover:text-gray-900 px-3 py-2 rounded-lg border border-gray-200 bg-white transition-colors"
+                className="flex items-center gap-2 text-xs font-mono font-bold uppercase text-black bg-white px-3.5 py-2.5 border border-neutral-300 hover:border-black transition-none cursor-pointer"
               >
-                <div className="w-5 h-5 bg-gray-100 text-gray-700 rounded-full flex items-center justify-center text-[10px]">👤</div>
+                <div className="w-5 h-5 bg-[#f4f4f4] border border-neutral-300 text-black flex items-center justify-center text-[10px]">👤</div>
                 <span className="max-w-[120px] truncate">{displayName}</span>
               </button>
 
               {showUserMenu && (
-                <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-50 flex flex-col">
+                <div className="absolute right-0 top-full mt-2 w-56 bg-white border border-neutral-300 shadow-xl py-1 z-50 flex flex-col">
                   {isAdmin && (
-                    <button onClick={() => { setView('admin'); setShowUserMenu(false); }} className="w-full text-left px-4 py-2 text-xs font-medium text-red-600 hover:bg-gray-50 flex items-center gap-2">
-                      <span>⚙️</span> Administrace
+                    <button onClick={() => { setView('admin'); setShowUserMenu(false); }} className="w-full text-left px-4 py-2.5 text-xs font-mono font-bold uppercase text-[#E4664F] hover:bg-[#f4f4f4] border-b border-neutral-200 flex items-center gap-2 cursor-pointer">
+                      <span>⚙️</span> ADMINISTRACE AKCÍ
                     </button>
                   )}
-                  <button onClick={() => { setView('client_profile'); setShowUserMenu(false); }} className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-gray-50">Můj profil</button>
-                  <button onClick={() => { setView('client_dashboard'); setShowUserMenu(false); }} className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-gray-50">Moje vstupenky</button>
-                  <button onClick={() => { setView('client_favorites'); setShowUserMenu(false); }} className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-gray-50">Oblíbené akce</button>
-                  <div className="h-px bg-gray-100 my-1"></div>
-                  <button onClick={handleLogout} className="w-full text-left px-4 py-2 text-xs text-gray-700 hover:bg-gray-50">Odhlásit se</button>
+                  <button onClick={() => { setView('client_profile'); setShowUserMenu(false); }} className="w-full text-left px-4 py-2.5 text-xs font-mono font-medium text-black hover:bg-[#f4f4f4] cursor-pointer">MŮJ PROFIL</button>
+                  <button onClick={() => { setView('client_dashboard'); setShowUserMenu(false); }} className="w-full text-left px-4 py-2.5 text-xs font-mono font-medium text-black hover:bg-[#f4f4f4] cursor-pointer">MOJE VSTUPENKY</button>
+                  <button onClick={() => { setView('client_favorites'); setShowUserMenu(false); }} className="w-full text-left px-4 py-2.5 text-xs font-mono font-medium text-black hover:bg-[#f4f4f4] cursor-pointer">OBLÍBENÉ AKCE</button>
+                  <div className="h-px bg-neutral-300 my-1"></div>
+                  <button onClick={handleLogout} className="w-full text-left px-4 py-2.5 text-xs font-mono font-bold uppercase text-[#E4664F] hover:bg-[#f4f4f4] cursor-pointer">ODHLÁSIT SE</button>
                 </div>
               )}
             </div>
           ) : (
             <button 
               onClick={() => { setIsLoginMode(true); setIsForgotPasswordMode(false); setResetEmailSent(false); setShowAuthModal(true); setGdprConsent(false); }} 
-              className="text-xs font-medium text-white bg-gray-900 hover:bg-gray-800 px-4 py-2 rounded-lg transition-colors"
+              className="text-xs font-mono font-bold uppercase tracking-widest text-white bg-black hover:bg-[#E4664F] px-4 py-2.5 border border-black transition-none cursor-pointer"
             >
-              Přihlásit se
+              PŘIHLÁSIT SE
             </button>
           )}
         </div>
