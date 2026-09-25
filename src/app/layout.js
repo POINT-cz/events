@@ -1,25 +1,23 @@
+import { Inter, JetBrainsMono } from 'next/font/google'; // Nebo libovolný Google font jako náhrada
 import './globals.css';
-import { Plus_Jakarta_Sans, JetBrains_Mono } from 'next/font/google';
 
-const googleSansLike = Plus_Jakarta_Sans({ 
+// 1. Definice fontů
+const fontSans = Inter({
   subsets: ['latin', 'latin-ext'],
   variable: '--font-sans',
+  display: 'swap',
 });
 
-const mono = JetBrains_Mono({ 
+const fontMono = JetBrainsMono({
   subsets: ['latin', 'latin-ext'],
   variable: '--font-mono',
+  display: 'swap',
 });
-
-export const metadata = {
-  title: 'POINT | Akce a Workshopy',
-  description: 'Přehled aktuálních akcí, přednášek a workshopů v prostorech POINT Olomouc.',
-};
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="cs" className={`${googleSansLike.variable} ${mono.variable}`}>
-      <body className="font-sans bg-[#f4f4f4] text-black antialiased selection:bg-black selection:text-white overflow-x-hidden w-full min-h-screen flex flex-col">
+    <html lang="cs" className={`${fontSans.variable} ${fontMono.variable}`}>
+      <body className="bg-[#f4f4f4] text-black font-sans antialiased selection:bg-[#E4664F] selection:text-white">
         {children}
       </body>
     </html>
