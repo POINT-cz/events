@@ -11,15 +11,10 @@ const mono = JetBrains_Mono({
   variable: '--font-mono',
 });
 
-export const metadata = {
-  title: 'POINT | Eventy',
-  description: 'Eventový portál POINT Space & Studio',
-};
-
 export default function RootLayout({ children }) {
   return (
     <html lang="cs" className={`${googleSansLike.variable} ${mono.variable}`}>
-      <body className="font-sans bg-[#f4f4f4] text-black antialiased selection:bg-black selection:text-white overflow-x-hidden w-full">
+      <body className="bg-[#f4f4f4] text-black antialiased selection:bg-black selection:text-white">
         {children}
       </body>
     </html>
