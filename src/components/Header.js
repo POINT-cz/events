@@ -10,7 +10,6 @@ export default function Header({
   const [showUserMenu, setShowUserMenu] = useState(false);
   const userMenuRef = useRef(null);
 
-  // ZDE MŮŽEŠ JEDNODUCHĚ MĚNIT VELIKOST LOGA (např. h-6, h-8, h-10, h-12)
   const logoHeight = "h-8"; 
 
   useEffect(() => {
@@ -42,7 +41,7 @@ export default function Header({
             />
           </div>
           
-          {/* Mobilní tlačítko přihlášení (pokud uživatel není přihlášený) */}
+          {/* Mobilní tlačítko přihlášení */}
           {!user && (
              <div className="md:hidden">
                <button onClick={() => { setIsLoginMode(true); setIsForgotPasswordMode(false); setResetEmailSent(false); setShowAuthModal(true); setGdprConsent(false); }} className="text-xs font-mono font-bold uppercase tracking-widest text-white bg-[#E4664F] hover:bg-[#d42506] px-3 py-2 transition-colors pointer-events-auto cursor-pointer">Přihlásit</button> 
