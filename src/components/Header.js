@@ -49,7 +49,7 @@ export default function Header({
           )}
         </div>
         
-        {/* 2. SLOUPEC: Katalog akcí / Oblíbené */}
+        {/* 2. SLOUPEC: Katalog akcí / Oblíbené (přesně stejný přepínač jako Studio/Cowork/Space) */}
         <div className="flex justify-center items-center pointer-events-auto w-full overflow-x-auto">
           <div className="flex border border-neutral-300 bg-neutral-300 p-[1px] gap-[1px] w-full max-w-xs">
             <button onClick={() => setSection('catalog')} className={`flex-1 py-2 text-xs font-mono font-bold uppercase tracking-widest text-center transition-all cursor-pointer ${section === 'catalog' ? 'bg-[#E4664F] text-white' : 'bg-[#f4f4f4] text-black hover:bg-neutral-200'}`}>Katalog akcí</button>
