@@ -1,3 +1,8 @@
+export const metadata = {
+  title: 'POINT Events — Vstupenky na akce a workshopy',
+  description: 'Rezervujte si své místo na workshopech, přednáškách a eventech v POINTu.',
+};
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -567,28 +572,28 @@ export default function EventsPortal() {
       {/* ADMIN: TVORBA A EDITACE EVENTŮ MODAL */}
       {showAdminEventModal && (
         <div className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 pointer-events-auto">
-          <div className="bg-white border-2 border-black p-6 w-full max-w-xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-white border border-neutral-300 p-6 w-full max-w-xl max-h-[90vh] overflow-y-auto">
             <h3 className="font-mono font-bold text-sm uppercase tracking-wider mb-4">{adminEventForm.id ? 'Upravit událost' : 'Nová událost'}</h3>
             <form onSubmit={handleAdminEventSubmit} className="space-y-4">
-              <div><label className="block text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-500 mb-1">Název akce</label><input type="text" required value={adminEventForm.title} onChange={e => setAdminEventForm({...adminEventForm, title: e.target.value})} className="w-full bg-[#f4f4f4] border-2 border-black p-3 text-sm font-bold uppercase outline-none" /></div>
+              <div><label className="block text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-500 mb-1">Název akce</label><input type="text" required value={adminEventForm.title} onChange={e => setAdminEventForm({...adminEventForm, title: e.target.value})} className="w-full bg-[#f4f4f4] border border-neutral-300 p-3 text-sm font-bold uppercase outline-none focus:border-black" /></div>
               
               <div className="grid grid-cols-3 gap-3">
                 <div className="col-span-1"><label className="block text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-500 mb-1">Kategorie</label>
-                  <select value={adminEventForm.category} onChange={e => setAdminEventForm({...adminEventForm, category: e.target.value})} className="w-full bg-[#f4f4f4] border-2 border-black p-3 text-xs font-mono font-bold uppercase outline-none cursor-pointer">
+                  <select value={adminEventForm.category} onChange={e => setAdminEventForm({...adminEventForm, category: e.target.value})} className="w-full bg-[#f4f4f4] border border-neutral-300 p-3 text-xs font-mono font-bold uppercase outline-none cursor-pointer focus:border-black">
                     <option value="Event">Event</option>
                     <option value="Workshop">Workshop</option>
                     <option value="Přednáška">Přednáška</option>
                   </select>
                 </div>
-                <div><label className="block text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-500 mb-1">Datum</label><input type="date" required value={adminEventForm.date} onChange={e => setAdminEventForm({...adminEventForm, date: e.target.value})} className="w-full bg-[#f4f4f4] border-2 border-black p-3 text-xs font-mono font-bold uppercase outline-none" /></div>
-                <div><label className="block text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-500 mb-1">Čas</label><input type="text" required value={adminEventForm.time} onChange={e => setAdminEventForm({...adminEventForm, time: e.target.value})} className="w-full bg-[#f4f4f4] border-2 border-black p-3 text-xs font-mono font-bold uppercase outline-none" /></div>
+                <div><label className="block text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-500 mb-1">Datum</label><input type="date" required value={adminEventForm.date} onChange={e => setAdminEventForm({...adminEventForm, date: e.target.value})} className="w-full bg-[#f4f4f4] border border-neutral-300 p-3 text-xs font-mono font-bold uppercase outline-none focus:border-black" /></div>
+                <div><label className="block text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-500 mb-1">Čas</label><input type="text" required value={adminEventForm.time} onChange={e => setAdminEventForm({...adminEventForm, time: e.target.value})} className="w-full bg-[#f4f4f4] border border-neutral-300 p-3 text-xs font-mono font-bold uppercase outline-none focus:border-black" /></div>
               </div>
               
-              <div><label className="block text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-500 mb-1">URL obrázku</label><input type="url" value={adminEventForm.image_url} onChange={e => setAdminEventForm({...adminEventForm, image_url: e.target.value})} className="w-full bg-[#f4f4f4] border-2 border-black p-3 text-xs font-mono font-bold outline-none" /></div>
-              <div><label className="block text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-500 mb-1">Popis</label><textarea required value={adminEventForm.description} onChange={e => setAdminEventForm({...adminEventForm, description: e.target.value})} className="w-full bg-[#f4f4f4] border-2 border-black p-3 text-xs font-mono font-bold outline-none min-h-[100px]" /></div>
+              <div><label className="block text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-500 mb-1">URL obrázku</label><input type="url" value={adminEventForm.image_url} onChange={e => setAdminEventForm({...adminEventForm, image_url: e.target.value})} className="w-full bg-[#f4f4f4] border border-neutral-300 p-3 text-xs font-mono font-bold outline-none focus:border-black" /></div>
+              <div><label className="block text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-500 mb-1">Popis</label><textarea required value={adminEventForm.description} onChange={e => setAdminEventForm({...adminEventForm, description: e.target.value})} className="w-full bg-[#f4f4f4] border border-neutral-300 p-3 text-xs font-mono font-bold outline-none min-h-[100px] focus:border-black" /></div>
               
               {/* DYNAMICKÉ BALÍČKY / VARIANTY */}
-              <div className="border-t-2 border-black pt-4 mt-4">
+              <div className="border-t border-neutral-300 pt-4 mt-4">
                 <div className="flex justify-between items-center mb-3">
                   <label className="text-xs font-mono font-bold uppercase tracking-wider">Cenové balíčky / Vstupenky</label>
                   <button type="button" onClick={handleAddVariant} className="text-xs font-mono font-bold uppercase tracking-wider bg-black text-white px-3 py-2 hover:bg-neutral-800 cursor-pointer">+ Přidat balíček</button>
@@ -596,16 +601,16 @@ export default function EventsPortal() {
                 
                 <div className="space-y-3">
                   {adminEventForm.variants?.map((variant, index) => (
-                    <div key={variant.id || index} className="p-3 bg-[#f4f4f4] border-2 border-black space-y-2 relative">
+                    <div key={variant.id || index} className="p-3 bg-[#f4f4f4] border border-neutral-300 space-y-2 relative">
                       <button type="button" onClick={() => handleRemoveVariant(index)} className="absolute top-2 right-2 text-red-600 hover:text-red-800 text-xs font-mono font-bold uppercase cursor-pointer">✕ Smazat</button>
                       
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        <input type="text" placeholder="Název balíčku (např. VIP)" value={variant.title} onChange={e => handleVariantChange(index, 'title', e.target.value)} className="bg-white border-2 border-black p-2 text-xs font-mono font-bold uppercase outline-none" required />
-                        <input type="number" placeholder="Cena (Kč)" value={variant.price} onChange={e => handleVariantChange(index, 'price', e.target.value)} className="bg-white border-2 border-black p-2 text-xs font-mono font-bold outline-none" required />
+                        <input type="text" placeholder="Název balíčku (např. VIP)" value={variant.title} onChange={e => handleVariantChange(index, 'title', e.target.value)} className="bg-white border border-neutral-300 p-2 text-xs font-mono font-bold uppercase outline-none focus:border-black" required />
+                        <input type="number" placeholder="Cena (Kč)" value={variant.price} onChange={e => handleVariantChange(index, 'price', e.target.value)} className="bg-white border border-neutral-300 p-2 text-xs font-mono font-bold outline-none focus:border-black" required />
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        <input type="number" placeholder="Kapacita" value={variant.capacity} onChange={e => handleVariantChange(index, 'capacity', e.target.value)} className="bg-white border-2 border-black p-2 text-xs font-mono font-bold outline-none" required />
-                        <input type="text" placeholder="Krátký popis" value={variant.description} onChange={e => handleVariantChange(index, 'description', e.target.value)} className="bg-white border-2 border-black p-2 text-xs font-mono font-bold outline-none" />
+                        <input type="number" placeholder="Kapacita" value={variant.capacity} onChange={e => handleVariantChange(index, 'capacity', e.target.value)} className="bg-white border border-neutral-300 p-2 text-xs font-mono font-bold outline-none focus:border-black" required />
+                        <input type="text" placeholder="Krátký popis" value={variant.description} onChange={e => handleVariantChange(index, 'description', e.target.value)} className="bg-white border border-neutral-300 p-2 text-xs font-mono font-bold outline-none focus:border-black" />
                       </div>
                     </div>
                   ))}
@@ -623,8 +628,8 @@ export default function EventsPortal() {
                 </div>
               </div>
 
-              <div className="flex justify-end gap-3 pt-4 border-t-2 border-black">
-                <button type="button" onClick={() => setShowAdminEventModal(false)} className="px-4 py-3 bg-[#f4f4f4] border-2 border-black text-black text-xs font-mono font-bold uppercase tracking-wider hover:bg-black hover:text-white cursor-pointer">Zrušit</button>
+              <div className="flex justify-end gap-3 pt-4 border-t border-neutral-300">
+                <button type="button" onClick={() => setShowAdminEventModal(false)} className="px-4 py-3 bg-[#f4f4f4] border border-neutral-300 text-black text-xs font-mono font-bold uppercase tracking-wider hover:bg-black hover:text-white cursor-pointer">Zrušit</button>
                 <button type="submit" className="px-4 py-3 bg-black text-white text-xs font-mono font-bold uppercase tracking-wider hover:bg-neutral-800 cursor-pointer">Uložit event</button>
               </div>
             </form>
@@ -649,11 +654,11 @@ export default function EventsPortal() {
         {view === 'client_dashboard' && (
           <div className="max-w-4xl mx-auto w-full animate-in fade-in space-y-6 sm:space-y-8 pt-4 pb-12">
             <h2 className="text-2xl sm:text-3xl font-mono font-bold uppercase tracking-tighter text-black">Moje vstupenky</h2>
-            <div className="bg-white border-2 border-black overflow-hidden pointer-events-auto">
+            <div className="bg-white border border-neutral-300 overflow-hidden pointer-events-auto">
                {myReservations.length === 0 ? (
                   <div className="p-8 sm:p-12 text-center font-mono uppercase text-neutral-500">Zatím nemáte zakoupené žádné vstupenky.</div>
                ) : (
-                  <div className="divide-y-2 divide-black">
+                  <div className="divide-y divide-neutral-300">
                      {myReservations.map(res => {
                         const eventObj = dbEvents.find(e => e.id === res.event_id);
                         const needsTicket = eventObj && eventObj.requires_checkin;
@@ -661,7 +666,7 @@ export default function EventsPortal() {
                           <div key={res.id} className="p-4 sm:p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                              <div className="flex-1 w-full font-mono">
                                 <div className="flex items-center gap-3 mb-1">
-                                   <span className="px-2 py-0.5 border border-black text-[10px] font-bold uppercase bg-black text-white">Vstupenka</span>
+                                   <span className="px-2 py-0.5 border border-neutral-300 text-[10px] font-bold uppercase bg-black text-white">Vstupenka</span>
                                    <span className="font-bold text-black text-sm">{formatDateCzech(res.date)}</span>
                                 </div>
                                 <div className="text-xs text-neutral-600 uppercase">{res.notes}</div>
@@ -691,37 +696,37 @@ export default function EventsPortal() {
         {view === 'client_profile' && (
           <div className="max-w-4xl mx-auto w-full animate-in fade-in space-y-6 sm:space-y-8 pt-4 pb-12 pointer-events-auto">
             <h2 className="text-2xl sm:text-3xl font-mono font-bold uppercase tracking-tighter text-black">Můj Profil</h2>
-            <div className="bg-white p-6 sm:p-8 border-2 border-black">
+            <div className="bg-white p-6 sm:p-8 border border-neutral-300">
                
-               <h3 className="text-base sm:text-xl font-mono font-bold uppercase tracking-wider mb-6 text-black border-b-2 border-black pb-2">Osobní a fakturační údaje</h3>
+               <h3 className="text-base sm:text-xl font-mono font-bold uppercase tracking-wider mb-6 text-black border-b border-neutral-300 pb-2">Osobní a fakturační údaje</h3>
                <form onSubmit={handleProfileSave} className="space-y-6">
                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 font-mono">
-                   <div><label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Jméno</label><input type="text" value={profileForm.firstName} onChange={e => setProfileForm({...profileForm, firstName: e.target.value})} className="w-full bg-[#f4f4f4] border-2 border-black p-3 text-sm font-bold uppercase outline-none" /></div>
-                   <div><label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Příjmení</label><input type="text" value={profileForm.lastName} onChange={e => setProfileForm({...profileForm, lastName: e.target.value})} className="w-full bg-[#f4f4f4] border-2 border-black p-3 text-sm font-bold uppercase outline-none" /></div>
-                   <div className="sm:col-span-2"><label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Telefon</label><input type="tel" value={profileForm.phone} onChange={e => setProfileForm({...profileForm, phone: e.target.value})} className="w-full bg-[#f4f4f4] border-2 border-black p-3 text-sm font-bold outline-none" /></div>
+                   <div><label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Jméno</label><input type="text" value={profileForm.firstName} onChange={e => setProfileForm({...profileForm, firstName: e.target.value})} className="w-full bg-[#f4f4f4] border border-neutral-300 p-3 text-sm font-bold uppercase outline-none focus:border-black" /></div>
+                   <div><label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Příjmení</label><input type="text" value={profileForm.lastName} onChange={e => setProfileForm({...profileForm, lastName: e.target.value})} className="w-full bg-[#f4f4f4] border border-neutral-300 p-3 text-sm font-bold uppercase outline-none focus:border-black" /></div>
+                   <div className="sm:col-span-2"><label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Telefon</label><input type="tel" value={profileForm.phone} onChange={e => setProfileForm({...profileForm, phone: e.target.value})} className="w-full bg-[#f4f4f4] border border-neutral-300 p-3 text-sm font-bold outline-none focus:border-black" /></div>
                  </div>
-                 <div className="border-t-2 border-black pt-6 font-mono">
+                 <div className="border-t border-neutral-300 pt-6 font-mono">
                    <div className="flex flex-col sm:flex-row items-start sm:items-end gap-3 mb-4">
-                     <div className="flex-1 w-full"><label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">IČO pro načtení z ARES</label><input type="text" value={profileForm.ico} onChange={e => setProfileForm({...profileForm, ico: e.target.value})} className="w-full bg-[#f4f4f4] border-2 border-black p-3 text-sm font-bold outline-none" /></div>
+                     <div className="flex-1 w-full"><label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">IČO pro načtení z ARES</label><input type="text" value={profileForm.ico} onChange={e => setProfileForm({...profileForm, ico: e.target.value})} className="w-full bg-[#f4f4f4] border border-neutral-300 p-3 text-sm font-bold outline-none focus:border-black" /></div>
                      <button type="button" onClick={loadFromAres} disabled={aresLoading} className="w-full sm:w-auto bg-black text-white text-xs font-bold uppercase tracking-wider px-5 py-3.5 hover:bg-neutral-800 disabled:opacity-40 cursor-pointer">{aresLoading ? 'Načítám...' : 'Načíst ARES'}</button>
                    </div>
                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                     <div><label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Název firmy</label><input type="text" value={profileForm.company} onChange={e => setProfileForm({...profileForm, company: e.target.value})} className="w-full bg-[#f4f4f4] border-2 border-black p-3 text-sm font-bold uppercase outline-none" /></div>
-                     <div><label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">DIČ</label><input type="text" value={profileForm.dic} onChange={e => setProfileForm({...profileForm, dic: e.target.value})} className="w-full bg-[#f4f4f4] border-2 border-black p-3 text-sm font-bold uppercase outline-none" /></div>
-                     <div className="sm:col-span-2"><label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Fakturační adresa</label><input type="text" value={profileForm.billingAddress} onChange={e => setProfileForm({...profileForm, billingAddress: e.target.value})} className="w-full bg-[#f4f4f4] border-2 border-black p-3 text-sm font-bold uppercase outline-none" /></div>
+                     <div><label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Název firmy</label><input type="text" value={profileForm.company} onChange={e => setProfileForm({...profileForm, company: e.target.value})} className="w-full bg-[#f4f4f4] border border-neutral-300 p-3 text-sm font-bold uppercase outline-none focus:border-black" /></div>
+                     <div><label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">DIČ</label><input type="text" value={profileForm.dic} onChange={e => setProfileForm({...profileForm, dic: e.target.value})} className="w-full bg-[#f4f4f4] border border-neutral-300 p-3 text-sm font-bold uppercase outline-none focus:border-black" /></div>
+                     <div className="sm:col-span-2"><label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Fakturační adresa</label><input type="text" value={profileForm.billingAddress} onChange={e => setProfileForm({...profileForm, billingAddress: e.target.value})} className="w-full bg-[#f4f4f4] border border-neutral-300 p-3 text-sm font-bold uppercase outline-none focus:border-black" /></div>
                    </div>
                  </div>
                  <div className="flex justify-end pt-4"><button type="submit" disabled={savingProfile} className="w-full sm:w-auto bg-black text-white font-mono font-bold text-xs uppercase tracking-wider px-8 py-3.5 hover:bg-neutral-800 disabled:opacity-40 cursor-pointer">{savingProfile ? 'Ukládám...' : 'Uložit údaje'}</button></div>
                </form>
 
-               <div className="mt-8 pt-8 border-t-2 border-black font-mono">
-                 <h3 className="text-base sm:text-xl font-bold uppercase tracking-wider mb-6 text-black border-b-2 border-black pb-2">Změna hesla</h3>
+               <div className="mt-8 pt-8 border-t border-neutral-300 font-mono">
+                 <h3 className="text-base sm:text-xl font-bold uppercase tracking-wider mb-6 text-black border-b border-neutral-300 pb-2">Změna hesla</h3>
                  <form onSubmit={handleProfilePasswordChange} className="space-y-4">
                    <div className="max-w-sm">
                      <label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Původní heslo</label>
-                     <input type="password" required value={oldPassword} onChange={(e) => setOldPassword(e.target.value)} className="w-full bg-[#f4f4f4] border-2 border-black p-3 text-sm font-bold outline-none mb-4" placeholder="Aktuální heslo" />
+                     <input type="password" required value={oldPassword} onChange={(e) => setOldPassword(e.target.value)} className="w-full bg-[#f4f4f4] border border-neutral-300 p-3 text-sm font-bold outline-none mb-4 focus:border-black" placeholder="Aktuální heslo" />
                      <label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Nové heslo</label>
-                     <input type="password" required value={newProfilePassword} onChange={(e) => setNewProfilePassword(e.target.value)} className="w-full bg-[#f4f4f4] border-2 border-black p-3 text-sm font-bold outline-none mb-4" placeholder="Min. 6 znaků" minLength={6} />
+                     <input type="password" required value={newProfilePassword} onChange={(e) => setNewProfilePassword(e.target.value)} className="w-full bg-[#f4f4f4] border border-neutral-300 p-3 text-sm font-bold outline-none mb-4 focus:border-black" placeholder="Min. 6 znaků" minLength={6} />
                      <button type="submit" disabled={savingProfile} className="bg-black text-white text-xs font-bold uppercase tracking-wider h-12 px-8 w-full sm:w-auto hover:bg-neutral-800 disabled:opacity-40 cursor-pointer">
                        {savingProfile ? 'Ukládám...' : 'Změnit heslo'}
                      </button>
@@ -742,7 +747,7 @@ export default function EventsPortal() {
                  <h2 className="text-3xl sm:text-4xl font-mono font-bold uppercase tracking-tighter text-black text-center mb-8">Moje oblíbené akce</h2>
                  <div className="w-full">
                    {dbEvents.filter(e => favoriteEvents.includes(e.id) && !e.is_hidden).length === 0 ? (
-                       <div className="text-center p-8 sm:p-12 bg-white border-2 border-black font-mono uppercase text-neutral-500">Zatím nemáte žádné oblíbené akce. Přidejte si je kliknutím na srdíčko v katalogu.</div>
+                       <div className="text-center p-8 sm:p-12 bg-white border border-neutral-300 font-mono uppercase text-neutral-500">Zatím nemáte žádné oblíbené akce. Přidejte si je kliknutím na srdíčko v katalogu.</div>
                    ) : (
                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                        {dbEvents.filter(e => favoriteEvents.includes(e.id) && !e.is_hidden).map((event) => {
@@ -781,12 +786,12 @@ export default function EventsPortal() {
                      { id: 'Workshop', label: 'Workshopy' },
                      { id: 'Přednáška', label: 'Přednášky' }
                    ].map(cat => (
-                     <button key={cat.id} onClick={() => setSelectedCategory(cat.id)} className={`px-4 py-3 border-2 text-xs font-bold uppercase tracking-wider cursor-pointer ${selectedCategory === cat.id ? 'bg-black text-white border-black' : 'bg-white text-black border-black hover:bg-[#f4f4f4]'}`}>{cat.label}</button>
+                     <button key={cat.id} onClick={() => setSelectedCategory(cat.id)} className={`px-4 py-3 border text-xs font-bold uppercase tracking-wider cursor-pointer transition-colors ${selectedCategory === cat.id ? 'bg-black text-white border-black' : 'bg-white text-black border-neutral-300 hover:border-black'}`}>{cat.label}</button>
                    ))}
                  </div>
 
                  {dbEvents.filter(e => !e.is_hidden && (selectedCategory === 'all' || e.category === selectedCategory)).length === 0 ? (
-                    <div className="text-center p-8 sm:p-12 bg-white border-2 border-black font-mono uppercase text-neutral-500">V této kategorii aktuálně nejsou vypsány žádné akce.</div>
+                    <div className="text-center p-8 sm:p-12 bg-white border border-neutral-300 font-mono uppercase text-neutral-500">V této kategorii aktuálně nejsou vypsány žádné akce.</div>
                  ) : (
                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                      {dbEvents.filter(e => !e.is_hidden && (selectedCategory === 'all' || e.category === selectedCategory)).map((event) => {
