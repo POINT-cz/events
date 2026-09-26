@@ -1,11 +1,15 @@
 @import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap');
 
-/* Čisté CSS bez @theme, které VS Code nebude hlásit jako chybu */
-body, button, input, select, textarea {
+/* Globální styly pro texty a formuláře (tlačítka už nepřepisujeme, aby si držela vlastní barvy) */
+body, input, select, textarea {
   font-family: 'Plus Jakarta Sans', sans-serif, -apple-system, BlinkMacSystemFont, sans-serif;
   background-color: #f4f4f4;
   color: #000000;
+}
+
+button {
+  font-family: 'Plus Jakarta Sans', sans-serif, -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 code, pre, .font-mono {
