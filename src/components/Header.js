@@ -1,48 +1,85 @@
 'use client';
 
-import Link from 'next/link';
+import { useState, useRef, useEffect } from 'react';
 
-export default function Header({ user, onOpenAuth }) {
+export default function Header({ 
+  view, setView, section, setSection, user, 
+  setShowAuthModal, handleLogout, displayName,
+  setIsLoginMode, setIsForgotPasswordMode, setResetEmailSent, setGdprConsent
+}) {
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const userMenuRef = useRef(null);
+
+  const logoHeight = "h-8"; 
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+        setShowUserMenu(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => { document.removeEventListener("mousedown", handleClickOutside); };
+  }, []);
+
   return (
-    <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-neutral-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <header className="bg-[#f4f4f4] border-b border-neutral-300 sticky top-0 z-40 w-full">
+      <div className="px-4 sm:px-8 py-4 flex flex-col md:grid md:grid-cols-3 items-center gap-4 max-w-7xl mx-auto w-full">
         
-        {/* Logo / Název */}
-        <Link href="/" className="flex items-center gap-2">
-          <span className="font-bold text-lg tracking-tight text-neutral-900">POINT</span>
-          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-neutral-100 text-neutral-600 border border-neutral-200">Events</span>
-        </Link>
-
-        {/* Navigace / Akce */}
-        <div className="flex items-center gap-3">
-          <Link 
-            href="https://rezervace.pointspace.cz" 
-            target="_blank"
-            className="hidden sm:inline-flex text-xs font-medium text-neutral-600 hover:text-neutral-900 px-3 py-2 transition-colors"
-          >
-            Rezervace prostor
-          </Link>
-
-          {user ? (
-            <div className="flex items-center gap-3">
-              <span className="text-xs text-neutral-600 hidden md:inline">{user.email}</span>
-              <button 
-                onClick={onOpenAuth}
-                className="text-xs font-medium bg-neutral-100 hover:bg-neutral-200 text-neutral-900 px-4 py-2 rounded-xl transition-colors border border-neutral-200"
-              >
-                Můj účet
-              </button>
-            </div>
-          ) : (
-            <button 
-              onClick={onOpenAuth}
-              className="text-xs font-semibold bg-[#E4664F] hover:bg-[#d25842] text-white px-4 py-2 rounded-xl transition-all shadow-sm hover:shadow"
-            >
-              Přihlásit se
-            </button>
+        {/* 1. SLOUPEC: Logo */}
+        <div className="flex items-center justify-between md:justify-start w-full md:w-auto">
+          <div className="cursor-pointer pointer-events-auto flex items-center py-1" onClick={() => { setView('client'); setSection('catalog'); }}>
+            <img 
+              src="/logo.png" 
+              alt="POINT SPACE" 
+              className={`${logoHeight} w-auto object-contain block`}
+              onError={(e) => {
+                if (e.target.src.endsWith('.png')) {
+                  e.target.src = '/logo.png';
+                }
+              }}
+            />
+          </div>
+          
+          {/* Mobilní tlačítko přihlášení */}
+          {!user && (
+             <div className="md:hidden">
+               <button onClick={() => { setIsLoginMode(true); setIsForgotPasswordMode(false); setResetEmailSent(false); setShowAuthModal(true); setGdprConsent(false); }} className="text-xs font-mono font-bold uppercase tracking-widest text-white bg-[#E4664F] hover:bg-[#d42506] px-3 py-2 transition-colors pointer-events-auto cursor-pointer">Přihlásit</button> 
+             </div>
           )}
         </div>
+        
+        {/* 2. SLOUPEC: Katalog akcí / Oblíbené */}
+        <div className="flex justify-center items-center pointer-events-auto w-full overflow-x-auto">
+          <div className="flex border border-neutral-300 bg-neutral-300 p-[1px] gap-[1px] w-full max-w-xs">
+            <button onClick={() => setSection('catalog')} className={`flex-1 py-2 text-xs font-mono font-bold uppercase tracking-widest text-center transition-all cursor-pointer ${section === 'catalog' ? 'bg-[#E4664F] text-white' : 'bg-[#f4f4f4] text-black hover:bg-neutral-200'}`}>Katalog akcí</button>
+            <button onClick={() => setSection('favorites')} className={`flex-1 py-2 text-xs font-mono font-bold uppercase tracking-widest text-center transition-all cursor-pointer ${section === 'favorites' ? 'bg-[#E4664F] text-white' : 'bg-[#f4f4f4] text-black hover:bg-neutral-200'}`}>Oblíbené</button>
+          </div>
+        </div>
 
+        {/* 3. SLOUPEC: Odkaz na rezervace a uživatel */}
+        <div className="flex items-center space-x-3 sm:space-x-4 text-xs font-mono font-bold uppercase tracking-widest justify-between md:justify-end w-full md:w-auto">
+          <a href="https://rezervace.pointspace.cz" className="px-3 py-2 border border-neutral-300 text-black hover:border-black hover:bg-black hover:text-white transition-all flex items-center gap-1.5 cursor-pointer pointer-events-auto">
+            Rezervace prostor <span>↗</span>
+          </a>
+
+          {user ? (
+            <div className="relative pointer-events-auto" ref={userMenuRef}>
+              <button onClick={() => setShowUserMenu(!showUserMenu)} className="flex items-center gap-2 font-mono font-bold transition-colors text-black border border-neutral-300 hover:border-black px-3 py-2 cursor-pointer">
+                <span>[👤]</span>
+                <span className="truncate max-w-[100px] sm:max-w-none">{displayName}</span>
+              </button>
+              {showUserMenu && (
+                <div className="absolute right-0 top-full mt-1 w-52 bg-[#f4f4f4] border border-neutral-300 shadow-none z-50 flex flex-col">
+                  <button onClick={() => { setView('client_dashboard'); setShowUserMenu(false); }} className="w-full text-left px-4 py-3 text-xs font-mono font-bold uppercase tracking-widest text-black hover:bg-black hover:text-white transition-colors border-b border-neutral-300 cursor-pointer pointer-events-auto">Moje vstupenky</button>
+                  <button onClick={handleLogout} className="w-full text-left px-4 py-3 text-xs font-mono font-bold uppercase tracking-widest text-black hover:bg-black hover:text-white transition-colors cursor-pointer pointer-events-auto">Odhlásit se</button>
+                </div>
+              )}
+            </div>
+          ) : ( 
+            <button onClick={() => { setIsLoginMode(true); setIsForgotPasswordMode(false); setResetEmailSent(false); setShowAuthModal(true); setGdprConsent(false); }} className="hidden md:inline-block text-xs font-mono font-bold uppercase tracking-widest text-white bg-[#E4664F] hover:bg-[#d42506] px-4 py-2 transition-colors pointer-events-auto cursor-pointer">Přihlásit se</button> 
+          )}
+        </div>
       </div>
     </header>
   );
