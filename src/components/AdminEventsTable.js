@@ -1,76 +1,240 @@
 'use client';
 
+import { useState } from 'react';
+
 export default function AdminEventsTable({ 
   dbEvents, 
+  reservations = [], 
   formatDateCzech, 
   handleToggleHideEvent, 
   handleDeleteEvent, 
   setAdminEventForm, 
-  setShowAdminEventModal 
+  setShowAdminEventModal,
+  handleUpdateReservationStatus,
+  handleDeleteReservation
 }) {
+  // Stavy pro správu zobrazení účastníků u konkrétního eventu
+  const [activeEventIdForReservations, setActiveEventIdForReservations] = useState(null);
+
+  const selectedEventForRes = dbEvents.find(e => e.id === activeEventIdForReservations);
+  const eventReservations = reservations.filter(r => r.event_id === activeEventIdForReservations);
+
   return (
-    <div className="max-w-6xl mx-auto w-full animate-in fade-in space-y-6 pt-4 pb-12 pointer-events-auto font-mono">
-      <div className="flex justify-between items-center bg-white p-5 border border-neutral-300">
-        <h2 className="text-xl font-bold uppercase tracking-wider text-black">Správa událostí a balíčků</h2>
+    <div className="space-y-6 font-mono">
+      
+      {/* HLAVIČKA ADMINISTRACE AKCÍ */}
+      <div className="bg-white border border-neutral-300 p-6 sm:p-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 className="text-xl font-bold uppercase tracking-tight text-black">Správa akcí a rezervací</h2>
+          <p className="text-xs text-neutral-500 uppercase mt-1">Přehled všech vypsaných událostí a jejich účastníků</p>
+        </div>
         <button 
-          onClick={() => { 
-            setAdminEventForm({ id: null, title: '', date: '', time: '17:00 - 20:00', category: 'Workshop', description: '', image_url: '', requires_checkin: false, is_hidden: false, variants: [{ id: '1', title: 'Základní vstupenka', description: 'Vstup na akci', price: 500, capacity: 20 }] }); 
-            setShowAdminEventModal(true); 
-          }} 
-          className="bg-black text-white text-xs font-bold uppercase tracking-widest px-4 py-3 hover:bg-neutral-800 cursor-pointer transition-colors"
+          onClick={() => {
+            setAdminEventForm({
+              id: null, title: '', date: '', time: '17:00 - 20:00', category: 'Workshop',
+              description: '', image_url: '', requires_checkin: false, is_hidden: false,
+              variants: [{ id: '1', title: 'Základní vstupenka', description: 'Vstup na akci', price: 500, capacity: 20 }]
+            });
+            setShowAdminEventModal(true);
+          }}
+          className="bg-black text-white hover:bg-neutral-800 px-5 py-3 text-xs font-bold uppercase tracking-wider cursor-pointer border border-neutral-300 transition-colors"
         >
-          + Vytvořit Event
+          + Vytvořit novou akcí
         </button>
       </div>
 
-      <div className="bg-white border border-neutral-300 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm min-w-[700px]">
-            <thead>
-              <tr className="bg-[#f4f4f4] text-black font-bold text-xs uppercase tracking-widest border-b border-neutral-300">
-                <th className="p-4">Název akce</th>
-                <th className="p-4">Kategorie</th>
-                <th className="p-4">Termín</th>
-                <th className="p-4">Balíčky</th>
-                <th className="p-4 text-right">Rychlé akce</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-neutral-300">
-              {dbEvents.length === 0 ? (
-                 <tr><td colSpan="5" className="p-8 text-center uppercase text-neutral-500">Zatím nejsou vytvořeny žádné akce.</td></tr>
-              ) : (
-                dbEvents.map(event => (
-                  <tr key={event.id} className="hover:bg-[#f4f4f4] transition-colors text-xs sm:text-sm">
-                    <td className="p-4 font-bold text-black">
-                      {event.title}
-                      {event.is_hidden && <span className="ml-2 text-[10px] bg-black text-white px-2 py-0.5 font-bold uppercase">Skryto</span>}
-                    </td>
-                    <td className="p-4"><span className="bg-[#f4f4f4] border border-neutral-300 text-black px-2.5 py-1 text-xs font-bold uppercase">{event.category || 'Workshop'}</span></td>
-                    <td className="p-4 text-neutral-700">{formatDateCzech(event.date)} <span className="text-[10px] text-neutral-400 block">{event.time}</span></td>
-                    <td className="p-4">
-                      <div className="space-y-1">
-                        {event.variants?.map(v => (
-                          <div key={v.id} className="text-xs bg-[#f4f4f4] border border-neutral-300 px-2 py-1 inline-block mr-1">
-                            <strong>{v.title}</strong>: {v.price} Kč ({v.capacity}m)
-                          </div>
-                        ))}
-                      </div>
-                    </td>
-                    <td className="p-4 text-right">
-                       <div className="flex justify-end gap-1.5">
-                          <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/?event=${event.id}`); alert('URL akce zkopírována do schránky!'); }} className="text-xs bg-[#f4f4f4] border border-neutral-300 text-black font-bold px-3 py-2 hover:border-black hover:bg-black hover:text-white cursor-pointer transition-colors" title="Kopírovat URL">🔗</button>
-                          <button onClick={() => handleToggleHideEvent(event.id, event.is_hidden)} className={`text-xs font-bold px-3 py-2 border cursor-pointer transition-colors ${event.is_hidden ? 'bg-black text-white border-black' : 'bg-[#f4f4f4] text-black border-neutral-300 hover:border-black'}`} title={event.is_hidden ? 'Zviditelnit' : 'Skrýt'}>{event.is_hidden ? '👁️' : '🚫'}</button>
-                          <button onClick={() => { setAdminEventForm(event); setShowAdminEventModal(true); }} className="text-xs bg-[#f4f4f4] border border-neutral-300 text-black font-bold px-3 py-2 hover:border-black hover:bg-black hover:text-white cursor-pointer transition-colors">Upravit</button>
-                          <button onClick={() => handleDeleteEvent(event.id)} className="text-xs bg-red-50 border border-red-300 text-red-700 font-bold px-3 py-2 hover:bg-red-600 hover:text-white hover:border-red-600 cursor-pointer transition-colors">Smazat</button>
-                       </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+      {/* HLAVNÍ TABULKA EVENTŮ */}
+      <div className="bg-white border border-neutral-300 p-6 sm:p-8 overflow-hidden">
+        <h3 className="text-xs font-bold uppercase tracking-widest text-neutral-500 mb-4 pb-2 border-b border-neutral-300">Seznam akcí</h3>
+        
+        {dbEvents.length === 0 ? (
+          <div className="text-center py-12 text-neutral-500 uppercase text-xs">Zatím nebyly vytvořeny žádné akce.</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr className="border-b border-neutral-300 text-neutral-500 uppercase text-[10px]">
+                  <th className="py-3 px-4">Akce / Datum</th>
+                  <th className="py-3 px-4">Kategorie</th>
+                  <th className="py-3 px-4">Kapacita / Rezervace</th>
+                  <th className="py-3 px-4">Stav</th>
+                  <th className="py-3 px-4 text-right">Správa</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-neutral-200">
+                {dbEvents.map((ev) => {
+                  const evRes = reservations.filter(r => r.event_id === ev.id && r.status !== 'cancelled');
+                  const totalCap = ev.variants?.reduce((sum, v) => sum + (Number(v.capacity) || 0), 0) || 0;
+                  
+                  return (
+                    <tr key={ev.id} className="hover:bg-[#f4f4f4] transition-colors">
+                      <td className="py-4 px-4 font-bold">
+                        <div className="uppercase text-black">{ev.title}</div>
+                        <div className="text-[10px] text-neutral-500 font-normal">📅 {formatDateCzech(ev.date)} • ⏰ {ev.time}</div>
+                      </td>
+                      
+                      <td className="py-4 px-4 uppercase">
+                        <span className="px-2 py-0.5 border border-neutral-300 text-[10px] font-bold bg-[#f4f4f4]">
+                          {ev.category || 'Workshop'}
+                        </span>
+                      </td>
+
+                      <td className="py-4 px-4 font-bold">
+                        <span className="text-black">{evRes.length}</span> / {totalCap} míst
+                      </td>
+
+                      <td className="py-4 px-4">
+                        <span className={`px-2 py-0.5 text-[10px] font-bold uppercase border ${ev.is_hidden ? 'bg-neutral-200 text-neutral-600 border-neutral-300' : 'bg-green-100 text-green-800 border-green-300'}`}>
+                          {ev.is_hidden ? 'Skryto' : 'Veřejné'}
+                        </span>
+                      </td>
+
+                      <td className="py-4 px-4 text-right space-x-2 whitespace-nowrap">
+                        <button 
+                          onClick={() => setActiveEventIdForReservations(ev.id)}
+                          className="bg-black text-white hover:bg-[#E4664F] px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer border border-neutral-300"
+                        >
+                          Účastníci ({evRes.length})
+                        </button>
+                        <button 
+                          onClick={() => {
+                            setAdminEventForm({
+                              id: ev.id,
+                              title: ev.title,
+                              date: ev.date,
+                              time: ev.time,
+                              category: ev.category || 'Workshop',
+                              description: ev.description,
+                              image_url: ev.image_url || '',
+                              requires_checkin: ev.requires_checkin || false,
+                              is_hidden: ev.is_hidden || false,
+                              variants: ev.variants || [{ id: '1', title: 'Vstupenka', description: '', price: ev.price || 500, capacity: ev.capacity || 10 }]
+                            });
+                            setShowAdminEventModal(true);
+                          }}
+                          className="bg-neutral-200 hover:bg-neutral-300 text-black px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer border border-neutral-300"
+                        >
+                          Upravit
+                        </button>
+                        <button 
+                          onClick={() => handleToggleHideEvent(ev.id, ev.is_hidden)}
+                          className="text-neutral-600 hover:text-black px-2 py-1.5 text-[10px] font-bold uppercase cursor-pointer"
+                        >
+                          {ev.is_hidden ? 'Zveřejnit' : 'Skrýt'}
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteEvent(ev.id)}
+                          className="text-red-600 hover:text-red-800 px-1 py-1.5 text-xs font-bold uppercase cursor-pointer"
+                          title="Smazat event"
+                        >
+                          ✕
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
+
+      {/* DETAILNÍ SEZNAM ÚČASTNÍKŮ VYBRANÉ AKCE (ZOBRAZÍ SE PO KLIKNUTÍ NA "ÚČASTNÍCI") */}
+      {activeEventIdForReservations && selectedEventForRes && (
+        <div className="bg-white border-2 border-black p-6 sm:p-8 animate-in fade-in">
+          <div className="flex justify-between items-center mb-6 border-b border-neutral-300 pb-4">
+            <div>
+              <span className="text-[10px] font-bold uppercase px-2 py-0.5 bg-[#E4664F] text-white border border-neutral-300 mb-1 inline-block">Správa účastníků</span>
+              <h3 className="text-lg font-bold uppercase tracking-tight text-black">{selectedEventForRes.title}</h3>
+              <p className="text-xs text-neutral-500 uppercase">Termín: {formatDateCzech(selectedEventForRes.date)} • {selectedEventForRes.time}</p>
+            </div>
+            <button 
+              onClick={() => setActiveEventIdForReservations(null)}
+              className="bg-black text-white hover:bg-neutral-800 px-4 py-2 text-xs font-bold uppercase tracking-wider cursor-pointer border border-neutral-300"
+            >
+              ✕ Zavřít přehled účastníků
+            </button>
+          </div>
+
+          {eventReservations.length === 0 ? (
+            <div className="text-center py-8 text-neutral-500 uppercase text-xs">Na tuto akce zatím nejsou žádné rezervace.</div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr className="border-b border-neutral-300 text-neutral-500 uppercase text-[10px]">
+                    <th className="py-3 px-3">Zákazník</th>
+                    <th className="py-3 px-3">Balíček / Poznámka</th>
+                    <th className="py-3 px-3">Cena</th>
+                    <th className="py-3 px-3">Stav platby</th>
+                    <th className="py-3 px-3 text-right">Správa platby</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-neutral-200">
+                  {eventReservations.map((res) => {
+                    const customer = res.customers || {};
+                    return (
+                      <tr key={res.id} className="hover:bg-[#f4f4f4]">
+                        <td className="py-3 px-3">
+                          <div className="font-bold uppercase">{customer.first_name || ''} {customer.last_name || ''}</div>
+                          <div className="text-[10px] text-neutral-500 lowercase">{customer.email} {customer.phone ? `• ${customer.phone}` : ''}</div>
+                          {customer.company_name && <div className="text-[10px] text-neutral-600 uppercase">Firma: {customer.company_name} (IČO: {customer.ico})</div>}
+                        </td>
+                        
+                        <td className="py-3 px-3 uppercase font-medium">
+                          {res.notes || 'Vstupenka'}
+                          <div className="text-[10px] text-neutral-500 font-mono">VS: {res.variable_symbol}</div>
+                        </td>
+
+                        <td className="py-3 px-3 font-bold whitespace-nowrap">
+                          {res.total_price} Kč
+                        </td>
+
+                        <td className="py-3 px-3 whitespace-nowrap">
+                          <span className={`inline-block px-2 py-0.5 text-[10px] font-bold uppercase border ${
+                            res.status === 'paid' ? 'bg-green-100 text-green-800 border-green-300' :
+                            res.status === 'cancelled' ? 'bg-red-100 text-red-800 border-red-300' :
+                            'bg-amber-100 text-amber-800 border-amber-300'
+                          }`}>
+                            {res.status === 'paid' ? 'Zaplaceno' : res.status === 'cancelled' ? 'Stornováno' : 'Čeká na platbu'}
+                          </span>
+                        </td>
+
+                        <td className="py-3 px-3 text-right space-x-2 whitespace-nowrap">
+                          {res.status !== 'paid' && (
+                            <button 
+                              onClick={() => handleUpdateReservationStatus(res.id, 'paid')}
+                              className="bg-black text-white hover:bg-[#E4664F] px-2.5 py-1 text-[10px] font-bold uppercase transition-colors cursor-pointer border border-neutral-300"
+                            >
+                              Potvrdit platbu
+                            </button>
+                          )}
+                          {res.status !== 'cancelled' && (
+                            <button 
+                              onClick={() => handleUpdateReservationStatus(res.id, 'cancelled')}
+                              className="bg-neutral-200 text-black hover:bg-neutral-300 px-2.5 py-1 text-[10px] font-bold uppercase transition-colors cursor-pointer border border-neutral-300"
+                            >
+                              Stornovat
+                            </button>
+                          )}
+                          <button 
+                            onClick={() => handleDeleteReservation(res.id)}
+                            className="text-red-600 hover:text-red-800 font-bold p-1 text-xs cursor-pointer"
+                            title="Trvale smazat"
+                          >
+                            ✕
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
     </div>
   );
 }
