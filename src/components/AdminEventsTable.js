@@ -13,11 +13,18 @@ export default function AdminEventsTable({
   handleUpdateReservationStatus,
   handleDeleteReservation
 }) {
-  // Stavy pro správu zobrazení účastníků u konkrétního eventu
   const [activeEventIdForReservations, setActiveEventIdForReservations] = useState(null);
+  const [copiedId, setCopiedId] = useState(null);
 
   const selectedEventForRes = dbEvents.find(e => e.id === activeEventIdForReservations);
   const eventReservations = reservations.filter(r => r.event_id === activeEventIdForReservations);
+
+  const handleCopyEventUrl = (eventId) => {
+    const url = `${window.location.origin}/?event=${eventId}`;
+    navigator.clipboard.writeText(url);
+    setCopiedId(eventId);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
 
   return (
     <div className="space-y-6 font-mono">
@@ -91,6 +98,13 @@ export default function AdminEventsTable({
 
                       <td className="py-4 px-4 text-right space-x-2 whitespace-nowrap">
                         <button 
+                          onClick={() => handleCopyEventUrl(ev.id)}
+                          className="bg-neutral-100 text-black hover:bg-neutral-200 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer border border-neutral-300"
+                          title="Zkopírovat odkaz na event"
+                        >
+                          {copiedId === ev.id ? '✓ Zkopírováno' : 'Kopírovat URL'}
+                        </button>
+                        <button 
                           onClick={() => setActiveEventIdForReservations(ev.id)}
                           className="bg-black text-white hover:bg-[#E4664F] px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer border border-neutral-300"
                         >
@@ -139,7 +153,7 @@ export default function AdminEventsTable({
         )}
       </div>
 
-      {/* DETAILNÍ SEZNAM ÚČASTNÍKŮ VYBRANÉ AKCE (ZOBRAZÍ SE PO KLIKNUTÍ NA "ÚČASTNÍCI") */}
+      {/* DETAILNÍ SEZNAM ÚČASTNÍKŮ VYBRANÉ AKCE */}
       {activeEventIdForReservations && selectedEventForRes && (
         <div className="bg-white border-2 border-black p-6 sm:p-8 animate-in fade-in">
           <div className="flex justify-between items-center mb-6 border-b border-neutral-300 pb-4">
@@ -193,7 +207,7 @@ export default function AdminEventsTable({
                         <td className="py-3 px-3 whitespace-nowrap">
                           <span className={`inline-block px-2 py-0.5 text-[10px] font-bold uppercase border ${
                             res.status === 'paid' ? 'bg-green-100 text-green-800 border-green-300' :
-                            res.status === 'cancelled' ? 'bg-red-100 text-red-800 border-red-300' :
+                            res.status === 'cancelled' ? 'bg-red-100 text-red-800 border-green-300' :
                             'bg-amber-100 text-amber-800 border-amber-300'
                           }`}>
                             {res.status === 'paid' ? 'Zaplaceno' : res.status === 'cancelled' ? 'Stornováno' : 'Čeká na platbu'}

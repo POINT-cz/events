@@ -167,7 +167,7 @@ export default function EventsPortal() {
               setView('events_portal'); 
               setSelectedEvent(targetEvent); 
               setSelectedVariant(targetEvent.variants?.[0] || null);
-              setBookingStep(1); // Zde zjištěno: zůstáváme v kroku 1 (detail), nejedeme rovnou do platby!
+              setBookingStep(1); 
             }
           }
         } else {
@@ -177,8 +177,9 @@ export default function EventsPortal() {
         setLoading(false);
 
         supabase.from('reservations')
-          .select(`*, customers (first_name, last_name, email, company_name, ico)`)
+          .select(`*, customers (first_name, last_name, email, company_name, ico, phone)`)
           .not('event_id', 'is', null)
+          .order('created_at', { ascending: false })
           .then(({ data: bookingData }) => {
             if (bookingData) setResourcesReservations(bookingData);
           });
@@ -211,14 +212,6 @@ export default function EventsPortal() {
     }
     loadUserData();
   }, [user]);
-
-  const handleShowTicket = async (res) => {
-    setSelectedTicket(res);
-    try {
-      const url = await QRCode.toDataURL(res.id, { width: 300, margin: 2, color: { dark: '#000000', light: '#FFFFFF' } });
-      setTicketQr(url);
-    } catch (err) { console.error(err); }
-  };
 
   const toggleFavorite = async (e, eventId) => {
     e.stopPropagation();
@@ -313,10 +306,6 @@ export default function EventsPortal() {
     } catch (err) { setActionLoading(false); alert('Chyba: ' + err.message); }
   };
 
-  const getEventOccupancy = (eventId) => {
-    return reservations.filter(r => r.event_id === eventId && r.status !== 'cancelled').length;
-  };
-
   // --- SPRÁVA BALÍČKŮ V ADMINU ---
   const handleAddVariant = () => {
     setAdminEventForm(prev => ({
@@ -396,6 +385,30 @@ export default function EventsPortal() {
       alert('Chyba při mazání: ' + error.message);
     } else {
       setDbEvents(dbEvents.filter(e => e.id !== eventId));
+    }
+    setActionLoading(false);
+  };
+
+  // --- SPRÁVA REZERVACÍ V ADMINU ---
+  const handleUpdateReservationStatus = async (resId, newStatus) => {
+    setActionLoading(true);
+    const { error } = await supabase.from('reservations').update({ status: newStatus }).eq('id', resId);
+    if (error) {
+      alert('Chyba při aktualizaci stavu: ' + error.message);
+    } else {
+      setResourcesReservations(reservations.map(r => r.id === resId ? { ...r, status: newStatus } : r));
+    }
+    setActionLoading(false);
+  };
+
+  const handleDeleteReservation = async (resId) => {
+    if (!window.confirm('Opravdu chcete tuto rezervaci trvale smazat?')) return;
+    setActionLoading(true);
+    const { error } = await supabase.from('reservations').delete().eq('id', resId);
+    if (error) {
+      alert('Chyba při mazání rezervace: ' + error.message);
+    } else {
+      setResourcesReservations(reservations.filter(r => r.id !== resId));
     }
     setActionLoading(false);
   };
@@ -491,10 +504,22 @@ export default function EventsPortal() {
        start_hour: 0, end_hour: 0, db_end_hour: 0
     };
 
-    const { data: newBooking, error: bookError } = await supabase.from('reservations').insert(insertData).select(`*, customers (first_name, last_name, email, company_name, ico)`).single();
+    const { data: newBooking, error: bookError } = await supabase.from('reservations').insert(insertData).select(`*, customers (first_name, last_name, email, company_name, ico, phone)`).single();
     if (bookError) { alert(bookError.message); setIsSubmitting(false); setActionLoading(false); return; }
     
-    // Podmíněné generování QR platby podle nastavení eventu (requires_checkin)
+    // Okamžitá synchronizace v administraci
+    const { data: fullNewBooking, error: fetchErr } = await supabase
+      .from('reservations')
+      .select(`*, customers (first_name, last_name, email, company_name, ico, phone)`)
+      .eq('id', newBooking.id)
+      .single();
+
+    if (!fetchErr && fullNewBooking) {
+      setResourcesReservations([fullNewBooking, ...reservations]);
+    } else {
+      setResourcesReservations([newBooking, ...reservations]);
+    }
+
     let qrPaymentUrl = null;
     if (selectedEvent.requires_checkin) {
       const iban = calculateIban("1234567890", "3030");
@@ -522,7 +547,6 @@ export default function EventsPortal() {
       console.error('E-mail se nepodařilo odeslat:', emailErr);
     }
 
-    setResourcesReservations([...reservations, newBooking]);
     setLastCreatedRes({ ...newBooking, email: formData.email });
     setIsSubmitting(false); 
     setActionLoading(false); 
@@ -642,11 +666,14 @@ export default function EventsPortal() {
         {view === 'admin' && isAdmin && (
           <AdminEventsTable 
             dbEvents={dbEvents}
+            reservations={reservations}
             formatDateCzech={formatDateCzech}
             handleToggleHideEvent={handleToggleHideEvent}
             handleDeleteEvent={handleDeleteEvent}
             setAdminEventForm={setAdminEventForm}
             setShowAdminEventModal={setShowAdminEventModal}
+            handleUpdateReservationStatus={handleUpdateReservationStatus}
+            handleDeleteReservation={handleDeleteReservation}
           />
         )}
 
