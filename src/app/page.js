@@ -18,6 +18,7 @@ import AdminEventsTable from '@/components/AdminEventsTable';
 
 export default function EventsPortal() {
   const [view, setView] = useState('events_portal'); 
+  const [section, setSection] = useState('catalog'); // <--- PŘIDÁNO: Správa sekcí (catalog / favorites)
 
   // AUTENTIZACE A UŽIVATEL
   const [user, setUser] = useState(null);
@@ -577,8 +578,10 @@ export default function EventsPortal() {
         gdprConsent={gdprConsent} setGdprConsent={setGdprConsent} handleAuthSubmit={handleAuthSubmit} 
       />
 
+      {/* ZDE PŘEDÁVÁME SECTION A SETSECTION DO HEADERU */}
       <Header 
         user={user} displayName={displayName} view={view} setView={setView} 
+        section={section} setSection={setSection}
         isAdmin={isAdmin} showUserMenu={showUserMenu} setShowUserMenu={setShowUserMenu} handleLogout={handleLogout} 
         setIsLoginMode={setIsLoginMode} setIsForgotPasswordMode={setIsForgotPasswordMode} 
         setResetEmailSent={setResetEmailSent} setShowAuthModal={setShowAuthModal} setGdprConsent={setGdprConsent} 
@@ -665,34 +668,6 @@ export default function EventsPortal() {
             setAdminEventForm={setAdminEventForm}
             setShowAdminEventModal={setShowAdminEventModal}
           />
-        )}
-
-        {view === 'client_favorites' && (
-          <div className="max-w-6xl mx-auto w-full animate-in fade-in space-y-8 pt-4 pb-12">
-            <h2 className="text-3xl sm:text-4xl font-mono font-bold uppercase tracking-tighter text-black text-center mb-8">Moje oblíbené akce</h2>
-            <div className="w-full">
-              {dbEvents.filter(e => favoriteEvents.includes(e.id) && !e.is_hidden).length === 0 ? (
-                  <div className="text-center p-8 sm:p-12 bg-white border-2 border-black font-mono uppercase text-neutral-500">Zatím nemáte žádné oblíbené akce. Přidejte si je kliknutím na srdíčko v katalogu.</div>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                  {dbEvents.filter(e => favoriteEvents.includes(e.id) && !e.is_hidden).map((event) => {
-                    const lowestPrice = event.variants?.length > 0 ? Math.min(...event.variants.map(v => v.price)) : 0;
-                    return (
-                      <EventCard 
-                        key={event.id}
-                        event={event}
-                        isFav={true}
-                        toggleFavorite={toggleFavorite}
-                        onSelect={() => { setSelectedEvent(event); setSelectedVariant(event.variants?.[0] || null); setIsDescExpanded(false); setView('events_portal'); }}
-                        formatDateCzech={formatDateCzech}
-                        lowestPrice={lowestPrice}
-                      />
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-          </div>
         )}
 
         {view === 'client_dashboard' && (
@@ -785,7 +760,37 @@ export default function EventsPortal() {
         {view === 'events_portal' && (
            <div className={`flex-1 w-full animate-in fade-in slide-in-from-bottom-2 ${selectedEvent ? '' : 'space-y-8'}`}>
              
-             {bookingStep === 1 && !selectedEvent && (
+             {/* 1. SEKCE: OBLÍBENÉ */}
+             {section === 'favorites' && bookingStep === 1 && !selectedEvent && (
+               <div className="max-w-6xl mx-auto w-full animate-in fade-in space-y-8 pt-4 pb-12">
+                 <h2 className="text-3xl sm:text-4xl font-mono font-bold uppercase tracking-tighter text-black text-center mb-8">Moje oblíbené akce</h2>
+                 <div className="w-full">
+                   {dbEvents.filter(e => favoriteEvents.includes(e.id) && !e.is_hidden).length === 0 ? (
+                       <div className="text-center p-8 sm:p-12 bg-white border-2 border-black font-mono uppercase text-neutral-500">Zatím nemáte žádné oblíbené akce. Přidejte si je kliknutím na srdíčko v katalogu.</div>
+                   ) : (
+                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                       {dbEvents.filter(e => favoriteEvents.includes(e.id) && !e.is_hidden).map((event) => {
+                         const lowestPrice = event.variants?.length > 0 ? Math.min(...event.variants.map(v => v.price)) : 0;
+                         return (
+                           <EventCard 
+                             key={event.id}
+                             event={event}
+                             isFav={true}
+                             toggleFavorite={toggleFavorite}
+                             onSelect={() => { setSelectedEvent(event); setSelectedVariant(event.variants?.[0] || null); setIsDescExpanded(false); }}
+                             formatDateCzech={formatDateCzech}
+                             lowestPrice={lowestPrice}
+                           />
+                         );
+                       })}
+                     </div>
+                   )}
+                 </div>
+               </div>
+             )}
+
+             {/* 2. SEKCE: KATALOG AKCÍ */}
+             {section === 'catalog' && bookingStep === 1 && !selectedEvent && (
                <div className="w-full px-4 sm:px-0">
                  <div className="flex flex-col items-center justify-center pt-4 pb-8 space-y-4 text-center">
                     <h2 className="text-3xl sm:text-5xl font-mono font-extrabold uppercase tracking-tighter text-black">Naše Akce</h2>

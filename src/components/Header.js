@@ -28,7 +28,7 @@ export default function Header({
         
         {/* 1. SLOUPEC: Logo */}
         <div className="flex items-center justify-between md:justify-start w-full md:w-auto">
-          <div className="cursor-pointer pointer-events-auto flex items-center py-1" onClick={() => { setView('client'); setSection('catalog'); }}>
+          <div className="cursor-pointer pointer-events-auto flex items-center py-1" onClick={() => { setView('events_portal'); setSection('catalog'); }}>
             <img 
               src="/logo.png" 
               alt="POINT SPACE" 
@@ -49,11 +49,11 @@ export default function Header({
           )}
         </div>
         
-        {/* 2. SLOUPEC: Katalog akcí / Oblíbené (ZOBRAZENO VŽDY) */}
+        {/* 2. SLOUPEC: Katalog akcí / Oblíbené */}
         <div className="flex justify-center items-center pointer-events-auto w-full overflow-x-auto">
           <div className="flex border border-neutral-300 bg-neutral-300 p-[1px] gap-[1px] w-full max-w-md">
-            <button onClick={() => { setView('client'); setSection('catalog'); }} className={`flex-1 py-2 text-xs font-mono font-bold uppercase tracking-widest text-center transition-all cursor-pointer ${section === 'catalog' ? 'bg-[#E4664F] text-white' : 'bg-[#f4f4f4] text-black hover:bg-neutral-200'}`}>Katalog akcí</button>
-            <button onClick={() => { setView('client'); setSection('favorites'); }} className={`flex-1 py-2 text-xs font-mono font-bold uppercase tracking-widest text-center transition-all cursor-pointer ${section === 'favorites' ? 'bg-[#E4664F] text-white' : 'bg-[#f4f4f4] text-black hover:bg-neutral-200'}`}>Oblíbené</button>
+            <button onClick={() => { setView('events_portal'); setSection('catalog'); }} className={`flex-1 py-2 text-xs font-mono font-bold uppercase tracking-widest text-center transition-all cursor-pointer ${section === 'catalog' && view === 'events_portal' ? 'bg-[#E4664F] text-white' : 'bg-[#f4f4f4] text-black hover:bg-neutral-200'}`}>Katalog akcí</button>
+            <button onClick={() => { setView('events_portal'); setSection('favorites'); }} className={`flex-1 py-2 text-xs font-mono font-bold uppercase tracking-widest text-center transition-all cursor-pointer ${section === 'favorites' && view === 'events_portal' ? 'bg-[#E4664F] text-white' : 'bg-[#f4f4f4] text-black hover:bg-neutral-200'}`}>Oblíbené</button>
           </div>
         </div>
 
