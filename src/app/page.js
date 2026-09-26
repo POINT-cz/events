@@ -9,7 +9,7 @@ import Footer from '@/components/Footer';
 import AuthModals from '@/components/AuthModals';
 import GlobalModals from '@/components/GlobalModals';
 
-// Import nových komponent
+// Import komponent
 import EventCard from '@/components/EventCard';
 import EventDetail from '@/components/EventDetail';
 import EventBookingForm from '@/components/EventBookingForm';
@@ -409,12 +409,6 @@ export default function EventsPortal() {
     return `CZ${(98n - remainder).toString().padStart(2, '0')}${cleanBank}${prefix}${base}`;
   };
 
-  const generateQrPayment = async (amount, vs) => {
-    try { const iban = calculateIban("1234567890", "3030"); const qrString = `SPD*1.0*ACC:${iban}*AM:${amount}.00*CC:CZK*X-VS:${vs}*MSG:POINT`;
-      const url = await QRCode.toDataURL(qrString, { width: 220, margin: 2, color: { dark: '#000000', light: '#FFFFFF' } }); setQrCodeUrl(url);
-    } catch (err) { console.error(err); }
-  };
-
   const handleProfileSave = async (e) => {
     e.preventDefault();
     if (!user) return;
@@ -499,19 +493,28 @@ export default function EventsPortal() {
     const { data: newBooking, error: bookError } = await supabase.from('reservations').insert(insertData).select(`*, customers (first_name, last_name, email, company_name, ico)`).single();
     if (bookError) { alert(bookError.message); setIsSubmitting(false); setActionLoading(false); return; }
     
-    await generateQrPayment(finalPrice, vs);
-
-    try {
+    // Podmíněné generování QR platby podle nastavení eventu (requires_checkin / vyžaduje QR platbu)
+    let qrPaymentUrl = null;
+    if (selectedEvent.requires_checkin) {
       const iban = calculateIban("1234567890", "3030");
       const spaydString = `SPD*1.0*ACC:${iban}*AM:${finalPrice}.00*CC:CZK*X-VS:${vs}*MSG:POINT`;
-      const qrPaymentUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(spaydString)}&margin=10`;
-      const qrTicketUrl = selectedEvent.requires_checkin ? `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${newBooking.id}&margin=10` : null;
+      qrPaymentUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(spaydString)}&margin=10`;
+      setQrCodeUrl(qrPaymentUrl);
+    } else {
+      setQrCodeUrl('');
+    }
 
+    try {
       await supabase.functions.invoke('send-email', {
         body: {
-          type: 'potvrzeni', to: formData.email, jmeno: formData.firstName,
-          sluzba: `${selectedEvent.title} (${selectedVariant.title})`, datum: formatDateCzech(insertData.date),
-          cas: selectedEvent.time, cena: finalPrice, qrPaymentUrl: qrPaymentUrl, qrTicketUrl: qrTicketUrl
+          type: 'event_potvrzeni', 
+          to: formData.email, 
+          jmeno: formData.firstName,
+          sluzba: `${selectedEvent.title} (${selectedVariant.title})`, 
+          datum: formatDateCzech(insertData.date),
+          cas: selectedEvent.time, 
+          cena: finalPrice, 
+          qrPaymentUrl: qrPaymentUrl
         }
       });
     } catch (emailErr) {
@@ -615,7 +618,7 @@ export default function EventsPortal() {
               <div className="space-y-2 pt-2">
                 <div className="flex items-center gap-2">
                   <input type="checkbox" id="checkin" checked={adminEventForm.requires_checkin} onChange={e => setAdminEventForm({...adminEventForm, requires_checkin: e.target.checked})} className="w-4 h-4 accent-black cursor-pointer" />
-                  <label htmlFor="checkin" className="text-xs font-mono font-bold uppercase tracking-wider text-black cursor-pointer">Vyžaduje QR vstupenku a odpípnutí</label>
+                  <label htmlFor="checkin" className="text-xs font-mono font-bold uppercase tracking-wider text-black cursor-pointer">Generovat QR platbu v e-mailu</label>
                 </div>
                 <div className="flex items-center gap-2">
                   <input type="checkbox" id="hidden" checked={adminEventForm.is_hidden} onChange={e => setAdminEventForm({...adminEventForm, is_hidden: e.target.checked})} className="w-4 h-4 accent-black cursor-pointer" />
@@ -655,8 +658,6 @@ export default function EventsPortal() {
                ) : (
                   <div className="divide-y divide-neutral-300">
                      {myReservations.map(res => {
-                        const eventObj = dbEvents.find(e => e.id === res.event_id);
-                        const needsTicket = eventObj && eventObj.requires_checkin;
                         return (
                           <div key={res.id} className="p-4 sm:p-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                              <div className="flex-1 w-full font-mono">
@@ -672,12 +673,6 @@ export default function EventsPortal() {
                                    <div className="font-bold text-black text-base">{res.total_price} Kč</div>
                                    <div className={`text-[10px] font-bold uppercase mt-1 ${res.status === 'paid' ? 'text-green-700' : res.status === 'cancelled' ? 'text-red-600' : 'text-[#E4664F]'}`}>{res.status === 'paid' ? 'Zaplaceno' : res.status === 'cancelled' ? 'Zrušeno' : 'Čeká na schválení / platbu'}</div>
                                 </div>
-                                
-                                {res.status === 'paid' && needsTicket && (
-                                   <button onClick={() => handleShowTicket(res)} className="w-full sm:w-auto px-4 py-3 bg-black text-white text-xs font-mono font-bold uppercase tracking-wider hover:bg-neutral-800 cursor-pointer flex items-center justify-center gap-2">
-                                      <span>📷</span> Zobrazit vstupenku
-                                   </button>
-                                )}
                              </div>
                           </div>
                         )
