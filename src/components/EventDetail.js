@@ -30,11 +30,11 @@ export default function EventDetail({
           ‹ Zpět na přehled
         </button>
         <div className="absolute bottom-0 left-0 p-6 sm:p-12 w-full bg-gradient-to-t from-black via-black/80 to-transparent">
-          <span className="bg-[#E4664F] text-white text-[10px] font-mono font-bold px-3 py-1 uppercase tracking-wider mb-2 inline-block border border-black">
+          <span className="text-white text-[10px] font-mono font-bold px-3 py-1 uppercase tracking-wider mb-2 inline-block border border-black" style={{ backgroundColor: '#E4664F' }}>
             {selectedEvent.category || 'Workshop'}
           </span>
           <h1 className="text-2xl sm:text-5xl font-mono font-extrabold text-white mb-2 uppercase tracking-tight">{selectedEvent.title}</h1>
-          <div className="text-[#E4664F] font-mono font-bold uppercase tracking-widest text-xs sm:text-sm">{formatDateCzech(selectedEvent.date)}</div>
+          <div className="font-mono font-bold uppercase tracking-widest text-xs sm:text-sm" style={{ color: '#E4664F' }}>{formatDateCzech(selectedEvent.date)}</div>
         </div>
       </div>
       
@@ -46,7 +46,8 @@ export default function EventDetail({
               <h3 className="text-sm font-mono font-bold uppercase tracking-wider text-black">O co jde</h3>
               <button 
                 onClick={(e) => toggleFavorite(e, selectedEvent.id)} 
-                className={`transition-none cursor-pointer flex items-center justify-center ${favoriteEvents.includes(selectedEvent.id) ? 'text-[#E4664F]' : 'text-neutral-400 hover:text-black'}`}
+                className={`transition-none cursor-pointer flex items-center justify-center ${favoriteEvents.includes(selectedEvent.id) ? '' : 'text-neutral-400 hover:text-black'}`}
+                style={favoriteEvents.includes(selectedEvent.id) ? { color: '#E4664F' } : {}}
               >
                 <svg className={`w-6 h-6 sm:w-8 sm:h-8 ${favoriteEvents.includes(selectedEvent.id) ? 'animate-pop fill-current' : 'fill-none'}`} stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
@@ -84,7 +85,8 @@ export default function EventDetail({
                   <div 
                     key={variant.id} 
                     onClick={() => setSelectedVariant(variant)}
-                    className={`p-4 border-2 transition-none cursor-pointer ${isSelected ? 'border-black bg-[#E4664F] text-white' : 'border-black bg-[#f4f4f4] text-black hover:bg-neutral-200'}`}
+                    className={`p-4 border-2 transition-none cursor-pointer ${isSelected ? 'border-black text-white' : 'border-black bg-[#f4f4f4] text-black hover:bg-neutral-200'}`}
+                    style={isSelected ? { backgroundColor: '#E4664F' } : {}}
                   >
                     <div className="flex justify-between items-start mb-1">
                       <span className="font-bold text-xs uppercase tracking-wider">{variant.title}</span>
