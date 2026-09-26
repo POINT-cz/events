@@ -1,8 +1,3 @@
-export const metadata = {
-  title: 'POINT Events — Vstupenky na akce a workshopy',
-  description: 'Rezervujte si své místo na workshopech, přednáškách a eventech v POINTu.',
-};
-
 'use client';
 
 import { useState, useEffect } from 'react';
