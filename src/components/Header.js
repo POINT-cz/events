@@ -1,100 +1,48 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import Link from 'next/link';
 
-export default function Header({ 
-  view, setView, user, isAdmin, 
-  setShowAuthModal, handleLogout, displayName,
-  setIsLoginMode, setIsForgotPasswordMode, setResetEmailSent, setGdprConsent,
-  setBookingStep, setSelectedEvent
-}) {
-  const [showUserMenu, setShowUserMenu] = useState(false);
-  const userMenuRef = useRef(null);
-
-  const logoHeight = "h-8"; 
-
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
-        setShowUserMenu(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => { document.removeEventListener("mousedown", handleClickOutside); };
-  }, []);
-
+export default function Header({ user, onOpenAuth }) {
   return (
-    <header className="bg-[#f4f4f4] border-b border-neutral-300 sticky top-0 z-40 w-full">
-      <div className="px-4 sm:px-8 py-4 flex flex-col md:grid md:grid-cols-3 items-center gap-4 max-w-7xl mx-auto w-full">
+    <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-neutral-200">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         
-        {/* 1. SLOUPEC: Logo */}
-        <div className="flex items-center justify-between md:justify-start w-full md:w-auto">
-          <div className="cursor-pointer pointer-events-auto flex items-center py-1" onClick={() => { setView('events_portal'); setBookingStep(1); setSelectedEvent(null); }}>
-            <img 
-              src="/logo.png" 
-              alt="POINT EVENTS" 
-              className={`${logoHeight} w-auto object-contain block`}
-            />
-          </div>
-          
-          {/* Mobilní tlačítko přihlášení */}
-          {!user && (
-             <div className="md:hidden">
-               <button onClick={() => { setIsLoginMode(true); setIsForgotPasswordMode(false); setResetEmailSent(false); setShowAuthModal(true); setGdprConsent(false); }} className="text-xs font-mono font-bold uppercase tracking-widest text-white bg-[#E4664F] hover:bg-[#d42506] px-3 py-2 transition-colors pointer-events-auto cursor-pointer">Přihlásit</button> 
-             </div>
-          )}
-        </div>
-        
-        {/* 2. SLOUPEC: Eventové menu (Katalog akcí / Oblíbené) - VŽDY VIDITELNÉ */}
-        <div className="flex justify-center items-center pointer-events-auto w-full overflow-x-auto">
-          <div className="flex border border-neutral-300 bg-neutral-300 p-[1px] gap-[1px] w-full max-w-md">
-            <button 
-              onClick={() => { setView('events_portal'); setBookingStep(1); setSelectedEvent(null); }} 
-              className={`flex-1 py-2 text-xs font-mono font-bold uppercase tracking-widest text-center transition-all cursor-pointer ${view === 'events_portal' ? 'bg-[#E4664F] text-white' : 'bg-[#f4f4f4] text-black hover:bg-neutral-200'}`}
-            >
-              Katalog akcí
-            </button>
-            <button 
-              onClick={() => setView('client_favorites')} 
-              className={`flex-1 py-2 text-xs font-mono font-bold uppercase tracking-widest text-center transition-all cursor-pointer flex items-center justify-center gap-1.5 ${view === 'client_favorites' ? 'bg-[#E4664F] text-white' : 'bg-[#f4f4f4] text-black hover:bg-neutral-200'}`}
-            >
-              <span>❤️</span> Oblíbené
-            </button>
-          </div>
-        </div>
+        {/* Logo / Název */}
+        <Link href="/" className="flex items-center gap-2">
+          <span className="font-bold text-lg tracking-tight text-neutral-900">POINT</span>
+          <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-neutral-100 text-neutral-600 border border-neutral-200">Events</span>
+        </Link>
 
-        {/* 3. SLOUPEC: Prolink zpět na prostory & uživatel */}
-        <div className="flex items-center space-x-3 sm:space-x-4 text-xs font-mono font-bold uppercase tracking-widest justify-between md:justify-end w-full md:w-auto">
-          <a href="https://rezervace.pointspace.cz" className="px-3 py-2 border border-neutral-300 text-black hover:border-black hover:bg-black hover:text-white transition-all flex items-center gap-1.5 cursor-pointer pointer-events-auto">
-            <span>←</span> Prostory
-          </a>
+        {/* Navigace / Akce */}
+        <div className="flex items-center gap-3">
+          <Link 
+            href="https://rezervace.pointspace.cz" 
+            target="_blank"
+            className="hidden sm:inline-flex text-xs font-medium text-neutral-600 hover:text-neutral-900 px-3 py-2 transition-colors"
+          >
+            Rezervace prostor
+          </Link>
 
           {user ? (
-            <div className="relative pointer-events-auto" ref={userMenuRef}>
-              <button onClick={() => setShowUserMenu(!showUserMenu)} className={`flex items-center gap-2 font-mono font-bold transition-colors ${(view === 'client_dashboard' || view === 'client_profile' || view === 'admin') ? 'bg-[#E4664F] text-white px-3 py-2' : 'text-black border border-neutral-300 hover:border-black px-3 py-2'} cursor-pointer`}>
-                <span>[👤]</span>
-                <span className="truncate max-w-[100px] sm:max-w-none">{displayName}</span>
+            <div className="flex items-center gap-3">
+              <span className="text-xs text-neutral-600 hidden md:inline">{user.email}</span>
+              <button 
+                onClick={onOpenAuth}
+                className="text-xs font-medium bg-neutral-100 hover:bg-neutral-200 text-neutral-900 px-4 py-2 rounded-xl transition-colors border border-neutral-200"
+              >
+                Můj účet
               </button>
-              {showUserMenu && (
-                <div className="absolute right-0 top-full mt-1 w-52 bg-[#f4f4f4] border border-neutral-300 shadow-none z-50 flex flex-col">
-                  
-                  {isAdmin && (
-                    <button onClick={() => { setView('admin'); setShowUserMenu(false); }} className="w-full text-left px-4 py-3 text-xs font-mono font-bold uppercase tracking-widest text-[#E4664F] hover:bg-black hover:text-white transition-colors border-b border-neutral-300 flex items-center gap-2 cursor-pointer pointer-events-auto">
-                      <span>⚙️</span> Administrace akcí
-                    </button>
-                  )}
-
-                  <button onClick={() => { setView('client_profile'); setShowUserMenu(false); }} className="w-full text-left px-4 py-3 text-xs font-mono font-bold uppercase tracking-widest text-black hover:bg-black hover:text-white transition-colors border-b border-neutral-300 cursor-pointer pointer-events-auto">Můj profil</button>
-                  <button onClick={() => { setView('client_dashboard'); setShowUserMenu(false); }} className="w-full text-left px-4 py-3 text-xs font-mono font-bold uppercase tracking-widest text-black hover:bg-black hover:text-white transition-colors border-b border-neutral-300 cursor-pointer pointer-events-auto">Moje vstupenky</button>
-                  <button onClick={() => { setView('client_favorites'); setShowUserMenu(false); }} className="w-full text-left px-4 py-3 text-xs font-mono font-bold uppercase tracking-widest text-black hover:bg-black hover:text-white transition-colors border-b border-neutral-300 cursor-pointer pointer-events-auto">Oblíbené akce</button>
-                  <button onClick={handleLogout} className="w-full text-left px-4 py-3 text-xs font-mono font-bold uppercase tracking-widest text-black hover:bg-black hover:text-white transition-colors cursor-pointer pointer-events-auto">Odhlásit se</button>
-                </div>
-              )}
             </div>
-          ) : ( 
-            <button onClick={() => { setIsLoginMode(true); setIsForgotPasswordMode(false); setResetEmailSent(false); setShowAuthModal(true); setGdprConsent(false); }} className="hidden md:inline-block text-xs font-mono font-bold uppercase tracking-widest text-white bg-[#E4664F] hover:bg-[#d42506] px-4 py-2 transition-colors pointer-events-auto cursor-pointer">Přihlásit se</button> 
+          ) : (
+            <button 
+              onClick={onOpenAuth}
+              className="text-xs font-semibold bg-[#E4664F] hover:bg-[#d25842] text-white px-4 py-2 rounded-xl transition-all shadow-sm hover:shadow"
+            >
+              Přihlásit se
+            </button>
           )}
         </div>
+
       </div>
     </header>
   );
