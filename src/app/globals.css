@@ -1,6 +1,11 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: var(--font-sans), sans-serif;
+  --font-sans: var(--font-sans), system-ui, -apple-system, sans-serif;
   --font-mono: var(--font-mono), monospace;
+}
+
+/* Pojistka pro vynucení fontu na celém webu */
+body {
+  font-family: var(--font-sans);
 }
