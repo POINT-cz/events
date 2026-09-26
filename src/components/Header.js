@@ -46,7 +46,8 @@ export default function Header({
              <div className="md:hidden">
                <button 
                  onClick={() => { setIsLoginMode(true); setIsForgotPasswordMode(false); setResetEmailSent(false); setShowAuthModal(true); setGdprConsent(false); }} 
-                 className="text-xs font-mono font-bold uppercase tracking-widest text-white bg-[#E4664F] hover:bg-[#d42506] px-3 py-2 cursor-pointer transition-colors"
+                 className="text-xs font-mono font-bold uppercase tracking-widest text-white px-3 py-2 cursor-pointer transition-colors"
+                 style={{ backgroundColor: '#E4664F' }}
                >
                  Přihlásit
                </button> 
@@ -54,20 +55,22 @@ export default function Header({
           )}
         </div>
         
-        {/* 2. SLOUPEC: Katalog akcí / Oblíbené (Opravené klikání) */}
-        <div className="flex justify-center items-center w-full overflow-x-auto z-10">
+        {/* 2. SLOUPEC: Katalog akcí / Oblíbené (Opravená logika přepínání view + section) */}
+        <div className="flex justify-center items-center w-full overflow-x-auto">
           <div className="flex border border-neutral-300 bg-neutral-300 p-[1px] gap-[1px] w-full max-w-xs">
             <button 
               type="button"
               onClick={() => { setView('client'); setSection('catalog'); }} 
-              className={`flex-1 py-2 text-xs font-mono font-bold uppercase tracking-widest text-center transition-all cursor-pointer ${section === 'catalog' && view === 'client' ? 'bg-[#E4664F] text-white' : 'bg-[#f4f4f4] text-black hover:bg-neutral-200'}`}
+              className={`flex-1 py-2 text-xs font-mono font-bold uppercase tracking-widest text-center transition-all cursor-pointer ${section === 'catalog' && view === 'client' ? 'text-white' : 'bg-[#f4f4f4] text-black hover:bg-neutral-200'}`}
+              style={section === 'catalog' && view === 'client' ? { backgroundColor: '#E4664F' } : {}}
             >
               Katalog akcí
             </button>
             <button 
               type="button"
               onClick={() => { setView('client'); setSection('favorites'); }} 
-              className={`flex-1 py-2 text-xs font-mono font-bold uppercase tracking-widest text-center transition-all cursor-pointer ${section === 'favorites' && view === 'client' ? 'bg-[#E4664F] text-white' : 'bg-[#f4f4f4] text-black hover:bg-neutral-200'}`}
+              className={`flex-1 py-2 text-xs font-mono font-bold uppercase tracking-widest text-center transition-all cursor-pointer ${section === 'favorites' && view === 'client' ? 'text-white' : 'bg-[#f4f4f4] text-black hover:bg-neutral-200'}`}
+              style={section === 'favorites' && view === 'client' ? { backgroundColor: '#E4664F' } : {}}
             >
               Oblíbené
             </button>
@@ -82,7 +85,11 @@ export default function Header({
 
           {user ? (
             <div className="relative z-20" ref={userMenuRef}>
-              <button onClick={() => setShowUserMenu(!showUserMenu)} className="flex items-center gap-2 font-mono font-bold transition-colors text-black border border-neutral-300 hover:border-black px-3 py-2 cursor-pointer">
+              <button 
+                onClick={() => setShowUserMenu(!showUserMenu)} 
+                className={`flex items-center gap-2 font-mono font-bold transition-colors text-black border border-neutral-300 hover:border-black px-3 py-2 cursor-pointer ${(view === 'client_dashboard' || view === 'client_profile') ? 'text-white' : ''}`}
+                style={(view === 'client_dashboard' || view === 'client_profile') ? { backgroundColor: '#E4664F', borderColor: '#E4664F' } : {}}
+              >
                 <span>[👤]</span>
                 <span className="truncate max-w-[100px] sm:max-w-none">{displayName}</span>
               </button>
@@ -96,7 +103,8 @@ export default function Header({
           ) : ( 
             <button 
               onClick={() => { setIsLoginMode(true); setIsForgotPasswordMode(false); setResetEmailSent(false); setShowAuthModal(true); setGdprConsent(false); }} 
-              className="hidden md:inline-block text-xs font-mono font-bold uppercase tracking-widest text-white bg-[#E4664F] hover:bg-[#d42506] px-4 py-2 cursor-pointer transition-colors"
+              className="hidden md:inline-block text-xs font-mono font-bold uppercase tracking-widest text-white px-4 py-2 cursor-pointer transition-colors"
+              style={{ backgroundColor: '#E4664F' }}
             >
               Přihlásit se
             </button> 
