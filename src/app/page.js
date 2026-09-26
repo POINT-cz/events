@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import QRCode from 'qrcode';
 import { supabase } from '@/supabase';
 
@@ -18,7 +18,7 @@ import AdminEventsTable from '@/components/AdminEventsTable';
 
 export default function EventsPortal() {
   const [view, setView] = useState('events_portal'); 
-  const [section, setSection] = useState('catalog'); // <--- PŘIDÁNO: Správa sekcí (catalog / favorites)
+  const [section, setSection] = useState('catalog');
 
   // AUTENTIZACE A UŽIVATEL
   const [user, setUser] = useState(null);
@@ -89,7 +89,6 @@ export default function EventsPortal() {
   const [qrCodeUrl, setQrCodeUrl] = useState('');
   const [aresLoading, setAresLoading] = useState(false);
   const [honeypot, setHoneypot] = useState(''); 
-  const cursorRef = useRef(null);
 
   const [formData, setFormData] = useState({
     firstName: '', lastName: '', email: '', phone: '', company: '', ico: '', dic: '', street: '', city: '', psc: '', paymentType: 'qr_code'
@@ -103,14 +102,6 @@ export default function EventsPortal() {
     }
     return isoDate;
   };
-
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      if (cursorRef.current) { cursorRef.current.style.left = `${e.clientX}px`; cursorRef.current.style.top = `${e.clientY}px`; }
-    };
-    window.addEventListener('mousemove', handleMouseMove, { passive: true });
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
 
   useEffect(() => {
     const consent = localStorage.getItem('point_cookie_consent');
@@ -534,20 +525,8 @@ export default function EventsPortal() {
     setBookingStep(3);
   };
 
-  const globalAnimationCss = `
-    * { cursor: none !important; }
-    @keyframes growDot { 0% { transform: scale(0); opacity: 0.2; } 50% { transform: scale(1); opacity: 1; } 100% { transform: scale(0); opacity: 0.2; } }
-    .grow-dot { width: 50px; height: 50px; background-color: #E4664F; border-radius: 50%; animation: growDot 1.5s ease-in-out infinite; }
-    @keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.3); } 100% { transform: scale(1); } }
-    .animate-pop { animation: pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-    .hide-scrollbar::-webkit-scrollbar { display: none; }
-    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-  `;
-
   if (loading || actionLoading) return (
     <div className="min-h-screen bg-[#f4f4f4] flex flex-col items-center justify-center">
-      <style dangerouslySetInnerHTML={{__html: globalAnimationCss}} />
-      <div className="grow-dot mb-8"></div>
       <div className="text-xs font-mono font-bold uppercase tracking-wider text-black animate-pulse">Načítám Point Events...</div>
     </div>
   );
@@ -556,9 +535,7 @@ export default function EventsPortal() {
   const displayName = clientData?.first_name ? clientData.first_name : user?.email?.split('@')[0];
 
   return (
-    <div className="min-h-screen bg-[#f4f4f4] text-black font-sans antialiased flex flex-col cursor-none selection:bg-black selection:text-white relative overflow-x-hidden">
-      <style dangerouslySetInnerHTML={{__html: globalAnimationCss}} />
-      <div ref={cursorRef} className="fixed w-3 h-3 bg-[#E4664F] rounded-full pointer-events-none z-[9999] hidden md:block" style={{ transform: 'translate(-50%, -50%)', left: '-100px', top: '-100px' }} />
+    <div className="min-h-screen bg-[#f4f4f4] text-black font-sans antialiased flex flex-col selection:bg-black selection:text-white relative overflow-x-hidden">
 
       <GlobalModals 
         showCookieBanner={showCookieBanner} handleAcceptCookies={handleAcceptCookies} 
@@ -578,7 +555,6 @@ export default function EventsPortal() {
         gdprConsent={gdprConsent} setGdprConsent={setGdprConsent} handleAuthSubmit={handleAuthSubmit} 
       />
 
-      {/* ZDE PŘEDÁVÁME SECTION A SETSECTION DO HEADERU */}
       <Header 
         user={user} displayName={displayName} view={view} setView={setView} 
         section={section} setSection={setSection}
