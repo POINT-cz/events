@@ -158,6 +158,7 @@ export default function EventsPortal() {
           }));
           setDbEvents(parsedEvents.length > 0 ? parsedEvents : dummyEvents);
           
+          // ZJISTĚNÍ URL PARAMETRU PRO EVENT -> OTEVŘE DETAIL (KROK 1)
           const params = new URLSearchParams(window.location.search);
           const urlEventId = params.get('event');
           if (urlEventId) {
@@ -166,7 +167,7 @@ export default function EventsPortal() {
               setView('events_portal'); 
               setSelectedEvent(targetEvent); 
               setSelectedVariant(targetEvent.variants?.[0] || null);
-              setBookingStep(2); 
+              setBookingStep(1); // Zde zjištěno: zůstáváme v kroku 1 (detail), nejedeme rovnou do platby!
             }
           }
         } else {
@@ -493,7 +494,7 @@ export default function EventsPortal() {
     const { data: newBooking, error: bookError } = await supabase.from('reservations').insert(insertData).select(`*, customers (first_name, last_name, email, company_name, ico)`).single();
     if (bookError) { alert(bookError.message); setIsSubmitting(false); setActionLoading(false); return; }
     
-    // Podmíněné generování QR platby podle nastavení eventu (requires_checkin / vyžaduje QR platbu)
+    // Podmíněné generování QR platby podle nastavení eventu (requires_checkin)
     let qrPaymentUrl = null;
     if (selectedEvent.requires_checkin) {
       const iban = calculateIban("1234567890", "3030");
@@ -820,6 +821,7 @@ export default function EventsPortal() {
                   favoriteEvents={favoriteEvents}
                   toggleFavorite={toggleFavorite}
                   formatDateCzech={formatDateCzech}
+                  reservations={reservations}
                 />
              )}
 

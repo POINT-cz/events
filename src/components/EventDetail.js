@@ -10,7 +10,8 @@ export default function EventDetail({
   setSelectedEvent, 
   favoriteEvents, 
   toggleFavorite, 
-  formatDateCzech 
+  formatDateCzech,
+  reservations = [] 
 }) {
   if (!selectedEvent) return null;
 
@@ -110,19 +111,31 @@ export default function EventDetail({
 
             <div className="space-y-3">
               {selectedEvent.variants?.map((variant) => {
+                // Spočítáme, kolik rezervací už na tento event existuje
+                const bookedCount = reservations.filter(r => r.event_id === selectedEvent.id && r.status !== 'cancelled').length;
+                const capacity = Number(variant.capacity) || 10;
+                const remaining = Math.max(0, capacity - bookedCount);
+                const isSoldOut = remaining === 0;
+
                 const isSelected = selectedVariant?.id === variant.id;
+
                 return (
                   <div 
                     key={variant.id} 
-                    onClick={() => setSelectedVariant(variant)}
-                    className={`p-4 border transition-all cursor-pointer ${isSelected ? 'border-black text-white' : 'border-neutral-300 bg-[#f4f4f4] text-black hover:border-black hover:bg-neutral-200'}`}
-                    style={isSelected ? { backgroundColor: '#E4664F', borderColor: '#E4664F' } : {}}
+                    onClick={() => { if (!isSoldOut) setSelectedVariant(variant); }}
+                    className={`p-4 border transition-all ${isSoldOut ? 'opacity-50 cursor-not-allowed bg-neutral-100 border-neutral-200' : isSelected ? 'border-black text-white cursor-pointer' : 'border-neutral-300 bg-[#f4f4f4] text-black hover:border-black hover:bg-neutral-200 cursor-pointer'}`}
+                    style={!isSoldOut && isSelected ? { backgroundColor: '#E4664F', borderColor: '#E4664F' } : {}}
                   >
                     <div className="flex justify-between items-start mb-1">
                       <span className="font-bold text-xs uppercase tracking-wider">{variant.title}</span>
                       <span className="font-bold text-xs uppercase">{variant.price} Kč</span>
                     </div>
-                    <p className={`text-[10px] uppercase tracking-wider ${isSelected ? 'text-white/90' : 'text-neutral-600'}`}>{variant.description}</p>
+                    <div className="flex justify-between items-center mt-2">
+                      <p className={`text-[10px] uppercase tracking-wider ${isSelected ? 'text-white/90' : 'text-neutral-600'}`}>{variant.description}</p>
+                      <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 border ${isSoldOut ? 'bg-red-100 text-red-700 border-red-300' : isSelected ? 'bg-white/20 text-white border-white/40' : 'bg-white text-black border-neutral-300'}`}>
+                        {isSoldOut ? 'Vyprodáno' : `Zbývá míst: ${remaining}`}
+                      </span>
+                    </div>
                   </div>
                 );
               })}
