@@ -49,16 +49,13 @@ export default function Header({
           )}
         </div>
         
-        {/* 2. SLOUPEC: Katalog akcí / Oblíbené */}
-        {(view === 'client' || view === 'client_dashboard' || view === 'client_profile') && (
-          <div className="flex justify-center items-center pointer-events-auto w-full overflow-x-auto">
-            <div className="flex border border-neutral-300 bg-neutral-300 p-[1px] gap-[1px] w-full max-w-md">
-              <button onClick={() => setSection('catalog')} className={`flex-1 py-2 text-xs font-mono font-bold uppercase tracking-widest text-center transition-all cursor-pointer ${section === 'catalog' && view === 'client' ? 'bg-[#E4664F] text-white' : 'bg-[#f4f4f4] text-black hover:bg-neutral-200'}`}>Katalog akcí</button>
-              <button onClick={() => setSection('favorites')} className={`flex-1 py-2 text-xs font-mono font-bold uppercase tracking-widest text-center transition-all cursor-pointer ${section === 'favorites' && view === 'client' ? 'bg-[#E4664F] text-white' : 'bg-[#f4f4f4] text-black hover:bg-neutral-200'}`}>Oblíbené</button>
-            </div>
+        {/* 2. SLOUPEC: Katalog akcí / Oblíbené (ZOBRAZENO VŽDY) */}
+        <div className="flex justify-center items-center pointer-events-auto w-full overflow-x-auto">
+          <div className="flex border border-neutral-300 bg-neutral-300 p-[1px] gap-[1px] w-full max-w-md">
+            <button onClick={() => { setView('client'); setSection('catalog'); }} className={`flex-1 py-2 text-xs font-mono font-bold uppercase tracking-widest text-center transition-all cursor-pointer ${section === 'catalog' ? 'bg-[#E4664F] text-white' : 'bg-[#f4f4f4] text-black hover:bg-neutral-200'}`}>Katalog akcí</button>
+            <button onClick={() => { setView('client'); setSection('favorites'); }} className={`flex-1 py-2 text-xs font-mono font-bold uppercase tracking-widest text-center transition-all cursor-pointer ${section === 'favorites' ? 'bg-[#E4664F] text-white' : 'bg-[#f4f4f4] text-black hover:bg-neutral-200'}`}>Oblíbené</button>
           </div>
-        )}
-        {view !== 'client' && view !== 'client_dashboard' && view !== 'client_profile' && <div className="hidden md:block"></div>}
+        </div>
 
         {/* 3. SLOUPEC: Odkaz na rezervace a uživatel */}
         <div className="flex items-center space-x-3 sm:space-x-4 text-xs font-mono font-bold uppercase tracking-widest justify-between md:justify-end w-full md:w-auto">
