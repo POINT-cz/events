@@ -85,7 +85,12 @@ export default function Header({
               )}
             </div>
           ) : ( 
-            <button onClick={() => { setIsLoginMode(true); setIsForgotPasswordMode(false); setResetEmailSent(false); setShowAuthModal(true); setGdprConsent(false); }} className="hidden md:inline-block text-xs font-mono font-bold uppercase tracking-widest text-white bg-[#E4664F] hover:bg-[#d42506] px-4 py-2 transition-colors pointer-events-auto cursor-pointer">Přihlásit se</button> 
+            <button 
+              onClick={() => { setIsLoginMode(true); setIsForgotPasswordMode(false); setResetEmailSent(false); setShowAuthModal(true); setGdprConsent(false); }} 
+              className="hidden md:inline-block text-xs font-mono font-bold uppercase tracking-widest text-white bg-[#E4664F] hover:bg-[#d42506] px-4 py-2 transition-colors pointer-events-auto cursor-pointer"
+            >
+              Přihlásit se
+            </button> 
           )}
         </div>
       </div>
