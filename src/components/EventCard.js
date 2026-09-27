@@ -24,7 +24,7 @@ export default function EventCard({ event, isFav, toggleFavorite, onSelect, form
       </div>
 
       {/* Obrázek nahoře v kartě */}
-      <div className="h-42 sm:h-48 w-full bg-neutral-100 relative border-b border-neutral-300 overflow-hidden">
+      <div className="h-42 sm:h-48 w-full bg-neutral-100 relative border-b border-neutral-300 overflow-hidden shrink-0">
         <img 
           src={event.image_url || 'https://images.unsplash.com/photo-1515187029135-18ee286d815b?q=80&w=1000&auto=format&fit=crop'} 
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
@@ -32,21 +32,27 @@ export default function EventCard({ event, isFav, toggleFavorite, onSelect, form
         />
       </div>
       
-      {/* Obsah karty dole s hover efektem */}
-      <div className="p-3.5 sm:p-5 flex flex-col justify-between flex-1 relative z-20 font-mono bg-white">
+      {/* Obsah karty dole */}
+      <div className="p-3.5 sm:p-5 flex flex-col justify-between flex-1 relative z-20 font-mono bg-white overflow-hidden">
         <h3 className="text-xs sm:text-base font-bold text-black uppercase tracking-tight line-clamp-1 mb-1 sm:mb-2">{event.title}</h3>
         
-        {/* Výchozí info (na mobilu viditelné pořád, na desktopu mizí při hoveru) */}
-        <div className="flex flex-col items-start gap-1 text-neutral-600 text-[11px] sm:text-xs uppercase transition-opacity duration-350 sm:group-hover:opacity-0">
-          <span>📅 {formatDateCzech(event.date)}</span>
-          <span>⏰ {event.time}</span>
-          <span className="font-bold text-black mt-0.5 sm:mt-1">od {lowestPrice} Kč</span>
-        </div>
+        <div className="relative flex-1 flex flex-col justify-end">
+          {/* Výchozí info (na desktopu při hoveru zmizí, na mobilu zůstává) */}
+          <div className="flex flex-col items-start gap-1 text-neutral-600 text-[11px] sm:text-xs uppercase transition-all duration-300 sm:group-hover:opacity-0 sm:group-hover:translate-y-2">
+            <span>📅 {formatDateCzech(event.date)}</span>
+            <span>⏰ {event.time}</span>
+            <span className="font-bold text-black mt-0.5 sm:mt-1">od {lowestPrice} Kč</span>
+          </div>
 
-        {/* Text objevující se na hover (na dotykových zařízeních lze případně kliknout rovnou na kartu, na desktopu funguje animovaný hover) */}
-        <div className="absolute inset-x-3.5 sm:inset-x-4 bottom-3.5 sm:bottom-4 bg-white opacity-100 sm:opacity-0 sm:translate-y-3 sm:group-hover:opacity-100 sm:group-hover:translate-y-0 transition-all duration-300 z-30 pt-1">
-          <p className="hidden sm:block text-[11px] text-neutral-700 line-clamp-2 mb-3 leading-relaxed">{event.description || 'Přijďte se podívat na naši exkluzivní akci.'}</p>
-          <span className="inline-block border border-black text-white bg-black px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider hover:bg-[#E4664F] hover:border-[#E4664F] transition-colors w-full text-center sm:w-auto">Detail akce ›</span>
+          {/* Text a tlačítko při najetí myší na desktopu */}
+          <div className="absolute inset-0 bg-white flex flex-col justify-between opacity-100 sm:opacity-0 sm:translate-y-3 sm:group-hover:opacity-100 sm:group-hover:translate-y-0 transition-all duration-300 z-30">
+            <p className="hidden sm:block text-[11px] text-neutral-700 line-clamp-2 leading-relaxed mb-2">
+              {event.description || 'Prohlédněte si detailní informace a rezervujte si své místo na této akce.'}
+            </p>
+            <span className="inline-block border border-black text-white bg-black px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider hover:bg-[#E4664F] hover:border-[#E4664F] transition-colors w-full text-center sm:w-auto mt-auto">
+              Detail akce ›
+            </span>
+          </div>
         </div>
       </div>
     </div>

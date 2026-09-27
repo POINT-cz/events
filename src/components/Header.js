@@ -23,11 +23,11 @@ export default function Header({
   }, []);
 
   return (
-    <header className="bg-[#f4f4f4] border-b border-neutral-300 sticky top-0 z-40 w-full overflow-x-hidden">
-      <div className="px-3 sm:px-8 py-3.5 sm:py-4 flex flex-col md:grid md:grid-cols-3 items-center gap-3 sm:gap-4 max-w-7xl mx-auto w-full">
+    <header className="bg-[#f4f4f4] border-b border-neutral-300 sticky top-0 z-50 w-full">
+      <div className="px-4 sm:px-8 py-3.5 sm:py-4 grid grid-cols-1 md:grid-cols-3 items-center gap-4 max-w-7xl mx-auto w-full">
         
         {/* 1. SLOUPEC: Logo */}
-        <div className="flex items-center justify-between md:justify-start w-full md:w-auto">
+        <div className="flex items-center justify-between md:justify-start w-full">
           <div className="cursor-pointer pointer-events-auto flex items-center py-1" onClick={() => { setView('events_portal'); setSection('catalog'); }}>
             <img 
               src="/logo.png" 
@@ -57,7 +57,7 @@ export default function Header({
         
         {/* 2. SLOUPEC: Katalog akcí / Oblíbené */}
         <div className="flex justify-center items-center pointer-events-auto w-full">
-          <div className="flex border border-neutral-300 bg-neutral-300 p-[1px] gap-[1px] w-full max-w-sm sm:max-w-md">
+          <div className="flex border border-neutral-300 bg-neutral-300 p-[1px] gap-[1px] w-full max-w-xs sm:max-w-md">
             <button 
               type="button"
               onClick={() => { setView('events_portal'); setSection('catalog'); }} 
@@ -76,10 +76,10 @@ export default function Header({
         </div>
 
         {/* 3. SLOUPEC: Odkaz na rezervace a uživatel */}
-        <div className="flex items-center gap-2 sm:gap-3 text-xs font-mono font-bold uppercase tracking-widest justify-between md:justify-end w-full md:w-auto">
+        <div className="flex items-center gap-2 sm:gap-3 text-xs font-mono font-bold uppercase tracking-widest justify-between md:justify-end w-full">
           <a 
             href="https://rezervace.pointspace.cz" 
-            className="px-2.5 sm:px-3 py-2 border border-neutral-300 text-black hover:border-black hover:bg-black hover:text-white transition-all flex items-center gap-1 cursor-pointer pointer-events-auto text-[11px] sm:text-xs"
+            className="px-2.5 sm:px-3 py-2 border border-neutral-300 text-black hover:border-black hover:bg-black hover:text-white transition-all flex items-center gap-1 cursor-pointer pointer-events-auto text-[11px] sm:text-xs whitespace-nowrap"
           >
             Rezervace <span>↗</span>
           </a>
@@ -96,7 +96,7 @@ export default function Header({
               </button>
 
               {showUserMenu && (
-                <div className="absolute right-0 top-full mt-1 w-52 bg-[#f4f4f4] border border-neutral-300 shadow-lg z-50 flex flex-col">
+                <div className="absolute right-0 top-full mt-1 w-52 bg-[#f4f4f4] border border-neutral-300 shadow-xl z-50 flex flex-col">
                   {isAdmin && (
                     <button 
                       type="button"
@@ -135,7 +135,7 @@ export default function Header({
             <button 
               type="button"
               onClick={() => { setIsLoginMode(true); setIsForgotPasswordMode(false); setResetEmailSent(false); setShowAuthModal(true); setGdprConsent(false); }} 
-              className="hidden md:inline-block text-xs font-mono font-bold uppercase tracking-widest text-white bg-[#E4664F] hover:bg-[#d42506] px-4 py-2 transition-colors pointer-events-auto cursor-pointer active:scale-95 touch-manipulation"
+              className="hidden md:inline-block text-xs font-mono font-bold uppercase tracking-widest text-white bg-[#E4664F] hover:bg-[#d42506] px-4 py-2 transition-colors pointer-events-auto cursor-pointer active:scale-95 touch-manipulation whitespace-nowrap"
             >
               Přihlásit se
             </button> 
