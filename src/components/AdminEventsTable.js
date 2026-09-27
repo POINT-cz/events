@@ -40,7 +40,8 @@ export default function AdminEventsTable({
             setAdminEventForm({
               id: null, title: '', date: '', time: '17:00 - 20:00', category: 'Workshop',
               description: '', image_url: '', requires_checkin: false, is_hidden: false,
-              variants: [{ id: '1', title: 'Základní vstupenka', description: 'Vstup na akci', price: 500, capacity: 20 }]
+              variants: [{ id: '1', title: 'Základní vstupenka', description: 'Vstup na akci', price: 500, capacity: 20 }],
+              custom_questions: []
             });
             setShowAdminEventModal(true);
           }}
@@ -122,7 +123,8 @@ export default function AdminEventsTable({
                               image_url: ev.image_url || '',
                               requires_checkin: ev.requires_checkin || false,
                               is_hidden: ev.is_hidden || false,
-                              variants: ev.variants || [{ id: '1', title: 'Vstupenka', description: '', price: ev.price || 500, capacity: ev.capacity || 10 }]
+                              variants: ev.variants || [{ id: '1', title: 'Vstupenka', description: '', price: ev.price || 500, capacity: ev.capacity || 10 }],
+                              custom_questions: ev.custom_questions || []
                             });
                             setShowAdminEventModal(true);
                           }}
@@ -177,7 +179,7 @@ export default function AdminEventsTable({
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
                   <tr className="border-b border-neutral-300 text-neutral-500 uppercase text-[10px]">
-                    <th className="py-3 px-3">Zákazník</th>
+                    <th className="py-3 px-3">Zákazník & Dotazník</th>
                     <th className="py-3 px-3">Balíček / Poznámka</th>
                     <th className="py-3 px-3">Cena</th>
                     <th className="py-3 px-3">Stav platby</th>
@@ -188,11 +190,23 @@ export default function AdminEventsTable({
                   {eventReservations.map((res) => {
                     const customer = res.customers || {};
                     return (
-                      <tr key={res.id} className="hover:bg-[#f4f4f4]">
+                      <tr key={res.id} className="hover:bg-[#f4f4f4] align-top">
                         <td className="py-3 px-3">
                           <div className="font-bold uppercase">{customer.first_name || ''} {customer.last_name || ''}</div>
                           <div className="text-[10px] text-neutral-500 lowercase">{customer.email} {customer.phone ? `• ${customer.phone}` : ''}</div>
                           {customer.company_name && <div className="text-[10px] text-neutral-600 uppercase">Firma: {customer.company_name} (IČO: {customer.ico})</div>}
+                          
+                          {/* Zobrazení odpovědí z dotazníku */}
+                          {res.custom_answers && res.custom_answers.length > 0 && (
+                            <div className="mt-2 p-2 bg-[#f4f4f4] border border-neutral-300 text-[10px] space-y-1">
+                              <div className="font-bold text-neutral-500 uppercase tracking-wider">Odpovědi na otázky:</div>
+                              {res.custom_answers.map((ans, idx) => (
+                                <div key={idx}>
+                                  <span className="text-neutral-600">{ans.question}:</span> <span className="text-black font-bold">{ans.answer || 'Bez odpovědi'}</span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </td>
                         
                         <td className="py-3 px-3 uppercase font-medium">

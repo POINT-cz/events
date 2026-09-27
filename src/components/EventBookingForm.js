@@ -6,6 +6,8 @@ export default function EventBookingForm({
   selectedVariant,
   formData,
   setFormData,
+  customAnswers,
+  setCustomAnswers,
   honeypot,
   setHoneypot,
   aresLoading,
@@ -22,74 +24,189 @@ export default function EventBookingForm({
   formatDateCzech
 }) {
   return (
-    <form onSubmit={handleClientSubmit} className="max-w-2xl mx-auto w-full bg-white border border-neutral-300 p-6 sm:p-10 space-y-6 sm:space-y-8 animate-in fade-in">
+    <div className="max-w-3xl mx-auto w-full animate-in fade-in space-y-6 pt-4 pb-12 font-mono">
       
-      {/* Honeypot proti botům */}
-      <div style={{ display: 'none' }} aria-hidden="true">
-        <input type="text" id="bot-check" name="bot-check" value={honeypot} onChange={e => setHoneypot(e.target.value)} tabIndex="-1" autoComplete="off" />
+      <div className="flex items-center justify-between border-b border-neutral-300 pb-4">
+        <div>
+          <button 
+            type="button" 
+            onClick={() => setBookingStep(1)} 
+            className="text-xs font-bold uppercase text-neutral-500 hover:text-black cursor-pointer mb-1 inline-block"
+          >
+            ← Zpět na detail akce
+          </button>
+          <h2 className="text-xl sm:text-2xl font-bold uppercase tracking-tight text-black">Dokončení rezervace</h2>
+        </div>
+        <div className="text-right">
+          <div className="text-xs font-bold text-neutral-500 uppercase">{selectedVariant?.title}</div>
+          <div className="text-lg font-extrabold text-black">{selectedVariant?.price} Kč</div>
+        </div>
       </div>
 
-      {!user && (
-        <div className="bg-[#f4f4f4] border border-neutral-300 p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-          <span className="text-xs font-mono font-bold uppercase tracking-wider text-black">Pro rychlejší rezervaci se přihlaste.</span>
-          <button type="button" onClick={() => { setIsLoginMode(true); setShowAuthModal(true); }} className="text-xs font-mono font-bold uppercase tracking-widest bg-black text-white px-4 py-2 hover:bg-neutral-800 cursor-pointer">Přihlásit se</button>
+      <form onSubmit={handleClientSubmit} className="space-y-6">
+        
+        {/* HONEYPOT PROTI SPAMU */}
+        <div className="hidden" aria-hidden="true">
+          <input 
+            type="text" 
+            name="website_hp" 
+            value={honeypot} 
+            onChange={e => setHoneypot(e.target.value)} 
+            tabIndex={-1} 
+            autoComplete="off" 
+          />
         </div>
-      )}
 
-      {selectedEvent && selectedVariant && (
-        <div className="bg-black text-white border border-neutral-300 p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 font-mono">
-          <div>
-            <div className="text-[10px] uppercase font-bold tracking-widest text-neutral-400 mb-1">Vstupenka na akci</div>
-            <div className="font-bold text-sm uppercase">{selectedEvent.title} <span className="text-[#E4664F]">({selectedVariant.title})</span></div>
-            <div className="text-xs mt-1 text-neutral-300">{formatDateCzech(selectedEvent.date)} • {selectedEvent.time}</div>
+        {/* OSOBNÍ ÚDAJE */}
+        <div className="bg-white border border-neutral-300 p-6 space-y-4">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-neutral-500 border-b border-neutral-200 pb-2">1. Kontaktní údaje</h3>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Jméno *</label>
+              <input 
+                type="text" 
+                required 
+                value={formData.firstName} 
+                onChange={e => setFormData({...formData, firstName: e.target.value})} 
+                className="w-full bg-[#f4f4f4] border border-neutral-300 p-3 text-xs font-bold uppercase outline-none focus:border-black" 
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Příjmení *</label>
+              <input 
+                type="text" 
+                required 
+                value={formData.lastName} 
+                onChange={e => setFormData({...formData, lastName: e.target.value})} 
+                className="w-full bg-[#f4f4f4] border border-neutral-300 p-3 text-xs font-bold uppercase outline-none focus:border-black" 
+              />
+            </div>
           </div>
-          <div className="text-xl font-bold text-[#E4664F]">{selectedVariant.price} Kč</div>
-        </div>
-      )}
 
-      <div>
-        <h3 className="text-xs font-mono font-bold uppercase tracking-widest text-black border-b border-neutral-300 pb-2 mb-4">Kontaktní údaje</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 font-mono">
-          <div><label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Jméno *</label><input type="text" required value={formData.firstName} onChange={e => setFormData({...formData, firstName: e.target.value})} className="w-full bg-[#f4f4f4] border border-neutral-300 p-3 text-xs font-bold uppercase outline-none focus:border-black transition-colors" /></div>
-          <div><label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Příjmení *</label><input type="text" required value={formData.lastName} onChange={e => setFormData({...formData, lastName: e.target.value})} className="w-full bg-[#f4f4f4] border border-neutral-300 p-3 text-xs font-bold uppercase outline-none focus:border-black transition-colors" /></div>
-          <div><label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">E-mail *</label><input type="email" required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full bg-[#f4f4f4] border border-neutral-300 p-3 text-xs font-bold outline-none focus:border-black transition-colors" /></div>
-          <div><label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Telefon *</label><input type="tel" required value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full bg-[#f4f4f4] border border-neutral-300 p-3 text-xs font-bold outline-none focus:border-black transition-colors" /></div>
-        </div>
-      </div>
-      
-      <div className="font-mono">
-        <h4 className="text-xs font-bold uppercase tracking-widest text-black border-b border-neutral-300 pb-2 mb-4 flex items-center justify-between">Fakturační údaje <span className="text-[10px] text-neutral-400">Volitelné</span></h4>
-        <div className="space-y-3">
-          <div className="flex flex-col sm:flex-row items-start sm:items-end gap-2">
-            <div className="flex-1 w-full"><label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">IČO pro načtení z ARES</label><input type="text" placeholder="IČO..." value={formData.ico} onChange={e => setFormData({...formData, ico: e.target.value})} className="w-full bg-[#f4f4f4] border border-neutral-300 p-3 text-xs font-bold outline-none focus:border-black transition-colors" /></div>
-            <button type="button" onClick={loadFromAres} disabled={aresLoading} className="w-full sm:w-auto bg-black text-white text-xs font-bold uppercase tracking-widest px-5 py-3.5 hover:bg-neutral-800 disabled:opacity-40 cursor-pointer">{aresLoading ? 'Načítám...' : 'Načíst ARES'}</button>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div><label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Název firmy</label><input type="text" value={formData.company} onChange={e => setFormData({...formData, company: e.target.value})} className="w-full bg-[#f4f4f4] border border-neutral-300 p-3 text-xs font-bold uppercase outline-none focus:border-black transition-colors" /></div>
-            <div><label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">DIČ</label><input type="text" value={formData.dic} onChange={e => setFormData({...formData, dic: e.target.value})} className="w-full bg-[#f4f4f4] border border-neutral-300 p-3 text-xs font-bold uppercase outline-none focus:border-black transition-colors" /></div>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-6 gap-3">
-            <div className="sm:col-span-3"><label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Ulice a č.p.</label><input type="text" value={formData.street} onChange={e => setFormData({...formData, street: e.target.value})} className="w-full bg-[#f4f4f4] border border-neutral-300 p-3 text-xs font-bold uppercase outline-none focus:border-black transition-colors" /></div>
-            <div className="sm:col-span-2"><label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Město</label><input type="text" value={formData.city} onChange={e => setFormData({...formData, city: e.target.value})} className="w-full bg-[#f4f4f4] border border-neutral-300 p-3 text-xs font-bold uppercase outline-none focus:border-black transition-colors" /></div>
-            <div className="sm:col-span-1"><label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">PSČ</label><input type="text" value={formData.psc} onChange={e => setFormData({...formData, psc: e.target.value})} className="w-full bg-[#f4f4f4] border border-neutral-300 p-3 text-xs font-bold uppercase outline-none focus:border-black transition-colors" /></div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">E-mail *</label>
+              <input 
+                type="email" 
+                required 
+                value={formData.email} 
+                onChange={e => setFormData({...formData, email: e.target.value})} 
+                className="w-full bg-[#f4f4f4] border border-neutral-300 p-3 text-xs font-bold outline-none focus:border-black" 
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Telefon *</label>
+              <input 
+                type="tel" 
+                required 
+                value={formData.phone} 
+                onChange={e => setFormData({...formData, phone: e.target.value})} 
+                className="w-full bg-[#f4f4f4] border border-neutral-300 p-3 text-xs font-bold outline-none focus:border-black" 
+              />
+            </div>
           </div>
         </div>
-      </div>
-      
-      <div className="pt-4 border-t border-neutral-300 font-mono">
-         <div className="flex items-start gap-2 mb-6">
-            <input type="checkbox" id="gdprConsent" required checked={gdprConsent} onChange={e => setGdprConsent(e.target.checked)} className="mt-0.5 w-4 h-4 accent-black cursor-pointer" />
-            <label htmlFor="gdprConsent" className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-neutral-700 leading-snug cursor-pointer">
-               Souhlasím se <span onClick={(e) => { e.preventDefault(); setShowGdprModal(true); }} className="underline font-bold cursor-pointer hover:text-[#E4664F]">zpracováním údajů</span> a s <span onClick={(e) => { e.preventDefault(); setShowVopModal(true); }} className="underline font-bold cursor-pointer hover:text-[#E4664F]">VOP</span>. *
-            </label>
-         </div>
-         <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-            <button type="button" onClick={() => setBookingStep(1)} className="text-xs font-bold uppercase tracking-widest underline cursor-pointer hover:text-[#E4664F]">‹ Zpět na výběr</button>
-            <button type="submit" disabled={isSubmitting || !gdprConsent} className="w-full sm:w-auto bg-black text-white text-xs font-bold uppercase tracking-widest px-8 py-3.5 hover:bg-neutral-800 disabled:opacity-40 cursor-pointer transition-colors">
-              Závazně koupit vstupenku
+
+        {/* DYNAMICKÝ DOTAZNÍK (POKUD MÁ EVENT OTÁZKY) */}
+        {selectedEvent.custom_questions && selectedEvent.custom_questions.length > 0 && (
+          <div className="bg-white border border-neutral-300 p-6 space-y-4">
+            <h3 className="text-xs font-bold uppercase tracking-widest text-neutral-500 border-b border-neutral-200 pb-2">2. Doplňující otázky k akci</h3>
+            <div className="space-y-4">
+              {selectedEvent.custom_questions.map((q) => (
+                <div key={q.id}>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-black mb-1">
+                    {q.question} {q.required && <span className="text-red-600">*</span>}
+                  </label>
+                  <input 
+                    type="text"
+                    required={q.required}
+                    value={customAnswers[q.id] || ''}
+                    onChange={e => setCustomAnswers({...customAnswers, [q.id]: e.target.value})}
+                    placeholder="Vaše odpověď..."
+                    className="w-full bg-[#f4f4f4] border border-neutral-300 p-3 text-xs font-bold outline-none focus:border-black"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* FAKTURAČNÍ ÚDAJE / FIRMA */}
+        <div className="bg-white border border-neutral-300 p-6 space-y-4">
+          <div className="flex justify-between items-center border-b border-neutral-200 pb-2">
+            <h3 className="text-xs font-bold uppercase tracking-widest text-neutral-500">3. Firemní / Fakturační údaje (nepovinné)</h3>
+          </div>
+          
+          <div className="flex gap-2 items-end">
+            <div className="flex-1">
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">IČO pro načtení z ARES</label>
+              <input 
+                type="text" 
+                value={formData.ico} 
+                onChange={e => setFormData({...formData, ico: e.target.value})} 
+                className="w-full bg-[#f4f4f4] border border-neutral-300 p-3 text-xs font-bold outline-none focus:border-black" 
+              />
+            </div>
+            <button 
+              type="button" 
+              onClick={loadFromAres} 
+              disabled={aresLoading} 
+              className="bg-black text-white hover:bg-neutral-800 px-4 py-3 text-xs font-bold uppercase tracking-wider cursor-pointer disabled:opacity-40"
+            >
+              {aresLoading ? 'Načítám...' : 'Načíst ARES'}
             </button>
-         </div>
-      </div>
-    </form>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Název firmy</label>
+              <input 
+                type="text" 
+                value={formData.company} 
+                onChange={e => setFormData({...formData, company: e.target.value})} 
+                className="w-full bg-[#f4f4f4] border border-neutral-300 p-3 text-xs font-bold uppercase outline-none focus:border-black" 
+              />
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">DIČ</label>
+              <input 
+                type="text" 
+                value={formData.dic} 
+                onChange={e => setFormData({...formData, dic: e.target.value})} 
+                className="w-full bg-[#f4f4f4] border border-neutral-300 p-3 text-xs font-bold uppercase outline-none focus:border-black" 
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* SOUHLAS A ODESLÁNÍ */}
+        <div className="bg-white border border-neutral-300 p-6 space-y-4">
+          <div className="flex items-start gap-3">
+            <input 
+              type="checkbox" 
+              id="gdpr" 
+              required 
+              checked={gdprConsent} 
+              onChange={e => setGdprConsent(e.target.checked)} 
+              className="mt-0.5 w-4 h-4 accent-black cursor-pointer" 
+            />
+            <label htmlFor="gdpr" className="text-xs text-neutral-700 leading-relaxed cursor-pointer">
+              Souhlasím se zpracováním osobních údajů a s{' '}
+              <button type="button" onClick={() => setShowVopModal(true)} className="underline font-bold text-black hover:text-[#E4664F]">obchodními podmínkami</button>.*
+            </label>
+          </div>
+
+          <button 
+            type="submit" 
+            disabled={isSubmitting} 
+            className="w-full bg-black text-white hover:bg-[#E4664F] py-4 text-xs font-bold uppercase tracking-widest transition-colors cursor-pointer disabled:opacity-40"
+          >
+            {isSubmitting ? 'Zpracovávám rezervaci...' : `Závazně objednat za ${selectedVariant?.price} Kč`}
+          </button>
+        </div>
+
+      </form>
+    </div>
   );
 }

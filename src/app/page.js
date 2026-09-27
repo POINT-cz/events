@@ -58,10 +58,11 @@ export default function EventsPortal() {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [isDescExpanded, setIsDescExpanded] = useState(false);
   
-  // BALÍČKY (VARIANTY) VÝBĚR
+  // BALÍČKY (VARIANTY) VÝBĚR & DOTAZNÍK
   const [selectedVariant, setSelectedVariant] = useState(null);
+  const [customAnswers, setCustomAnswers] = useState({}); // Ukládá odpovědi na otázky: { questionId: "odpověď" }
 
-  // ADMIN EVENT MODAL STAVY
+  // ADMIN EVENT MODAL STAVY (VČETNĚ CUSTOM OTÁZEK)
   const [showAdminEventModal, setShowAdminEventModal] = useState(false);
   const [adminEventForm, setAdminEventForm] = useState({ 
     id: null, 
@@ -73,7 +74,8 @@ export default function EventsPortal() {
     image_url: '', 
     requires_checkin: false, 
     is_hidden: false,
-    variants: [{ id: '1', title: 'Základní vstupenka', description: 'Vstup na akci', price: 500, capacity: 20 }] 
+    variants: [{ id: '1', title: 'Základní vstupenka', description: 'Vstup na akci', price: 500, capacity: 20 }],
+    custom_questions: [] // Pole vlastních otázek
   });
 
   // VSTUPENKY STAVY
@@ -146,7 +148,8 @@ export default function EventsPortal() {
             variants: [
               { id: 'v1', title: 'Základní vstupenka', description: 'Vstup na přednášku', price: 1500, capacity: 10 },
               { id: 'v2', title: 'VIP + Mastermind', description: 'Přednáška + exkluzivní setkání', price: 2500, capacity: 5 }
-            ]
+            ],
+            custom_questions: []
           },
         ];
 
@@ -154,11 +157,11 @@ export default function EventsPortal() {
           const parsedEvents = eventsData.map(ev => ({
             ...ev,
             category: ev.category || 'Workshop',
-            variants: ev.variants || [{ id: '1', title: 'Vstupenka', description: 'Standardní vstup', price: ev.price || 500, capacity: ev.capacity || 10 }]
+            variants: ev.variants || [{ id: '1', title: 'Vstupenka', description: 'Standardní vstup', price: ev.price || 500, capacity: ev.capacity || 10 }],
+            custom_questions: ev.custom_questions || []
           }));
           setDbEvents(parsedEvents.length > 0 ? parsedEvents : dummyEvents);
           
-          // ZJISTĚNÍ URL PARAMETRU PRO EVENT -> OTEVŘE DETAIL (KROK 1)
           const params = new URLSearchParams(window.location.search);
           const urlEventId = params.get('event');
           if (urlEventId) {
@@ -306,7 +309,7 @@ export default function EventsPortal() {
     } catch (err) { setActionLoading(false); alert('Chyba: ' + err.message); }
   };
 
-  // --- SPRÁVA BALÍČKŮ V ADMINU ---
+  // --- SPRÁVA BALÍČKŮ A VLASTNÍCH OTÁZEK V ADMINU ---
   const handleAddVariant = () => {
     setAdminEventForm(prev => ({
       ...prev,
@@ -328,6 +331,28 @@ export default function EventsPortal() {
     setAdminEventForm(prev => ({ ...prev, variants: updatedVariants }));
   };
 
+  // Správa dynamických otázek v admin formuláři
+  const handleAddQuestion = () => {
+    setAdminEventForm(prev => ({
+      ...prev,
+      custom_questions: [
+        ...(prev.custom_questions || []),
+        { id: 'q_' + Date.now(), question: '', required: false }
+      ]
+    }));
+  };
+
+  const handleQuestionChange = (index, field, value) => {
+    const updatedQuestions = [...adminEventForm.custom_questions];
+    updatedQuestions[index][field] = value;
+    setAdminEventForm(prev => ({ ...prev, custom_questions: updatedQuestions }));
+  };
+
+  const handleRemoveQuestion = (index) => {
+    const updatedQuestions = adminEventForm.custom_questions.filter((_, i) => i !== index);
+    setAdminEventForm(prev => ({ ...prev, custom_questions: updatedQuestions }));
+  };
+
   const handleAdminEventSubmit = async (e) => {
     e.preventDefault();
     setActionLoading(true);
@@ -341,6 +366,7 @@ export default function EventsPortal() {
         requires_checkin: adminEventForm.requires_checkin,
         is_hidden: adminEventForm.is_hidden,
         variants: adminEventForm.variants,
+        custom_questions: adminEventForm.custom_questions || [],
         price: adminEventForm.variants?.[0]?.price || 0,
         capacity: adminEventForm.variants?.reduce((sum, v) => sum + (Number(v.capacity) || 0), 0) || 10
     };
@@ -349,7 +375,7 @@ export default function EventsPortal() {
         const { data, error } = await supabase.from('events').update(payload).eq('id', adminEventForm.id).select().single();
         if (error) alert('Chyba: ' + error.message);
         else {
-            setDbEvents(dbEvents.map(ev => ev.id === data.id ? { ...data, variants: data.variants || [] } : ev));
+            setDbEvents(dbEvents.map(ev => ev.id === data.id ? { ...data, variants: data.variants || [], custom_questions: data.custom_questions || [] } : ev));
             setShowAdminEventModal(false);
             alert('Akce úspěšně upravena!');
         }
@@ -357,7 +383,7 @@ export default function EventsPortal() {
         const { data, error } = await supabase.from('events').insert([payload]).select().single();
         if (error) alert('Chyba: ' + error.message);
         else {
-            setDbEvents([...dbEvents, { ...data, variants: data.variants || [] }]);
+            setDbEvents([...dbEvents, { ...data, variants: data.variants || [], custom_questions: data.custom_questions || [] }]);
             setShowAdminEventModal(false);
             alert('Akce úspěšně vytvořena!');
         }
@@ -389,7 +415,7 @@ export default function EventsPortal() {
     setActionLoading(false);
   };
 
-  // --- SPRÁVA REZERVACÍ V ADMINU (S ODESÍLÁNÍM E-MAILU PŘI "PAID") ---
+  // --- SPRÁVA REZERVACÍ V ADMINU ---
   const handleUpdateReservationStatus = async (resId, newStatus) => {
     setActionLoading(true);
     const { error } = await supabase.from('reservations').update({ status: newStatus }).eq('id', resId);
@@ -516,6 +542,13 @@ export default function EventsPortal() {
     const vs = Math.floor(100000 + Math.random() * 900000).toString();
     const finalPrice = selectedVariant.price;
     
+    // Připravíme pole odpovědí na dotazník
+    const formattedAnswers = selectedEvent.custom_questions?.map(q => ({
+      questionId: q.id,
+      question: q.question,
+      answer: customAnswers[q.id] || ''
+    })) || [];
+
     let insertData = { 
        customer_id: customerData.id, 
        status: 'pending_payment', 
@@ -525,6 +558,7 @@ export default function EventsPortal() {
        event_id: selectedEvent.id, 
        date: selectedEvent.date, 
        notes: `Vstupenka na: ${selectedEvent.title} (${selectedVariant.title})`, 
+       custom_answers: formattedAnswers,
        start_hour: 0, end_hour: 0, db_end_hour: 0
     };
 
@@ -615,7 +649,7 @@ export default function EventsPortal() {
         setBookingStep={setBookingStep} setSelectedEvent={setSelectedEvent}
       />
 
-      {/* ADMIN: TVORBA A EDITACE EVENTŮ MODAL */}
+      {/* ADMIN: TVORBA A EDITACE EVENTŮ MODAL (VČETNĚ SEKCE PRO OTÁZKY) */}
       {showAdminEventModal && (
         <div className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 pointer-events-auto">
           <div className="bg-white border border-neutral-300 p-6 w-full max-w-xl max-h-[90vh] overflow-y-auto">
@@ -657,6 +691,30 @@ export default function EventsPortal() {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         <input type="number" placeholder="Kapacita" value={variant.capacity} onChange={e => handleVariantChange(index, 'capacity', e.target.value)} className="bg-white border border-neutral-300 p-2 text-xs font-mono font-bold outline-none focus:border-black" required />
                         <input type="text" placeholder="Krátký popis" value={variant.description} onChange={e => handleVariantChange(index, 'description', e.target.value)} className="bg-white border border-neutral-300 p-2 text-xs font-mono font-bold outline-none focus:border-black" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* VLASTNÍ OTÁZKY / DOTAZNÍK PRO REGISTRACI */}
+              <div className="border-t border-neutral-300 pt-4 mt-4">
+                <div className="flex justify-between items-center mb-3">
+                  <div>
+                    <label className="text-xs font-mono font-bold uppercase tracking-wider block">Vlastní otázky pro účastníky</label>
+                    <span className="text-[10px] text-neutral-500 uppercase">Přidej políčka, která musí účastník vyplnit při registraci</span>
+                  </div>
+                  <button type="button" onClick={handleAddQuestion} className="text-xs font-mono font-bold uppercase tracking-wider bg-black text-white px-3 py-2 hover:bg-neutral-800 cursor-pointer">+ Přidat otázku</button>
+                </div>
+
+                <div className="space-y-3">
+                  {adminEventForm.custom_questions?.map((q, index) => (
+                    <div key={q.id || index} className="p-3 bg-[#f4f4f4] border border-neutral-300 space-y-2 relative font-mono">
+                      <button type="button" onClick={() => handleRemoveQuestion(index)} className="absolute top-2 right-2 text-red-600 hover:text-red-800 text-xs font-bold uppercase cursor-pointer">✕ Smazat</button>
+                      <input type="text" placeholder="Zadej otázku (např. Jaké máš zkušenosti?)" value={q.question} onChange={e => handleQuestionChange(index, 'question', e.target.value)} className="w-full bg-white border border-neutral-300 p-2 text-xs font-bold outline-none focus:border-black" required />
+                      <div className="flex items-center gap-2 pt-1">
+                        <input type="checkbox" id={`req_${index}`} checked={q.required} onChange={e => handleQuestionChange(index, 'required', e.target.checked)} className="w-4 h-4 accent-black cursor-pointer" />
+                        <label htmlFor={`req_${index}`} className="text-[10px] font-bold uppercase text-neutral-600 cursor-pointer">Povinné pole</label>
                       </div>
                     </div>
                   ))}
@@ -882,6 +940,8 @@ export default function EventsPortal() {
                  selectedVariant={selectedVariant}
                  formData={formData}
                  setFormData={setFormData}
+                 customAnswers={customAnswers}
+                 setCustomAnswers={setCustomAnswers}
                  honeypot={honeypot}
                  setHoneypot={setHoneypot}
                  aresLoading={aresLoading}
