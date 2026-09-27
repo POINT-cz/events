@@ -45,8 +45,8 @@ export default function GlobalModals({
               <p><strong>1. Úvodní ustanovení</strong><br/>Tyto Všeobecné obchodní podmínky (dále jen "VOP") upravují smluvní vztahy při nákupu vstupenek na workshopy, přednášky a eventy pořádané společností BREAKING POINT s.r.o., IČ: 14290553, se sídlem Mrštíkovo nám. 6/14, 779 00 Olomouc (dále jen "Provozovatel").</p>
               
               <p><strong>2. Uzavření smlouvy a platba vstupenek</strong><br/>
-              • Odesláním závazné rezervace přes portál uzavírá zákazník s Provozovatelem smlouvu o účasti na vybrané akce.<br/>
-              • Platba probíhá bezhotovostně na základě údajů (variabilní symbol a QR platba) doručených e-mailem. Místo na akce je definitivně garantováno až po připsání platby na účet Provozovatele.</p>
+              • Odesláním závazné rezervace přes portál uzavírá zákazník s Provozovatelem smlouvu o účasti na vybrané akci.<br/>
+              • Platba probíhá bezhotovostně na základě údajů (faktura) doručených e-mailem. Místo na akce je definitivně garantováno až po připsání platby na účet Provozovatele.</p>
               
               <p><strong>3. Storno podmínky a vracení vstupného</strong><br/>
               Vzhledem k omezené kapacitě míst platí pro zrušení účasti ze strany účastníka tato pravidla:<br/>
@@ -54,7 +54,7 @@ export default function GlobalModals({
               • Při zrušení účasti <strong>méně než 48 hodin před</strong> začátkem akce nebo v případě neúčasti (tzv. "no-show") zaplacená částka <strong>propadá v plné výši</strong> bez nároku na vrácení.<br/>
               • Účast na akce je možné bez poplatku převést na jinou osobu – stačí nás informovat předem e-mailem na hello@pointspace.cz.</p>
               
-              <p><strong>4. Změna programu a zrušení akce ze strany provozovatele</strong><br/>Provozovatel si vyhrazuje právo na změnu lektora, programu nebo termínu konání akce. V případě úplného zrušení akce ze strany Provozovatele budou účastníkům vráceny peníze v plné výši do 7 pracovních dnů.</p>
+              <p><strong>4. Změna programu a zrušení akce ze strany provozovatele</strong><br/>Provozovatel si vyhrazuje právo na změnu lektora, programu nebo termínu konání akce. V případě úplného zrušení akce ze strany Provozovatele budou účastníkům vráceny peníze v plné výši do 30 dnů.</p>
               
               <p><strong>5. Chování v prostorách POINT</strong><br/>Účastník se zavazuje dodržovat pokyny organizátorů a chovat se ohleduplně k majetku v prostorách POINT. V případě úmyslného poškození majetku nese účastník plnou hmotnou odpovědnost.</p>
             </div>
