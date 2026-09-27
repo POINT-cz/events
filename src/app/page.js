@@ -389,14 +389,38 @@ export default function EventsPortal() {
     setActionLoading(false);
   };
 
-  // --- SPRÁVA REZERVACÍ V ADMINU ---
+  // --- SPRÁVA REZERVACÍ V ADMINU (S ODESÍLÁNÍM E-MAILU PŘI "PAID") ---
   const handleUpdateReservationStatus = async (resId, newStatus) => {
     setActionLoading(true);
     const { error } = await supabase.from('reservations').update({ status: newStatus }).eq('id', resId);
+    
     if (error) {
       alert('Chyba při aktualizaci stavu: ' + error.message);
     } else {
-      setResourcesReservations(reservations.map(r => r.id === resId ? { ...r, status: newStatus } : r));
+      setResourcesReservations(reservations.map(r => {
+        if (r.id === resId) {
+          const updated = { ...r, status: newStatus };
+          
+          if (newStatus === 'paid' && updated.customers?.email) {
+            const eventObj = dbEvents.find(e => e.id === updated.event_id);
+            
+            supabase.functions.invoke('send-email', {
+              body: {
+                type: 'platba_potvrzena',
+                to: updated.customers.email,
+                jmeno: updated.customers.first_name || 'zákazníku',
+                sluzba: updated.notes || eventObj?.title || 'Událost POINT',
+                datum: formatDateCzech(updated.date),
+                cas: eventObj?.time || '',
+                cena: updated.total_price
+              }
+            }).catch(err => console.error('Chyba při odesílání potvrzení platby:', err));
+          }
+          
+          return updated;
+        }
+        return r;
+      }));
     }
     setActionLoading(false);
   };
@@ -507,7 +531,6 @@ export default function EventsPortal() {
     const { data: newBooking, error: bookError } = await supabase.from('reservations').insert(insertData).select(`*, customers (first_name, last_name, email, company_name, ico, phone)`).single();
     if (bookError) { alert(bookError.message); setIsSubmitting(false); setActionLoading(false); return; }
     
-    // Okamžitá synchronizace v administraci
     const { data: fullNewBooking, error: fetchErr } = await supabase
       .from('reservations')
       .select(`*, customers (first_name, last_name, email, company_name, ico, phone)`)
