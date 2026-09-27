@@ -24,22 +24,23 @@ export default function EventBookingForm({
   formatDateCzech
 }) {
   return (
-    <div className="max-w-3xl mx-auto w-full animate-in fade-in space-y-6 pt-4 pb-12 font-mono">
+    <div className="max-w-3xl mx-auto w-full animate-in fade-in space-y-6 pt-2 sm:pt-4 pb-12 px-3 sm:px-0 font-mono">
       
-      <div className="flex items-center justify-between border-b border-neutral-300 pb-4">
+      {/* Hlavička s přechodem zpět */}
+      <div className="bg-white border border-neutral-300 p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-neutral-300">
         <div>
           <button 
             type="button" 
             onClick={() => setBookingStep(1)} 
-            className="text-xs font-bold uppercase text-neutral-500 hover:text-black cursor-pointer mb-1 inline-block"
+            className="text-xs font-bold uppercase text-neutral-500 hover:text-black cursor-pointer mb-1 inline-block touch-manipulation"
           >
             ← Zpět na detail akce
           </button>
-          <h2 className="text-xl sm:text-2xl font-bold uppercase tracking-tight text-black">Dokončení rezervace</h2>
+          <h2 className="text-lg sm:text-2xl font-bold uppercase tracking-tight text-black">Dokončení rezervace</h2>
         </div>
-        <div className="text-right">
-          <div className="text-xs font-bold text-neutral-500 uppercase">{selectedVariant?.title}</div>
-          <div className="text-lg font-extrabold text-black">{selectedVariant?.price} Kč</div>
+        <div className="text-left sm:text-right pt-2 sm:pt-0 border-t sm:border-t-0 border-neutral-200">
+          <div className="text-[11px] sm:text-xs font-bold text-neutral-500 uppercase">{selectedVariant?.title}</div>
+          <div className="text-base sm:text-lg font-extrabold text-black">{selectedVariant?.price} Kč</div>
         </div>
       </div>
 
@@ -58,7 +59,7 @@ export default function EventBookingForm({
         </div>
 
         {/* OSOBNÍ ÚDAJE */}
-        <div className="bg-white border border-neutral-300 p-6 space-y-4">
+        <div className="bg-white border border-neutral-300 p-4 sm:p-6 space-y-4">
           <h3 className="text-xs font-bold uppercase tracking-widest text-neutral-500 border-b border-neutral-200 pb-2">1. Kontaktní údaje</h3>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -110,7 +111,7 @@ export default function EventBookingForm({
 
         {/* DYNAMICKÝ DOTAZNÍK S TEXTAREAMI PRO POHODLNÉ PSANÍ */}
         {selectedEvent.custom_questions && selectedEvent.custom_questions.length > 0 && (
-          <div className="bg-white border border-neutral-300 p-6 space-y-4">
+          <div className="bg-white border border-neutral-300 p-4 sm:p-6 space-y-4">
             <h3 className="text-xs font-bold uppercase tracking-widest text-neutral-500 border-b border-neutral-200 pb-2">2. Doplňující otázky k akci</h3>
             <div className="space-y-4">
               {selectedEvent.custom_questions.map((q) => (
@@ -133,13 +134,13 @@ export default function EventBookingForm({
         )}
 
         {/* FAKTURAČNÍ ÚDAJE / FIRMA */}
-        <div className="bg-white border border-neutral-300 p-6 space-y-4">
+        <div className="bg-white border border-neutral-300 p-4 sm:p-6 space-y-4">
           <div className="flex justify-between items-center border-b border-neutral-200 pb-2">
             <h3 className="text-xs font-bold uppercase tracking-widest text-neutral-500">3. Firemní / Fakturační údaje (nepovinné)</h3>
           </div>
           
-          <div className="flex gap-2 items-end">
-            <div className="flex-1">
+          <div className="flex flex-col sm:flex-row gap-2 sm:items-end">
+            <div className="flex-1 w-full">
               <label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">IČO pro načtení z ARES</label>
               <input 
                 type="text" 
@@ -152,7 +153,7 @@ export default function EventBookingForm({
               type="button" 
               onClick={loadFromAres} 
               disabled={aresLoading} 
-              className="bg-black text-white hover:bg-neutral-800 px-4 py-3 text-xs font-bold uppercase tracking-wider cursor-pointer disabled:opacity-40"
+              className="bg-black text-white hover:bg-neutral-800 px-4 py-3 text-xs font-bold uppercase tracking-wider cursor-pointer disabled:opacity-40 w-full sm:w-auto text-center"
             >
               {aresLoading ? 'Načítám...' : 'Načíst ARES'}
             </button>
@@ -181,7 +182,7 @@ export default function EventBookingForm({
         </div>
 
         {/* SOUHLAS A ODESLÁNÍ */}
-        <div className="bg-white border border-neutral-300 p-6 space-y-4">
+        <div className="bg-white border border-neutral-300 p-4 sm:p-6 space-y-4">
           <div className="flex items-start gap-3">
             <input 
               type="checkbox" 
@@ -189,7 +190,7 @@ export default function EventBookingForm({
               required 
               checked={gdprConsent} 
               onChange={e => setGdprConsent(e.target.checked)} 
-              className="mt-0.5 w-4 h-4 accent-black cursor-pointer" 
+              className="mt-0.5 w-4 h-4 accent-black cursor-pointer shrink-0" 
             />
             <label htmlFor="gdpr" className="text-xs text-neutral-700 leading-relaxed cursor-pointer">
               Souhlasím se zpracováním osobních údajů a s{' '}
@@ -200,7 +201,7 @@ export default function EventBookingForm({
           <button 
             type="submit" 
             disabled={isSubmitting} 
-            className="w-full bg-black text-white hover:bg-[#E4664F] py-4 text-xs font-bold uppercase tracking-widest transition-colors cursor-pointer disabled:opacity-40"
+            className="w-full bg-black text-white hover:bg-[#E4664F] py-4 text-xs font-bold uppercase tracking-widest transition-colors cursor-pointer disabled:opacity-40 active:scale-[0.99] touch-manipulation"
           >
             {isSubmitting ? 'Zpracovávám rezervaci...' : `Závazně objednat za ${selectedVariant?.price} Kč`}
           </button>

@@ -27,15 +27,16 @@ export default function AdminEventsTable({
   };
 
   return (
-    <div className="space-y-6 font-mono">
+    <div className="space-y-6 font-mono w-full max-w-full overflow-x-hidden">
       
       {/* HLAVIČKA ADMINISTRACE AKCÍ */}
-      <div className="bg-white border border-neutral-300 p-6 sm:p-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="bg-white border border-neutral-300 p-4 sm:p-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-xl font-bold uppercase tracking-tight text-black">Správa akcí a rezervací</h2>
+          <h2 className="text-lg sm:text-xl font-bold uppercase tracking-tight text-black">Správa akcí a rezervací</h2>
           <p className="text-xs text-neutral-500 uppercase mt-1">Přehled všech vypsaných událostí a jejich účastníků</p>
         </div>
         <button 
+          type="button"
           onClick={() => {
             setAdminEventForm({
               id: null, title: '', date: '', time: '17:00 - 20:00', category: 'Workshop',
@@ -45,28 +46,28 @@ export default function AdminEventsTable({
             });
             setShowAdminEventModal(true);
           }}
-          className="bg-black text-white hover:bg-neutral-800 px-5 py-3 text-xs font-bold uppercase tracking-wider cursor-pointer border border-neutral-300 transition-colors"
+          className="bg-black text-white hover:bg-neutral-800 px-4 sm:px-5 py-3 text-xs font-bold uppercase tracking-wider cursor-pointer border border-neutral-300 transition-colors w-full sm:w-auto text-center active:scale-[0.99] touch-manipulation"
         >
           + Vytvořit novou akcí
         </button>
       </div>
 
       {/* HLAVNÍ TABULKA EVENTŮ */}
-      <div className="bg-white border border-neutral-300 p-6 sm:p-8 overflow-hidden">
+      <div className="bg-white border border-neutral-300 p-4 sm:p-8 overflow-hidden">
         <h3 className="text-xs font-bold uppercase tracking-widest text-neutral-500 mb-4 pb-2 border-b border-neutral-300">Seznam akcí</h3>
         
         {dbEvents.length === 0 ? (
           <div className="text-center py-12 text-neutral-500 uppercase text-xs">Zatím nebyly vytvořeny žádné akce.</div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
+          <div className="w-full overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+            <table className="w-full text-left border-collapse text-xs min-w-[700px]">
               <thead>
                 <tr className="border-b border-neutral-300 text-neutral-500 uppercase text-[10px]">
-                  <th className="py-3 px-4">Akce / Datum</th>
-                  <th className="py-3 px-4">Kategorie</th>
-                  <th className="py-3 px-4">Kapacita / Rezervace</th>
-                  <th className="py-3 px-4">Stav</th>
-                  <th className="py-3 px-4 text-right">Správa</th>
+                  <th className="py-3 px-3">Akce / Datum</th>
+                  <th className="py-3 px-3">Kategorie</th>
+                  <th className="py-3 px-3">Kapacita / Rezervace</th>
+                  <th className="py-3 px-3">Stav</th>
+                  <th className="py-3 px-3 text-right">Správa</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-neutral-200">
@@ -76,42 +77,45 @@ export default function AdminEventsTable({
                   
                   return (
                     <tr key={ev.id} className="hover:bg-[#f4f4f4] transition-colors">
-                      <td className="py-4 px-4 font-bold">
-                        <div className="uppercase text-black">{ev.title}</div>
+                      <td className="py-4 px-3 font-bold max-w-[200px]">
+                        <div className="uppercase text-black truncate">{ev.title}</div>
                         <div className="text-[10px] text-neutral-500 font-normal">📅 {formatDateCzech(ev.date)} • ⏰ {ev.time}</div>
                       </td>
                       
-                      <td className="py-4 px-4 uppercase">
-                        <span className="px-2 py-0.5 border border-neutral-300 text-[10px] font-bold bg-[#f4f4f4]">
+                      <td className="py-4 px-3 uppercase">
+                        <span className="px-2 py-0.5 border border-neutral-300 text-[10px] font-bold bg-[#f4f4f4] whitespace-nowrap">
                           {ev.category || 'Workshop'}
                         </span>
                       </td>
 
-                      <td className="py-4 px-4 font-bold">
+                      <td className="py-4 px-3 font-bold whitespace-nowrap">
                         <span className="text-black">{evRes.length}</span> / {totalCap} míst
                       </td>
 
-                      <td className="py-4 px-4">
+                      <td className="py-4 px-3 whitespace-nowrap">
                         <span className={`px-2 py-0.5 text-[10px] font-bold uppercase border ${ev.is_hidden ? 'bg-neutral-200 text-neutral-600 border-neutral-300' : 'bg-green-100 text-green-800 border-green-300'}`}>
                           {ev.is_hidden ? 'Skryto' : 'Veřejné'}
                         </span>
                       </td>
 
-                      <td className="py-4 px-4 text-right space-x-2 whitespace-nowrap">
+                      <td className="py-4 px-3 text-right space-x-1.5 whitespace-nowrap">
                         <button 
+                          type="button"
                           onClick={() => handleCopyEventUrl(ev.id)}
-                          className="bg-neutral-100 text-black hover:bg-neutral-200 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer border border-neutral-300"
+                          className="bg-neutral-100 text-black hover:bg-neutral-200 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer border border-neutral-300"
                           title="Zkopírovat odkaz na event"
                         >
-                          {copiedId === ev.id ? '✓ Zkopírováno' : 'Kopírovat URL'}
+                          {copiedId === ev.id ? '✓' : 'URL'}
                         </button>
                         <button 
+                          type="button"
                           onClick={() => setActiveEventIdForReservations(ev.id)}
-                          className="bg-black text-white hover:bg-[#E4664F] px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer border border-neutral-300"
+                          className="bg-black text-white hover:bg-[#E4664F] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer border border-neutral-300"
                         >
                           Účastníci ({evRes.length})
                         </button>
                         <button 
+                          type="button"
                           onClick={() => {
                             setAdminEventForm({
                               id: ev.id,
@@ -128,19 +132,21 @@ export default function AdminEventsTable({
                             });
                             setShowAdminEventModal(true);
                           }}
-                          className="bg-neutral-200 hover:bg-neutral-300 text-black px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer border border-neutral-300"
+                          className="bg-neutral-200 hover:bg-neutral-300 text-black px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider transition-colors cursor-pointer border border-neutral-300"
                         >
                           Upravit
                         </button>
                         <button 
+                          type="button"
                           onClick={() => handleToggleHideEvent(ev.id, ev.is_hidden)}
-                          className="text-neutral-600 hover:text-black px-2 py-1.5 text-[10px] font-bold uppercase cursor-pointer"
+                          className="text-neutral-600 hover:text-black px-1.5 py-1 text-[10px] font-bold uppercase cursor-pointer"
                         >
                           {ev.is_hidden ? 'Zveřejnit' : 'Skrýt'}
                         </button>
                         <button 
+                          type="button"
                           onClick={() => handleDeleteEvent(ev.id)}
-                          className="text-red-600 hover:text-red-800 px-1 py-1.5 text-xs font-bold uppercase cursor-pointer"
+                          className="text-red-600 hover:text-red-800 px-1 py-1 text-xs font-bold uppercase cursor-pointer"
                           title="Smazat event"
                         >
                           ✕
@@ -157,16 +163,17 @@ export default function AdminEventsTable({
 
       {/* DETAILNÍ SEZNAM ÚČASTNÍKŮ VYBRANÉ AKCE */}
       {activeEventIdForReservations && selectedEventForRes && (
-        <div className="bg-white border-2 border-black p-6 sm:p-8 animate-in fade-in">
-          <div className="flex justify-between items-center mb-6 border-b border-neutral-300 pb-4">
+        <div className="bg-white border-2 border-black p-4 sm:p-8 animate-in fade-in">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6 border-b border-neutral-300 pb-4">
             <div>
               <span className="text-[10px] font-bold uppercase px-2 py-0.5 bg-[#E4664F] text-white border border-neutral-300 mb-1 inline-block">Správa účastníků</span>
-              <h3 className="text-lg font-bold uppercase tracking-tight text-black">{selectedEventForRes.title}</h3>
+              <h3 className="text-base sm:text-lg font-bold uppercase tracking-tight text-black">{selectedEventForRes.title}</h3>
               <p className="text-xs text-neutral-500 uppercase">Termín: {formatDateCzech(selectedEventForRes.date)} • {selectedEventForRes.time}</p>
             </div>
             <button 
+              type="button"
               onClick={() => setActiveEventIdForReservations(null)}
-              className="bg-black text-white hover:bg-neutral-800 px-4 py-2 text-xs font-bold uppercase tracking-wider cursor-pointer border border-neutral-300"
+              className="bg-black text-white hover:bg-neutral-800 px-4 py-2 text-xs font-bold uppercase tracking-wider cursor-pointer border border-neutral-300 w-full sm:w-auto text-center"
             >
               ✕ Zavřít přehled účastníků
             </button>
@@ -175,8 +182,8 @@ export default function AdminEventsTable({
           {eventReservations.length === 0 ? (
             <div className="text-center py-8 text-neutral-500 uppercase text-xs">Na tuto akce zatím nejsou žádné rezervace.</div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse text-xs">
+            <div className="w-full overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+              <table className="w-full text-left border-collapse text-xs min-w-[750px]">
                 <thead>
                   <tr className="border-b border-neutral-300 text-neutral-500 uppercase text-[10px]">
                     <th className="py-3 px-3">Zákazník & Dotazník</th>
@@ -196,7 +203,6 @@ export default function AdminEventsTable({
                           <div className="text-[10px] text-neutral-500 lowercase">{customer.email} {customer.phone ? `• ${customer.phone}` : ''}</div>
                           {customer.company_name && <div className="text-[10px] text-neutral-600 uppercase">Firma: {customer.company_name} (IČO: {customer.ico})</div>}
                           
-                          {/* Zobrazení odpovědí z dotazníku v přehledném boxu */}
                           {res.custom_answers && res.custom_answers.length > 0 && (
                             <div className="mt-3 p-3 bg-[#f4f4f4] border border-neutral-300 text-[10px] space-y-2">
                               <div className="font-bold text-black uppercase tracking-wider border-b border-neutral-300 pb-1">Odpovědi z dotazníku:</div>
@@ -229,24 +235,27 @@ export default function AdminEventsTable({
                           </span>
                         </td>
 
-                        <td className="py-3 px-3 text-right space-x-2 whitespace-nowrap">
+                        <td className="py-3 px-3 text-right space-x-1.5 whitespace-nowrap">
                           {res.status !== 'paid' && (
                             <button 
+                              type="button"
                               onClick={() => handleUpdateReservationStatus(res.id, 'paid')}
-                              className="bg-black text-white hover:bg-[#E4664F] px-2.5 py-1 text-[10px] font-bold uppercase transition-colors cursor-pointer border border-neutral-300"
+                              className="bg-black text-white hover:bg-[#E4664F] px-2 py-1 text-[10px] font-bold uppercase transition-colors cursor-pointer border border-neutral-300"
                             >
-                              Potvrdit platbu
+                              Potvrdit
                             </button>
                           )}
                           {res.status !== 'cancelled' && (
                             <button 
+                              type="button"
                               onClick={() => handleUpdateReservationStatus(res.id, 'cancelled')}
-                              className="bg-neutral-200 text-black hover:bg-neutral-300 px-2.5 py-1 text-[10px] font-bold uppercase transition-colors cursor-pointer border border-neutral-300"
+                              className="bg-neutral-200 text-black hover:bg-neutral-300 px-2 py-1 text-[10px] font-bold uppercase transition-colors cursor-pointer border border-neutral-300"
                             >
                               Stornovat
                             </button>
                           )}
                           <button 
+                            type="button"
                             onClick={() => handleDeleteReservation(res.id)}
                             className="text-red-600 hover:text-red-800 font-bold p-1 text-xs cursor-pointer"
                             title="Trvale smazat"

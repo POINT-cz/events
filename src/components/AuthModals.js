@@ -10,16 +10,16 @@ export default function AuthModals({
     <>
       {/* OBNOVA HESLA MODAL */}
       {showRecoveryModal && (
-        <div className="fixed inset-0 z-[250] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white border border-neutral-300 w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 pointer-events-auto p-6 sm:p-8 font-mono">
-            <h3 className="text-lg font-bold text-black uppercase tracking-wider mb-2">Nastavení nového hesla</h3>
-            <p className="text-xs text-neutral-600 mb-6 uppercase">Zadejte nové heslo, kterým se budete odteď přihlašovat do systému.</p>
+        <div className="fixed inset-0 z-[250] bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+          <div className="bg-white border border-neutral-300 w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 pointer-events-auto p-5 sm:p-8 font-mono my-auto">
+            <h3 className="text-base sm:text-lg font-bold text-black uppercase tracking-wider mb-2">Nastavení nového hesla</h3>
+            <p className="text-xs text-neutral-600 mb-6 uppercase leading-relaxed">Zadejte nové heslo, kterým se budete odteď přihlašovat do systému.</p>
             <form onSubmit={handleRecoverySubmit} className="space-y-5">
               <div>
                 <label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Nové heslo</label>
                 <input type="password" required value={newRecoveryPassword} onChange={(e) => setNewRecoveryPassword(e.target.value)} className="w-full bg-[#f4f4f4] border border-neutral-300 p-3 text-sm font-bold outline-none focus:border-black transition-colors" placeholder="Min. 6 znaků" minLength={6} />
               </div>
-              <button type="submit" disabled={authLoading} className="w-full px-4 py-3.5 bg-black text-white text-xs font-bold uppercase tracking-wider hover:bg-neutral-800 transition-colors disabled:opacity-50 cursor-pointer">
+              <button type="submit" disabled={authLoading} className="w-full px-4 py-3.5 bg-black text-white text-xs font-bold uppercase tracking-wider hover:bg-neutral-800 transition-colors disabled:opacity-50 cursor-pointer active:scale-[0.99] touch-manipulation">
                 {authLoading ? 'Ukládám...' : 'Změnit heslo'}
               </button>
             </form>
@@ -29,29 +29,29 @@ export default function AuthModals({
 
       {/* PŘIHLÁŠENÍ / REGISTRACE / ZAPOMENUTÉ HESLO MODAL */}
       {showAuthModal && (
-        <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 font-mono">
-          <div className="bg-white border border-neutral-300 w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 pointer-events-auto">
+        <div className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 font-mono overflow-y-auto">
+          <div className="bg-white border border-neutral-300 w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 pointer-events-auto my-auto max-h-[90vh] flex flex-col">
             {!isForgotPasswordMode ? (
-              <div className="flex border-b border-neutral-300">
-                <button onClick={() => setIsLoginMode(true)} className={`flex-1 py-4 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer ${isLoginMode ? 'bg-black text-white' : 'bg-white text-neutral-500 hover:text-black'}`}>Přihlášení</button>
-                <button onClick={() => setIsLoginMode(false)} className={`flex-1 py-4 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer ${!isLoginMode ? 'bg-black text-white' : 'bg-white text-neutral-500 hover:text-black'}`}>Registrace</button>
+              <div className="flex border-b border-neutral-300 shrink-0">
+                <button type="button" onClick={() => setIsLoginMode(true)} className={`flex-1 py-4 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer ${isLoginMode ? 'bg-black text-white' : 'bg-white text-neutral-500 hover:text-black'}`}>Přihlášení</button>
+                <button type="button" onClick={() => setIsLoginMode(false)} className={`flex-1 py-4 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer ${!isLoginMode ? 'bg-black text-white' : 'bg-white text-neutral-500 hover:text-black'}`}>Registrace</button>
               </div>
             ) : (
-              <div className="p-6 sm:p-8 pb-0 border-b border-neutral-300 bg-[#f4f4f4]">
-                <h3 className="text-lg font-bold text-black uppercase tracking-wider mb-2">Obnova hesla</h3>
-                <p className="text-xs text-neutral-600 uppercase mb-4">Zadejte svůj e-mail a my vám zašleme odkaz pro resetování hesla.</p>
+              <div className="p-5 sm:p-8 pb-0 border-b border-neutral-300 bg-[#f4f4f4] shrink-0">
+                <h3 className="text-base sm:text-lg font-bold text-black uppercase tracking-wider mb-2">Obnova hesla</h3>
+                <p className="text-xs text-neutral-600 uppercase mb-4 leading-relaxed">Zadejte svůj e-mail a my vám zašleme odkaz pro resetování hesla.</p>
               </div>
             )}
             
-            <form onSubmit={handleAuthSubmit} className="p-6 sm:p-8 space-y-5">
+            <form onSubmit={handleAuthSubmit} className="p-5 sm:p-8 space-y-5 overflow-y-auto">
               {!isLoginMode && !isForgotPasswordMode && (
                 <div className="bg-[#f4f4f4] p-3 border border-neutral-300 mb-4">
-                  <p className="text-[10px] text-neutral-700 text-center uppercase font-bold">Registrací získáte možnost rychlejší rezervace a přehled o svých vstupenkách.</p>
+                  <p className="text-[10px] text-neutral-700 text-center uppercase font-bold leading-relaxed">Registrací získáte možnost rychlejší rezervace a přehled o svých vstupenkách.</p>
                 </div>
               )}
               
               {resetEmailSent && isForgotPasswordMode ? (
-                <div className="bg-green-50 border border-green-300 text-green-800 p-4 text-xs font-bold uppercase text-center">
+                <div className="bg-green-50 border border-green-300 text-green-800 p-4 text-xs font-bold uppercase text-center leading-relaxed">
                   Odkaz byl odeslán na váš e-mail. Zkontrolujte prosím i složku Spam.
                 </div>
               ) : (
@@ -75,7 +75,7 @@ export default function AuthModals({
 
                   {!isLoginMode && !isForgotPasswordMode && (
                     <div className="flex items-start gap-2 pt-1 mb-2">
-                      <input type="checkbox" id="authGdpr" required checked={gdprConsent} onChange={(e) => setGdprConsent(e.target.checked)} className="mt-0.5 w-4 h-4 accent-black border border-neutral-300 cursor-pointer" />
+                      <input type="checkbox" id="authGdpr" required checked={gdprConsent} onChange={(e) => setGdprConsent(e.target.checked)} className="mt-0.5 w-4 h-4 accent-black border border-neutral-300 cursor-pointer shrink-0" />
                       <label htmlFor="authGdpr" className="text-[10px] text-neutral-700 leading-snug uppercase font-bold cursor-pointer">
                         Souhlasím se zpracováním osobních údajů a s Obchodními podmínkami. *
                       </label>
@@ -88,20 +88,20 @@ export default function AuthModals({
                 {isForgotPasswordMode ? (
                   <>
                     {!resetEmailSent && (
-                      <button type="submit" disabled={authLoading} className="w-full sm:flex-1 px-4 py-3.5 bg-black text-white text-xs font-bold uppercase tracking-wider hover:bg-neutral-800 transition-colors disabled:opacity-50 order-1 sm:order-2 cursor-pointer">
+                      <button type="submit" disabled={authLoading} className="w-full sm:flex-1 px-4 py-3.5 bg-black text-white text-xs font-bold uppercase tracking-wider hover:bg-neutral-800 transition-colors disabled:opacity-50 order-1 sm:order-2 cursor-pointer active:scale-[0.99] touch-manipulation">
                         {authLoading ? 'Odesílám...' : 'Odeslat odkaz'}
                       </button>
                     )}
-                    <button type="button" onClick={() => { setIsForgotPasswordMode(false); setResetEmailSent(false); }} className={`w-full ${!resetEmailSent ? 'sm:flex-1' : ''} px-4 py-3.5 bg-[#f4f4f4] border border-neutral-300 text-black text-xs font-bold uppercase tracking-wider hover:bg-neutral-200 hover:border-black transition-colors order-2 sm:order-1 cursor-pointer`}>
+                    <button type="button" onClick={() => { setIsForgotPasswordMode(false); setResetEmailSent(false); }} className={`w-full ${!resetEmailSent ? 'sm:flex-1' : ''} px-4 py-3.5 bg-[#f4f4f4] border border-neutral-300 text-black text-xs font-bold uppercase tracking-wider hover:bg-neutral-200 hover:border-black transition-colors order-2 sm:order-1 cursor-pointer active:scale-[0.99] touch-manipulation`}>
                       Zpět na přihlášení
                     </button>
                   </>
                 ) : (
                   <>
-                    <button type="submit" disabled={authLoading} className="w-full sm:flex-1 px-4 py-3.5 bg-black text-white text-xs font-bold uppercase tracking-wider hover:bg-neutral-800 transition-colors disabled:opacity-50 order-1 sm:order-2 cursor-pointer">
+                    <button type="submit" disabled={authLoading} className="w-full sm:flex-1 px-4 py-3.5 bg-black text-white text-xs font-bold uppercase tracking-wider hover:bg-neutral-800 transition-colors disabled:opacity-50 order-1 sm:order-2 cursor-pointer active:scale-[0.99] touch-manipulation">
                       {authLoading ? 'Načítám...' : (isLoginMode ? 'Přihlásit se' : 'Vytvořit účet')}
                     </button>
-                    <button type="button" onClick={() => setShowAuthModal(false)} className="w-full sm:flex-1 px-4 py-3.5 bg-[#f4f4f4] border border-neutral-300 text-black text-xs font-bold uppercase tracking-wider hover:bg-neutral-200 hover:border-black transition-colors order-2 sm:order-1 cursor-pointer">
+                    <button type="button" onClick={() => setShowAuthModal(false)} className="w-full sm:flex-1 px-4 py-3.5 bg-[#f4f4f4] border border-neutral-300 text-black text-xs font-bold uppercase tracking-wider hover:bg-neutral-200 hover:border-black transition-colors order-2 sm:order-1 cursor-pointer active:scale-[0.99] touch-manipulation">
                       Zrušit
                     </button>
                   </>

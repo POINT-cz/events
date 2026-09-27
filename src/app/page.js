@@ -60,7 +60,7 @@ export default function EventsPortal() {
   
   // BALÍČKY (VARIANTY) VÝBĚR & DOTAZNÍK
   const [selectedVariant, setSelectedVariant] = useState(null);
-  const [customAnswers, setCustomAnswers] = useState({}); // Ukládá odpovědi na otázky: { questionId: "odpověď" }
+  const [customAnswers, setCustomAnswers] = useState({}); 
 
   // ADMIN EVENT MODAL STAVY (VČETNĚ CUSTOM OTÁZEK)
   const [showAdminEventModal, setShowAdminEventModal] = useState(false);
@@ -75,7 +75,7 @@ export default function EventsPortal() {
     requires_checkin: false, 
     is_hidden: false,
     variants: [{ id: '1', title: 'Základní vstupenka', description: 'Vstup na akci', price: 500, capacity: 20 }],
-    custom_questions: [] // Pole vlastních otázek
+    custom_questions: [] 
   });
 
   // VSTUPENKY STAVY
@@ -353,7 +353,6 @@ export default function EventsPortal() {
     setAdminEventForm(prev => ({ ...prev, custom_questions: updatedQuestions }));
   };
 
-  // Funkce pro posouvání pořadí otázek (nahoru / dolů)
   const handleMoveQuestion = (index, direction) => {
     const questions = [...adminEventForm.custom_questions];
     const targetIndex = direction === 'up' ? index - 1 : index + 1;
@@ -556,7 +555,6 @@ export default function EventsPortal() {
     const vs = Math.floor(100000 + Math.random() * 900000).toString();
     const finalPrice = selectedVariant.price;
     
-    // Připravíme pole odpovědí na dotazník
     const formattedAnswers = selectedEvent.custom_questions?.map(q => ({
       questionId: q.id,
       question: q.question,
@@ -625,8 +623,8 @@ export default function EventsPortal() {
   };
 
   if (loading || actionLoading) return (
-    <div className="min-h-screen bg-[#f4f4f4] flex flex-col items-center justify-center">
-      <div className="text-xs font-mono font-bold uppercase tracking-wider text-black animate-pulse">Načítám Point Events...</div>
+    <div className="min-h-screen bg-[#f4f4f4] flex flex-col items-center justify-center p-4">
+      <div className="text-xs font-mono font-bold uppercase tracking-wider text-black animate-pulse text-center">Načítám Point Events...</div>
     </div>
   );
 
@@ -663,15 +661,15 @@ export default function EventsPortal() {
         setBookingStep={setBookingStep} setSelectedEvent={setSelectedEvent}
       />
 
-      {/* ADMIN: TVORBA A EDITACE EVENTŮ MODAL (VČETNĚ ŠIPEK PRO ŘAZENÍ OTÁZEK) */}
+      {/* ADMIN: TVORBA A EDITACE EVENTŮ MODAL - RESPONZIVNÍ */}
       {showAdminEventModal && (
-        <div className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 pointer-events-auto">
-          <div className="bg-white border border-neutral-300 p-6 w-full max-w-xl max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 pointer-events-auto overflow-y-auto">
+          <div className="bg-white border border-neutral-300 p-4 sm:p-6 w-full max-w-xl max-h-[90vh] overflow-y-auto my-auto">
             <h3 className="font-mono font-bold text-sm uppercase tracking-wider mb-4">{adminEventForm.id ? 'Upravit událost' : 'Nová událost'}</h3>
             <form onSubmit={handleAdminEventSubmit} className="space-y-4">
               <div><label className="block text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-500 mb-1">Název akce</label><input type="text" required value={adminEventForm.title} onChange={e => setAdminEventForm({...adminEventForm, title: e.target.value})} className="w-full bg-[#f4f4f4] border border-neutral-300 p-3 text-sm font-bold uppercase outline-none focus:border-black" /></div>
               
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="col-span-1"><label className="block text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-500 mb-1">Kategorie</label>
                   <select value={adminEventForm.category} onChange={e => setAdminEventForm({...adminEventForm, category: e.target.value})} className="w-full bg-[#f4f4f4] border border-neutral-300 p-3 text-xs font-mono font-bold uppercase outline-none cursor-pointer focus:border-black">
                     <option value="Event">Event</option>
@@ -684,13 +682,13 @@ export default function EventsPortal() {
               </div>
               
               <div><label className="block text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-500 mb-1">URL obrázku</label><input type="url" value={adminEventForm.image_url} onChange={e => setAdminEventForm({...adminEventForm, image_url: e.target.value})} className="w-full bg-[#f4f4f4] border border-neutral-300 p-3 text-xs font-mono font-bold outline-none focus:border-black" /></div>
-              <div><label className="block text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-500 mb-1">Popis</label><textarea required value={adminEventForm.description} onChange={e => setAdminEventForm({...adminEventForm, description: e.target.value})} className="w-full bg-[#f4f4f4] border border-neutral-300 p-3 text-xs font-mono font-bold outline-none min-h-[100px] focus:border-black" /></div>
+              <div><label className="block text-[10px] font-mono font-bold uppercase tracking-wider text-neutral-500 mb-1">Popis</label><textarea required value={adminEventForm.description} onChange={e => setAdminEventForm({...adminEventForm, description: e.target.value})} className="w-full bg-[#f4f4f4] border border-neutral-300 p-3 text-xs font-mono font-bold outline-none min-h-[100px] focus:border-black resize-y" /></div>
               
               {/* DYNAMICKÉ BALÍČKY / VARIANTY */}
               <div className="border-t border-neutral-300 pt-4 mt-4">
-                <div className="flex justify-between items-center mb-3">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3">
                   <label className="text-xs font-mono font-bold uppercase tracking-wider">Cenové balíčky / Vstupenky</label>
-                  <button type="button" onClick={handleAddVariant} className="text-xs font-mono font-bold uppercase tracking-wider bg-black text-white px-3 py-2 hover:bg-neutral-800 cursor-pointer">+ Přidat balíček</button>
+                  <button type="button" onClick={handleAddVariant} className="text-xs font-mono font-bold uppercase tracking-wider bg-black text-white px-3 py-2 hover:bg-neutral-800 cursor-pointer w-full sm:w-auto text-center">+ Přidat balíček</button>
                 </div>
                 
                 <div className="space-y-3">
@@ -698,7 +696,7 @@ export default function EventsPortal() {
                     <div key={variant.id || index} className="p-3 bg-[#f4f4f4] border border-neutral-300 space-y-2 relative">
                       <button type="button" onClick={() => handleRemoveVariant(index)} className="absolute top-2 right-2 text-red-600 hover:text-red-800 text-xs font-mono font-bold uppercase cursor-pointer">✕ Smazat</button>
                       
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-4 sm:pt-0">
                         <input type="text" placeholder="Název balíčku (např. VIP)" value={variant.title} onChange={e => handleVariantChange(index, 'title', e.target.value)} className="bg-white border border-neutral-300 p-2 text-xs font-mono font-bold uppercase outline-none focus:border-black" required />
                         <input type="number" placeholder="Cena (Kč)" value={variant.price} onChange={e => handleVariantChange(index, 'price', e.target.value)} className="bg-white border border-neutral-300 p-2 text-xs font-mono font-bold outline-none focus:border-black" required />
                       </div>
@@ -711,26 +709,26 @@ export default function EventsPortal() {
                 </div>
               </div>
 
-              {/* VLASTNÍ OTÁZKY / DOTAZNÍK PRO REGISTRACI S MOŽNOSTÍ ŘAZENÍ ŠIPKAMI */}
+              {/* VLASTNÍ OTÁZKY / DOTAZNÍK PRO REGISTRACI */}
               <div className="border-t border-neutral-300 pt-4 mt-4">
-                <div className="flex justify-between items-center mb-3">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3">
                   <div>
                     <label className="text-xs font-mono font-bold uppercase tracking-wider block">Vlastní otázky pro účastníky</label>
-                    <span className="text-[10px] text-neutral-500 uppercase">Přidej políčka, která musí účastník vyplnit při registraci</span>
+                    <span className="text-[10px] text-neutral-500 uppercase">Přidej políčka pro dotazník</span>
                   </div>
-                  <button type="button" onClick={handleAddQuestion} className="text-xs font-mono font-bold uppercase tracking-wider bg-black text-white px-3 py-2 hover:bg-neutral-800 cursor-pointer">+ Přidat otázku</button>
+                  <button type="button" onClick={handleAddQuestion} className="text-xs font-mono font-bold uppercase tracking-wider bg-black text-white px-3 py-2 hover:bg-neutral-800 cursor-pointer w-full sm:w-auto text-center">+ Přidat otázku</button>
                 </div>
 
                 <div className="space-y-3">
                   {adminEventForm.custom_questions?.map((q, index) => (
                     <div key={q.id || index} className="p-3 bg-[#f4f4f4] border border-neutral-300 space-y-2 relative font-mono">
-                      <div className="absolute top-2 right-2 flex items-center gap-1">
-                        <button type="button" onClick={() => handleMoveQuestion(index, 'up')} disabled={index === 0} className="px-1.5 py-0.5 bg-white border border-neutral-300 text-xs font-bold hover:bg-neutral-100 disabled:opacity-30 cursor-pointer" title="Posunout nahoru">▲</button>
-                        <button type="button" onClick={() => handleMoveQuestion(index, 'down')} disabled={index === adminEventForm.custom_questions.length - 1} className="px-1.5 py-0.5 bg-white border border-neutral-300 text-xs font-bold hover:bg-neutral-100 disabled:opacity-30 cursor-pointer" title="Posunout dolů">▼</button>
-                        <button type="button" onClick={() => handleRemoveQuestion(index)} className="ml-2 text-red-600 hover:text-red-800 text-xs font-bold uppercase cursor-pointer" title="Smazat">✕</button>
+                      <div className="flex items-center justify-end gap-1 mb-1">
+                        <button type="button" onClick={() => handleMoveQuestion(index, 'up')} disabled={index === 0} className="px-2 py-1 bg-white border border-neutral-300 text-xs font-bold hover:bg-neutral-100 disabled:opacity-30 cursor-pointer" title="Posunout nahoru">▲</button>
+                        <button type="button" onClick={() => handleMoveQuestion(index, 'down')} disabled={index === adminEventForm.custom_questions.length - 1} className="px-2 py-1 bg-white border border-neutral-300 text-xs font-bold hover:bg-neutral-100 disabled:opacity-30 cursor-pointer" title="Posunout dolů">▼</button>
+                        <button type="button" onClick={() => handleRemoveQuestion(index)} className="ml-2 px-2 py-1 bg-red-50 text-red-600 border border-red-200 text-xs font-bold uppercase cursor-pointer" title="Smazat">✕</button>
                       </div>
 
-                      <input type="text" placeholder="Zadej otázku..." value={q.question} onChange={e => handleQuestionChange(index, 'question', e.target.value)} className="w-full bg-white border border-neutral-300 p-2 text-xs font-bold outline-none focus:border-black pr-24" required />
+                      <input type="text" placeholder="Zadej otázku..." value={q.question} onChange={e => handleQuestionChange(index, 'question', e.target.value)} className="w-full bg-white border border-neutral-300 p-2 text-xs font-bold outline-none focus:border-black" required />
                       <div className="flex items-center gap-2 pt-1">
                         <input type="checkbox" id={`req_${index}`} checked={q.required} onChange={e => handleQuestionChange(index, 'required', e.target.checked)} className="w-4 h-4 accent-black cursor-pointer" />
                         <label htmlFor={`req_${index}`} className="text-[10px] font-bold uppercase text-neutral-600 cursor-pointer">Povinné pole</label>
@@ -751,18 +749,17 @@ export default function EventsPortal() {
                 </div>
               </div>
 
-              <div className="flex justify-end gap-3 pt-4 border-t border-neutral-300">
-                <button type="button" onClick={() => setShowAdminEventModal(false)} className="px-4 py-3 bg-[#f4f4f4] border border-neutral-300 text-black text-xs font-mono font-bold uppercase tracking-wider hover:bg-black hover:text-white cursor-pointer">Zrušit</button>
-                <button type="submit" className="px-4 py-3 bg-black text-white text-xs font-mono font-bold uppercase tracking-wider hover:bg-neutral-800 cursor-pointer">Uložit event</button>
+              <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-neutral-300">
+                <button type="button" onClick={() => setShowAdminEventModal(false)} className="w-full sm:w-auto px-4 py-3 bg-[#f4f4f4] border border-neutral-300 text-black text-xs font-mono font-bold uppercase tracking-wider hover:bg-black hover:text-white cursor-pointer">Zrušit</button>
+                <button type="submit" className="w-full sm:w-auto px-4 py-3 bg-black text-white text-xs font-mono font-bold uppercase tracking-wider hover:bg-neutral-800 cursor-pointer">Uložit event</button>
               </div>
             </form>
           </div>
         </div>
       )}
 
-      <main className={`flex-1 ${view === 'events_portal' && selectedEvent ? 'p-0 w-full' : 'p-4 sm:p-8 max-w-6xl w-full mx-auto relative z-10'} flex flex-col mb-12`}>
+      <main className={`flex-1 ${view === 'events_portal' && selectedEvent ? 'p-0 w-full' : 'p-3 sm:p-8 max-w-6xl w-full mx-auto relative z-10'} flex flex-col mb-12`}>
         
-        {/* ===================== ADMINISTRACE EVENTŮ ===================== */}
         {view === 'admin' && isAdmin && (
           <AdminEventsTable 
             dbEvents={dbEvents}
@@ -778,7 +775,7 @@ export default function EventsPortal() {
         )}
 
         {view === 'client_dashboard' && (
-          <div className="max-w-4xl mx-auto w-full animate-in fade-in space-y-6 sm:space-y-8 pt-4 pb-12">
+          <div className="max-w-4xl mx-auto w-full animate-in fade-in space-y-6 sm:space-y-8 pt-4 pb-12 px-3 sm:px-0">
             <h2 className="text-2xl sm:text-3xl font-mono font-bold uppercase tracking-tighter text-black">Moje vstupenky</h2>
             <div className="bg-white border border-neutral-300 overflow-hidden pointer-events-auto">
                {myReservations.length === 0 ? (
@@ -812,9 +809,9 @@ export default function EventsPortal() {
         )}
 
         {view === 'client_profile' && (
-          <div className="max-w-4xl mx-auto w-full animate-in fade-in space-y-6 sm:space-y-8 pt-4 pb-12 pointer-events-auto">
+          <div className="max-w-4xl mx-auto w-full animate-in fade-in space-y-6 sm:space-y-8 pt-4 pb-12 pointer-events-auto px-3 sm:px-0">
             <h2 className="text-2xl sm:text-3xl font-mono font-bold uppercase tracking-tighter text-black">Můj Profil</h2>
-            <div className="bg-white p-6 sm:p-8 border border-neutral-300">
+            <div className="bg-white p-4 sm:p-8 border border-neutral-300">
                
                <h3 className="text-base sm:text-xl font-mono font-bold uppercase tracking-wider mb-6 text-black border-b border-neutral-300 pb-2">Osobní a fakturační údaje</h3>
                <form onSubmit={handleProfileSave} className="space-y-6">
@@ -840,12 +837,12 @@ export default function EventsPortal() {
                <div className="mt-8 pt-8 border-t border-neutral-300 font-mono">
                  <h3 className="text-base sm:text-xl font-bold uppercase tracking-wider mb-6 text-black border-b border-neutral-300 pb-2">Změna hesla</h3>
                  <form onSubmit={handleProfilePasswordChange} className="space-y-4">
-                   <div className="max-w-sm">
+                   <div className="max-w-sm w-full">
                      <label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Původní heslo</label>
                      <input type="password" required value={oldPassword} onChange={(e) => setOldPassword(e.target.value)} className="w-full bg-[#f4f4f4] border border-neutral-300 p-3 text-sm font-bold outline-none mb-4 focus:border-black" placeholder="Aktuální heslo" />
                      <label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">Nové heslo</label>
                      <input type="password" required value={newProfilePassword} onChange={(e) => setNewProfilePassword(e.target.value)} className="w-full bg-[#f4f4f4] border border-neutral-300 p-3 text-sm font-bold outline-none mb-4 focus:border-black" placeholder="Min. 6 znaků" minLength={6} />
-                     <button type="submit" disabled={savingProfile} className="bg-black text-white text-xs font-bold uppercase tracking-wider h-12 px-8 w-full sm:w-auto hover:bg-neutral-800 disabled:opacity-40 cursor-pointer">
+                     <button type="submit" disabled={savingProfile} className="bg-black text-white text-xs font-bold uppercase tracking-wider h-12 px-8 w-full hover:bg-neutral-800 disabled:opacity-40 cursor-pointer">
                        {savingProfile ? 'Ukládám...' : 'Změnit heslo'}
                      </button>
                    </div>
@@ -861,13 +858,13 @@ export default function EventsPortal() {
              
              {/* 1. SEKCE: OBLÍBENÉ */}
              {section === 'favorites' && bookingStep === 1 && !selectedEvent && (
-               <div className="max-w-6xl mx-auto w-full animate-in fade-in space-y-8 pt-4 pb-12">
-                 <h2 className="text-3xl sm:text-4xl font-mono font-bold uppercase tracking-tighter text-black text-center mb-8">Moje oblíbené akce</h2>
+               <div className="max-w-6xl mx-auto w-full animate-in fade-in space-y-8 pt-4 pb-12 px-3 sm:px-0">
+                 <h2 className="text-2xl sm:text-4xl font-mono font-bold uppercase tracking-tighter text-black text-center mb-8">Moje oblíbené akce</h2>
                  <div className="w-full">
                    {dbEvents.filter(e => favoriteEvents.includes(e.id) && !e.is_hidden).length === 0 ? (
-                       <div className="text-center p-8 sm:p-12 bg-white border border-neutral-300 font-mono uppercase text-neutral-500">Zatím nemáte žádné oblíbené akce. Přidejte si je kliknutím na srdíčko v katalogu.</div>
+                       <div className="text-center p-6 sm:p-12 bg-white border border-neutral-300 font-mono uppercase text-neutral-500">Zatím nemáte žádné oblíbené akce. Přidejte si je kliknutím na srdíčko v katalogu.</div>
                    ) : (
-                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
                        {dbEvents.filter(e => favoriteEvents.includes(e.id) && !e.is_hidden).map((event) => {
                          const lowestPrice = event.variants?.length > 0 ? Math.min(...event.variants.map(v => v.price)) : 0;
                          return (
@@ -890,28 +887,28 @@ export default function EventsPortal() {
 
              {/* 2. SEKCE: KATALOG AKCÍ */}
              {section === 'catalog' && bookingStep === 1 && !selectedEvent && (
-               <div className="w-full px-4 sm:px-0">
-                 <div className="flex flex-col items-center justify-center pt-4 pb-8 space-y-4 text-center">
+               <div className="w-full px-3 sm:px-0">
+                 <div className="flex flex-col items-center justify-center pt-4 pb-6 sm:pb-8 space-y-3 text-center">
                     <h2 className="text-3xl sm:text-5xl font-mono font-extrabold uppercase tracking-tighter text-black">Naše Akce</h2>
-                    <p className="text-neutral-600 font-mono text-xs sm:text-sm uppercase tracking-wider max-w-lg px-4">Workshopy, přednášky a komunitní setkání přímo u nás v Pointu.</p>
+                    <p className="text-neutral-600 font-mono text-xs sm:text-sm uppercase tracking-wider max-w-lg px-2">Workshopy, přednášky a komunitní setkání přímo u nás v Pointu.</p>
                  </div>
 
                  {/* FILTRY KATEGORIÍ */}
-                 <div className="flex justify-center items-center gap-2 pb-8 flex-wrap font-mono">
+                 <div className="flex justify-center items-center gap-2 pb-6 sm:pb-8 flex-wrap font-mono">
                    {[
                      { id: 'all', label: 'Všechny akce' },
                      { id: 'Event', label: 'Eventy' },
                      { id: 'Workshop', label: 'Workshopy' },
                      { id: 'Přednáška', label: 'Přednášky' }
                    ].map(cat => (
-                     <button key={cat.id} onClick={() => setSelectedCategory(cat.id)} className={`px-4 py-3 border text-xs font-bold uppercase tracking-wider cursor-pointer transition-colors ${selectedCategory === cat.id ? 'bg-black text-white border-black' : 'bg-white text-black border-neutral-300 hover:border-black'}`}>{cat.label}</button>
+                     <button key={cat.id} onClick={() => setSelectedCategory(cat.id)} className={`px-3 sm:px-4 py-2 sm:py-3 border text-[11px] sm:text-xs font-bold uppercase tracking-wider cursor-pointer transition-colors ${selectedCategory === cat.id ? 'bg-black text-white border-black' : 'bg-white text-black border-neutral-300 hover:border-black'}`}>{cat.label}</button>
                    ))}
                  </div>
 
                  {dbEvents.filter(e => !e.is_hidden && (selectedCategory === 'all' || e.category === selectedCategory)).length === 0 ? (
-                    <div className="text-center p-8 sm:p-12 bg-white border border-neutral-300 font-mono uppercase text-neutral-500">V této kategorii aktuálně nejsou vypsány žádné akce.</div>
+                    <div className="text-center p-6 sm:p-12 bg-white border border-neutral-300 font-mono uppercase text-neutral-500">V této kategorii aktuálně nejsou vypsány žádné akce.</div>
                  ) : (
-                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
                      {dbEvents.filter(e => !e.is_hidden && (selectedCategory === 'all' || e.category === selectedCategory)).map((event) => {
                        const isPast = new Date(event.date) < new Date(new Date().setHours(0,0,0,0));
                        const isFav = favoriteEvents.includes(event.id);
