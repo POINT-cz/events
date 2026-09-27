@@ -191,18 +191,19 @@ export default function AdminEventsTable({
                     const customer = res.customers || {};
                     return (
                       <tr key={res.id} className="hover:bg-[#f4f4f4] align-top">
-                        <td className="py-3 px-3">
+                        <td className="py-3 px-3 max-w-xs">
                           <div className="font-bold uppercase">{customer.first_name || ''} {customer.last_name || ''}</div>
                           <div className="text-[10px] text-neutral-500 lowercase">{customer.email} {customer.phone ? `• ${customer.phone}` : ''}</div>
                           {customer.company_name && <div className="text-[10px] text-neutral-600 uppercase">Firma: {customer.company_name} (IČO: {customer.ico})</div>}
                           
-                          {/* Zobrazení odpovědí z dotazníku */}
+                          {/* Zobrazení odpovědí z dotazníku v přehledném boxu */}
                           {res.custom_answers && res.custom_answers.length > 0 && (
-                            <div className="mt-2 p-2 bg-[#f4f4f4] border border-neutral-300 text-[10px] space-y-1">
-                              <div className="font-bold text-neutral-500 uppercase tracking-wider">Odpovědi na otázky:</div>
+                            <div className="mt-3 p-3 bg-[#f4f4f4] border border-neutral-300 text-[10px] space-y-2">
+                              <div className="font-bold text-black uppercase tracking-wider border-b border-neutral-300 pb-1">Odpovědi z dotazníku:</div>
                               {res.custom_answers.map((ans, idx) => (
-                                <div key={idx}>
-                                  <span className="text-neutral-600">{ans.question}:</span> <span className="text-black font-bold">{ans.answer || 'Bez odpovědi'}</span>
+                                <div key={idx} className="space-y-0.5">
+                                  <div className="text-neutral-500 font-bold">• {ans.question}</div>
+                                  <div className="text-black bg-white p-2 border border-neutral-200 whitespace-pre-wrap leading-relaxed">{ans.answer || 'Bez odpovědi'}</div>
                                 </div>
                               ))}
                             </div>

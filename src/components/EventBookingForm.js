@@ -108,7 +108,7 @@ export default function EventBookingForm({
           </div>
         </div>
 
-        {/* DYNAMICKÝ DOTAZNÍK (POKUD MÁ EVENT OTÁZKY) */}
+        {/* DYNAMICKÝ DOTAZNÍK S TEXTAREAMI PRO POHODLNÉ PSANÍ */}
         {selectedEvent.custom_questions && selectedEvent.custom_questions.length > 0 && (
           <div className="bg-white border border-neutral-300 p-6 space-y-4">
             <h3 className="text-xs font-bold uppercase tracking-widest text-neutral-500 border-b border-neutral-200 pb-2">2. Doplňující otázky k akci</h3>
@@ -118,13 +118,13 @@ export default function EventBookingForm({
                   <label className="block text-xs font-bold uppercase tracking-wider text-black mb-1">
                     {q.question} {q.required && <span className="text-red-600">*</span>}
                   </label>
-                  <input 
-                    type="text"
+                  <textarea 
+                    rows={3}
                     required={q.required}
                     value={customAnswers[q.id] || ''}
                     onChange={e => setCustomAnswers({...customAnswers, [q.id]: e.target.value})}
-                    placeholder="Vaše odpověď..."
-                    className="w-full bg-[#f4f4f4] border border-neutral-300 p-3 text-xs font-bold outline-none focus:border-black"
+                    placeholder="Vaše odpověď (text se automaticky zalamuje dolů)..."
+                    className="w-full bg-[#f4f4f4] border border-neutral-300 p-3 text-xs font-medium outline-none focus:border-black resize-y"
                   />
                 </div>
               ))}

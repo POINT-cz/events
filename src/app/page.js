@@ -353,6 +353,20 @@ export default function EventsPortal() {
     setAdminEventForm(prev => ({ ...prev, custom_questions: updatedQuestions }));
   };
 
+  // Funkce pro posouvání pořadí otázek (nahoru / dolů)
+  const handleMoveQuestion = (index, direction) => {
+    const questions = [...adminEventForm.custom_questions];
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    
+    if (targetIndex < 0 || targetIndex >= questions.length) return;
+    
+    const temp = questions[index];
+    questions[index] = questions[targetIndex];
+    questions[targetIndex] = temp;
+    
+    setAdminEventForm(prev => ({ ...prev, custom_questions: questions }));
+  };
+
   const handleAdminEventSubmit = async (e) => {
     e.preventDefault();
     setActionLoading(true);
@@ -649,7 +663,7 @@ export default function EventsPortal() {
         setBookingStep={setBookingStep} setSelectedEvent={setSelectedEvent}
       />
 
-      {/* ADMIN: TVORBA A EDITACE EVENTŮ MODAL (VČETNĚ SEKCE PRO OTÁZKY) */}
+      {/* ADMIN: TVORBA A EDITACE EVENTŮ MODAL (VČETNĚ ŠIPEK PRO ŘAZENÍ OTÁZEK) */}
       {showAdminEventModal && (
         <div className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 pointer-events-auto">
           <div className="bg-white border border-neutral-300 p-6 w-full max-w-xl max-h-[90vh] overflow-y-auto">
@@ -697,7 +711,7 @@ export default function EventsPortal() {
                 </div>
               </div>
 
-              {/* VLASTNÍ OTÁZKY / DOTAZNÍK PRO REGISTRACI */}
+              {/* VLASTNÍ OTÁZKY / DOTAZNÍK PRO REGISTRACI S MOŽNOSTÍ ŘAZENÍ ŠIPKAMI */}
               <div className="border-t border-neutral-300 pt-4 mt-4">
                 <div className="flex justify-between items-center mb-3">
                   <div>
@@ -710,8 +724,13 @@ export default function EventsPortal() {
                 <div className="space-y-3">
                   {adminEventForm.custom_questions?.map((q, index) => (
                     <div key={q.id || index} className="p-3 bg-[#f4f4f4] border border-neutral-300 space-y-2 relative font-mono">
-                      <button type="button" onClick={() => handleRemoveQuestion(index)} className="absolute top-2 right-2 text-red-600 hover:text-red-800 text-xs font-bold uppercase cursor-pointer">✕ Smazat</button>
-                      <input type="text" placeholder="Zadej otázku (např. Jaké máš zkušenosti?)" value={q.question} onChange={e => handleQuestionChange(index, 'question', e.target.value)} className="w-full bg-white border border-neutral-300 p-2 text-xs font-bold outline-none focus:border-black" required />
+                      <div className="absolute top-2 right-2 flex items-center gap-1">
+                        <button type="button" onClick={() => handleMoveQuestion(index, 'up')} disabled={index === 0} className="px-1.5 py-0.5 bg-white border border-neutral-300 text-xs font-bold hover:bg-neutral-100 disabled:opacity-30 cursor-pointer" title="Posunout nahoru">▲</button>
+                        <button type="button" onClick={() => handleMoveQuestion(index, 'down')} disabled={index === adminEventForm.custom_questions.length - 1} className="px-1.5 py-0.5 bg-white border border-neutral-300 text-xs font-bold hover:bg-neutral-100 disabled:opacity-30 cursor-pointer" title="Posunout dolů">▼</button>
+                        <button type="button" onClick={() => handleRemoveQuestion(index)} className="ml-2 text-red-600 hover:text-red-800 text-xs font-bold uppercase cursor-pointer" title="Smazat">✕</button>
+                      </div>
+
+                      <input type="text" placeholder="Zadej otázku..." value={q.question} onChange={e => handleQuestionChange(index, 'question', e.target.value)} className="w-full bg-white border border-neutral-300 p-2 text-xs font-bold outline-none focus:border-black pr-24" required />
                       <div className="flex items-center gap-2 pt-1">
                         <input type="checkbox" id={`req_${index}`} checked={q.required} onChange={e => handleQuestionChange(index, 'required', e.target.checked)} className="w-4 h-4 accent-black cursor-pointer" />
                         <label htmlFor={`req_${index}`} className="text-[10px] font-bold uppercase text-neutral-600 cursor-pointer">Povinné pole</label>
