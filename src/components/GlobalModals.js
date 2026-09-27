@@ -39,15 +39,24 @@ export default function GlobalModals({
       {/* VOP A STORNO MODAL */}
       {showVopModal && (
         <div className="fixed inset-0 z-[250] bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 pointer-events-auto font-mono overflow-y-auto" onClick={() => setShowVopModal(false)}>
-          <div className="bg-[#f4f4f4] border border-neutral-300 p-5 sm:p-8 rounded-none w-full max-w-2xl overflow-y-auto max-h-[85vh] animate-in zoom-in-95 my-auto" onClick={e => e.stopPropagation()}>
-            <h3 className="font-bold text-lg sm:text-2xl mb-4 text-black uppercase tracking-tight">Všeobecné obchodní a Storno podmínky</h3>
+          <div className="bg-[#f4f4f4] border border-neutral-300 p-5 sm:p-8 rounded-none w-full max-w-2xl overflow-y-auto max-h-[85vh] animate-in zoom-in-95 my-auto text-left" onClick={e => e.stopPropagation()}>
+            <h3 className="font-bold text-lg sm:text-2xl mb-4 text-black uppercase tracking-tight">Všeobecné obchodní a storno podmínky pro akce</h3>
             <div className="text-xs sm:text-sm text-black/80 space-y-4 leading-relaxed">
-              <p><strong>1. Úvodní ustanovení</strong><br/>Tyto Všeobecné obchodní podmínky (dále jen "VOP") upravují práva a povinnosti mezi společností BREAKING POINT s.r.o., IČ: 14290553 (dále jen "Provozovatel") a zákazníkem při využívání systému a nákupu vstupenek.</p>
-              <p><strong>2. Rezervace a Platební podmínky</strong><br/>Rezervace/nákup vstupenky na akci se stává závaznou až po úplném uhrazení sjednané částky. Platba probíhá bankovním převodem (pomocí zaslaného QR kódu). Dokud není platba připsána na účet provozovatele, místo není garantováno.</p>
-              <p><strong>3. Storno podmínky a vracení peněz</strong><br/>Klient má právo zrušit svou účast podle následujících pravidel:<br/>
-              • Při zrušení <strong>více než 48 hodin před</strong> začátkem akce vracíme <strong>100 % částky</strong> zpět na účet.<br/>
-              • Při zrušení <strong>méně než 48 hodin před</strong> začátkem akce zaplacená <strong>částka propadá v plné výši</strong> bez nároku na náhradu či vrácení.</p>
-              <p><strong>4. Užívání prostor a odpovědnost</strong><br/>Zákazník se zavazuje užívat prostory ohleduplně a k účelům, ke kterým jsou určeny. Za případné škody na vybavení či majetku způsobené zákazníkem nese plnou odpovědnost zákazník a zavazuje se je v plné výši uhradit.</p>
+              <p><strong>1. Úvodní ustanovení</strong><br/>Tyto Všeobecné obchodní podmínky (dále jen "VOP") upravují smluvní vztahy při nákupu vstupenek na workshopy, přednášky a eventy pořádané společností BREAKING POINT s.r.o., IČ: 14290553, se sídlem Mrštíkovo nám. 6/14, 779 00 Olomouc (dále jen "Provozovatel").</p>
+              
+              <p><strong>2. Uzavření smlouvy a platba vstupenek</strong><br/>
+              • Odesláním závazné rezervace přes portál uzavírá zákazník s Provozovatelem smlouvu o účasti na vybrané akce.<br/>
+              • Platba probíhá bezhotovostně na základě údajů (variabilní symbol a QR platba) doručených e-mailem. Místo na akce je definitivně garantováno až po připsání platby na účet Provozovatele.</p>
+              
+              <p><strong>3. Storno podmínky a vracení vstupného</strong><br/>
+              Vzhledem k omezené kapacitě míst platí pro zrušení účasti ze strany účastníka tato pravidla:<br/>
+              • Při zrušení účasti <strong>více než 48 hodin před</strong> začátkem akce vracíme <strong>100 % zaplacené částky</strong> zpět na účet.<br/>
+              • Při zrušení účasti <strong>méně než 48 hodin před</strong> začátkem akce nebo v případě neúčasti (tzv. "no-show") zaplacená částka <strong>propadá v plné výši</strong> bez nároku na vrácení.<br/>
+              • Účast na akce je možné bez poplatku převést na jinou osobu – stačí nás informovat předem e-mailem na hello@pointspace.cz.</p>
+              
+              <p><strong>4. Změna programu a zrušení akce ze strany provozovatele</strong><br/>Provozovatel si vyhrazuje právo na změnu lektora, programu nebo termínu konání akce. V případě úplného zrušení akce ze strany Provozovatele budou účastníkům vráceny peníze v plné výši do 7 pracovních dnů.</p>
+              
+              <p><strong>5. Chování v prostorách POINT</strong><br/>Účastník se zavazuje dodržovat pokyny organizátorů a chovat se ohleduplně k majetku v prostorách POINT. V případě úmyslného poškození majetku nese účastník plnou hmotnou odpovědnost.</p>
             </div>
             <div className="mt-6 sm:mt-8 pt-4 border-t border-neutral-300 flex justify-end">
               <button type="button" onClick={() => setShowVopModal(false)} className="w-full sm:w-auto px-6 py-3 bg-black text-white rounded-none text-xs font-bold uppercase tracking-wider hover:bg-[#E4664F] transition-colors cursor-pointer border border-neutral-300 active:scale-[0.99] touch-manipulation">Rozumím a zavřít</button>
